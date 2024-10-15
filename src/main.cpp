@@ -1,5 +1,18 @@
 #include <iostream>
+using namespace std;
+
 
 int main() {
-    std::cout << "Hello DIT Project!\n";
+    // Input data from user's file
+    
+
+
+    // Create the Vamana Index
+
+    // Ready for queries
+
+    //
+
+
+    cout << "Hello DIT Project!\n";
 }
