@@ -1,3 +1,8 @@
+#include "header.h"
+#pragma once
+
+// Graph Initialization
+int init_dummy_graph(void);
 
 // Alg 1
 int gready_search(void);
@@ -10,3 +15,6 @@ int create_vamana_index(void);
 
 // Benchmarking
 int evaluate_index(void);
+
+// Calculate distance between two instances
+float calculate_distance(Node a, Node b);
