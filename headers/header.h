@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <set>
 
 using namespace std;
 
@@ -30,3 +31,10 @@ struct graph
     vector<Node> nodes;
 };
 typedef struct graph* Graph;
+
+struct candidate
+{
+    float distance;
+    Node to;
+};
+typedef struct candidate* Candidate;
