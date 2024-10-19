@@ -7,22 +7,7 @@ using namespace std;
 
 //===== Structures of Graph Representation =====//
 
-struct link;
-typedef struct link* Link;
-
-
-// Represents a node in the Graph //
-struct node
-{
-    int d_count; // object dimension
-    void* components;
-    int n_count;
-    set<Link> neighbours;
-
-    // Basic Constractor
-    node(void* comp, int dim)
-        : components(comp), d_count(dim), n_count(0) {}
-};
+struct node;
 typedef struct node* Node;
 
 // Represents a neighbour relationship //
@@ -43,6 +28,30 @@ struct link
         return to > other.to;
     }
 };
+typedef struct link* Link;
+
+struct LinkComp
+{
+    bool operator()(const Link& a, const Link& b) const {
+        if (*a < *b) return true;
+        if (*b < *a) return false;
+        return false;
+    }
+};
+
+// Represents a node in the Graph //
+struct node
+{
+    int d_count; // object dimension
+    void* components;
+    int n_count;
+    set<Link, LinkComp> neighbours;
+
+    // Basic Constractor
+    node(void* comp, int dim)
+        : components(comp), d_count(dim), n_count(0) {}
+};
+
 
 // Represents the entirity of the graph and its meta data //
 struct graph

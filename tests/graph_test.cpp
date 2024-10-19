@@ -29,7 +29,6 @@ void test_insert(void){
     TEST_ASSERT(item!= NULL);
     TEST_ASSERT(graph->nodes.size() == 1);
     TEST_ASSERT(graph->nodes[0] == item);
-    std::cout << item->neighbours.size();
     TEST_ASSERT(item->neighbours.empty());
     TEST_ASSERT(item->n_count == 0);
     TEST_ASSERT(item->components == point);
@@ -74,7 +73,6 @@ void test_neighbours(void){
     float dist = add_neighbour_node(item0, item1);
     TEST_ASSERT(dist > 0);
     TEST_ASSERT(item0->neighbours.size() == 1);
-    cout << dist;
     TEST_ASSERT(item1->neighbours.empty());
 
     // Doesn't allow self to self
@@ -83,19 +81,7 @@ void test_neighbours(void){
 
     // Doesn't allow double instances of the same neighbour
     dist = add_neighbour_node(item0, item1);
-    TEST_ASSERT(dist > 0);
-
-    Link prev = NULL;
-    for (const auto& link : item0->neighbours) {
-        if(prev != NULL)
-        {
-            bool same = (*prev == *link);
-            std::cout << "Same: " << same << std::endl;
-        }
-        std::cout << "To: " << link->to << std::endl;
-        prev = link;
-    }
-
+    TEST_ASSERT(dist < 0);
     TEST_ASSERT(item0->neighbours.size() == 1);
 
 }
