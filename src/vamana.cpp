@@ -1,4 +1,5 @@
 #include "vamana.h"
+#include "graph.h"
 #include <algorithm>
 #include <cmath>
 #include <set>
@@ -30,44 +31,11 @@ int init_dummy_graph(Graph g)
             if(j!=i)
             {
                 Node to = g->nodes[j];
-                from->neighbours.push_back(create_link(from, to));
+                from->neighbours.insert(create_link(from, to));
             }
         }
     }
     return 0;
-}
-
-// Creates a link from-to
-Link create_link(Node from, Node to)
-{
-    Link link = (Link)malloc(sizeof(*link));
-    link->to = to;
-    link->distance = calculate_distance(from,to);
-    return link;
-}
-
-// Calculates and returns the distance between two instances
-// or -1 if the dimentions do not match
-float calculate_distance(Node a, Node b)
-{
-    int dim = a->d_count;
-    // If the dimentions do not match, skip return error code -1
-    if (dim != b->d_count)
-        return -1;
-
-    // Calculate the Euclidian Distance
-    float sum = 0;
-
-    float* matrix_a = (float*)a->components;
-    float* matrix_b = (float*)b->components;
-    
-    for(int i=0; i < dim; i++)
-    {
-        float fact = pow(matrix_a[i] + matrix_b[i], 2);
-        sum += fact;
-    }
-    return sqrt(sum);
-
 }
 
 set<Candidate>* gready_search(Graph g, Node s, Node query)
@@ -88,10 +56,10 @@ set<Candidate>* gready_search(Graph g, Node s, Node query)
                 selected_cand = elem;
             }
         }
-        for(int i = 0; i < selected_cand->to->n_count; i++)
-        {
-            neighbours->insert(create_candidate(selected_cand->to->neighbours[i]->to, query));
-        }
+        // for(int i = 0; i < selected_cand->to->n_count; i++)
+        // {
+        //     neighbours->insert(create_candidate(selected_cand->to->neighbours[i]->to, query));
+        // }
         visited.insert(selected_cand);
         // Remove items from neighbours until we reach legal size
         while(neighbours->size() > g->k)
@@ -119,11 +87,3 @@ void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, Candidate
     std::inserter(*dif, dif->end()));
 }
 
-// Creates a candidate representation
-Candidate create_candidate(Node to, Node query)
-{
-    Candidate cand = (Candidate)malloc(sizeof(*cand));
-    cand->to = to;
-    cand->distance = calculate_distance(query,to);
-    return cand;
-}

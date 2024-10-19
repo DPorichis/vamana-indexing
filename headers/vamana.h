@@ -1,11 +1,8 @@
-#include "header.h"
+#include "graph.h"
 #pragma once
 
 // Graph Initialization
 int init_dummy_graph(void);
-
-// Creates a link from-to
-Link create_link(Node from, Node to);
 
 // Alg 1
 set<Candidate>* gready_search(Graph g, Node s, Node query);
@@ -18,7 +15,3 @@ int create_vamana_index(void);
 
 // Benchmarking
 int evaluate_index(void);
-
-// Calculate distance between two instances
-float calculate_distance(Node a, Node b);
-
