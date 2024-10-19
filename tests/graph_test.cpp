@@ -51,6 +51,8 @@ void test_insert(void){
     TEST_ASSERT(item->n_count == 0);
     TEST_ASSERT(item->components == point1);
 
+
+    destroy_graph(graph);
 }
 
 void test_neighbours(void){
@@ -83,6 +85,8 @@ void test_neighbours(void){
     dist = add_neighbour_node(item0, item1);
     TEST_ASSERT(dist < 0);
     TEST_ASSERT(item0->neighbours.size() == 1);
+
+    destroy_graph(graph);
 
 }
 

@@ -39,6 +39,10 @@ float add_neighbour_node(Node from, Node to)
 void destroy_node(Node n)
 {
     free(n->components);
+    for (auto it = n->neighbours.begin(); it != n->neighbours.end(); ) {
+        delete *it;
+        it = n->neighbours.erase(it);
+    }
     free(n);
 }
 
