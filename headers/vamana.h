@@ -1,6 +1,11 @@
+#include "graph.h"
+#pragma once
+
+// Graph Initialization
+int init_dummy_graph(void);
 
 // Alg 1
-int gready_search(void);
+set<Candidate>* gready_search(Graph g, Node s, Node query);
 
 // Alg 2
 int robust_prunning(void);
