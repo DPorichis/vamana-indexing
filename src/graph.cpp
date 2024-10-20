@@ -30,6 +30,7 @@ float add_neighbour_node(Node from, Node to)
     auto result = from->neighbours.insert(new_link);
 
     if (!result.second) {
+        free(new_link);
         return -1;
     }
     return new_link->distance;
@@ -39,11 +40,11 @@ float add_neighbour_node(Node from, Node to)
 void destroy_node(Node n)
 {
     free(n->components);
-    for (auto it = n->neighbours.begin(); it != n->neighbours.end(); ) {
-        delete *it;
-        it = n->neighbours.erase(it);
+    for (Link l : n->neighbours) {
+        delete l;
     }
-    free(n);
+    n->neighbours.clear();
+    delete n;
 }
 
 Graph create_graph(char type, int k, int dimensions)
@@ -69,9 +70,10 @@ Node add_node_graph(Graph g, int d_count, void* components)
 
 void destroy_graph(Graph g)
 {
-    for (auto it = g->nodes.begin(); it != g->nodes.end(); ++it) {
-        destroy_node(*it);
+    for (int i = 0; i < g->nodes.size(); ++i) {
+        destroy_node(g->nodes[i]);
     }
+    g->nodes.clear();
     free(g);
 }
 

@@ -2,7 +2,7 @@
 #pragma once
 
 // Graph Initialization
-int init_dummy_graph(void);
+int init_dummy_graph(Graph g);
 
 // Alg 1
 set<Candidate>* gready_search(Graph g, Node s, Node query);
