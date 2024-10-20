@@ -54,16 +54,23 @@ int init_dummy_graph(Graph g)
     return 0;
 }
 
-set<Candidate>* gready_search(Graph g, Node s, Node query)
+set<Candidate>* gready_search(Graph g, Node s, Node query, int L)
 {
-    set<Candidate, CandidateComparator>* neighbours = (set<Candidate, CandidateComparator>*)malloc(sizeof(*neighbours));
+    if(g->k > L)
+        L = g->k;
+    set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator> visited;
     neighbours->insert(create_candidate(s, query));
     Node current = s;
     set<Candidate, CandidateComparator> difference;
     update_dif(neighbours, &visited, &difference);
+	int iter = 0;
     while(!difference.empty())
     {
+        cout << "== Iteration "<< iter << " =="<< endl;
+        cout << "#dif: " << difference.size() << endl;
+        cout << "#vis: " << visited.size() << endl;
+        cout << "#nei: " << neighbours->size() << endl;
         Candidate selected_cand = NULL;
         /// DEN XREIAZETAI KAN EINAI SET ZHTA TO MIN
         for (const auto& elem : difference) {
@@ -76,14 +83,20 @@ set<Candidate>* gready_search(Graph g, Node s, Node query)
             neighbours->insert(create_candidate(neig->to, query));
         }
         visited.insert(selected_cand);
-        // Remove items from neighbours until we reach legal size
-        while(neighbours->size() > g->k)
+        // Remove items from neighbours until we reach legal size L
+        while(neighbours->size() > L)
         {
             auto to_erase = neighbours->end();
             neighbours->erase(--to_erase);
         }
+        update_dif(neighbours, &visited, &difference);
+        iter++;
+        
     }
-    set<Candidate>* results = (set<Candidate>*)malloc(sizeof(*results));
+    cout << "Test 2";
+	fflush(stdout);	
+	
+    set<Candidate>* results = new set<Candidate>();
     auto to_insert = neighbours->begin();
     auto it = neighbours->begin();
     for (int i = 0; i < g->k && it != neighbours->end(); ++i, ++it)
@@ -97,6 +110,7 @@ set<Candidate>* gready_search(Graph g, Node s, Node query)
 // Checks if the difference is the empty set
 void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, CandidateComparator>* B, set<Candidate, CandidateComparator>* dif)
 {
+    dif->clear();
     std::set_difference(A->begin(), A->end(), B->begin(), B->end(),
     std::inserter(*dif, dif->end()));
 }

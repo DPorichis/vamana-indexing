@@ -92,11 +92,10 @@ float calculate_distance(Node a, Node b)
 
     float* matrix_a = (float*)a->components;
     float* matrix_b = (float*)b->components;
-    
     for(int i=0; i < dim; i++)
     {
-        float fact = pow(matrix_a[i] + matrix_b[i], 2);
-        sum += fact;
+        float fact = pow(matrix_a[i] - matrix_b[i], 2);
+        sum += fact;    
     }
     return sqrt(sum);
 

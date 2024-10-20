@@ -29,7 +29,32 @@ void test_dummy(void) {
 	return;
 }
 
+void test_gready_search(void) {
+	Graph graph = create_graph('f', 5, 2);
+	int n = 30;
+	for(int i = 0; i < n; i++)
+	{	
+		float* point = (float*)malloc(sizeof(*point)*2);
+    	point[0] = i;
+    	point[1] = i;
+		Node item = add_node_graph(graph, 2, point);
+	}
+	init_dummy_graph(graph);
+	set<Candidate>* results = gready_search(graph, graph->nodes[3], graph->nodes[6], 10);
+	cout << "Test 2";
+	fflush(stdout);
+
+
+	for (const auto& r : *results) {
+        cout << r->to << " with distance: " << r->distance << endl;
+    }
+
+    destroy_graph(graph);
+	return;
+}
+
 TEST_LIST = {
 	{ "init_dummy_graph", test_dummy},
+	{ "gready_search", test_gready_search},
 	{ NULL, NULL }
 };
