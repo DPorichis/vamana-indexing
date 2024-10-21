@@ -108,5 +108,14 @@ Candidate create_candidate(Node to, Node query)
     return cand;
 }
 
+Candidate create_candidate_copy(Candidate cand)
+{
+    Candidate cand_copy = (Candidate)malloc(sizeof(*cand));
+    cand_copy->to = cand->to;
+    cand_copy->distance = cand->distance;
+    return cand_copy;
+    
+}
+
 //=================== Help Functions ========================//
 // The following functions are not included in the interface //

@@ -12,19 +12,6 @@
 
 using namespace std;
 
-struct CandidateComparator {
-    bool operator()(const Candidate& a, const Candidate& b) const {
-        // For same destination, return false to prevent ordering
-        if (a->to == b->to)
-            return false;
-        // This may cause a bug, float equality not guaranteed
-        if (a->distance == b->distance)
-            return a->to < b->to;
-        
-        return a->distance < b->distance; 
-    };
-};
-
 Candidate create_candidate(Node to, Node query);
 
 void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, CandidateComparator>* B, set<Candidate, CandidateComparator>* dif);
@@ -54,25 +41,25 @@ int init_dummy_graph(Graph g)
     return 0;
 }
 
-set<Candidate>* gready_search(Graph g, Node s, Node query, int L)
+int gready_search(Graph g, Node s, Node query, int L, 
+    set<Candidate, CandidateComparator>* neighbours, 
+    set<Candidate, CandidateComparator>* visited)
 {
     if(g->k > L)
         L = g->k;
-    set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
-    set<Candidate, CandidateComparator> visited;
     neighbours->insert(create_candidate(s, query));
     Node current = s;
     set<Candidate, CandidateComparator> difference;
-    update_dif(neighbours, &visited, &difference);
+    update_dif(neighbours, visited, &difference);
 	int iter = 0;
     while(!difference.empty())
     {
         cout << "== Iteration "<< iter << " =="<< endl;
         cout << "#dif: " << difference.size() << endl;
-        cout << "#vis: " << visited.size() << endl;
+        cout << "#vis: " << visited->size() << endl;
         cout << "#nei: " << neighbours->size() << endl;
         Candidate selected_cand = NULL;
-        /// DEN XREIAZETAI KAN EINAI SET ZHTA TO MIN
+        // DEN XREIAZETAI KAN EINAI SET ZHTA TO MIN 
         for (const auto& elem : difference) {
             if(selected_cand == NULL || selected_cand->distance > elem->distance)
             {
@@ -80,30 +67,24 @@ set<Candidate>* gready_search(Graph g, Node s, Node query, int L)
             }
         }
         for (const auto& neig : selected_cand->to->neighbours) {
-            neighbours->insert(create_candidate(neig->to, query));
+            Candidate for_insert = create_candidate(neig->to, query);
+            auto result = neighbours->insert(for_insert);
+            if(!result.second)
+                free(for_insert);
+
         }
-        visited.insert(selected_cand);
+        visited->insert(create_candidate_copy(selected_cand));
         // Remove items from neighbours until we reach legal size L
         while(neighbours->size() > L)
         {
-            auto to_erase = neighbours->end();
-            neighbours->erase(--to_erase);
+            auto to_erase = std::prev(neighbours->end());
+            free(*to_erase);
+            neighbours->erase(to_erase);
         }
-        update_dif(neighbours, &visited, &difference);
+        update_dif(neighbours, visited, &difference);
         iter++;
-        
     }
-    cout << "Test 2";
-	fflush(stdout);	
-	
-    set<Candidate>* results = new set<Candidate>();
-    auto to_insert = neighbours->begin();
-    auto it = neighbours->begin();
-    for (int i = 0; i < g->k && it != neighbours->end(); ++i, ++it)
-    {
-        results->insert(*it);
-    }
-    return results;
+    return 0;
 }
 
 
@@ -112,6 +93,12 @@ void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, Candidate
 {
     dif->clear();
     std::set_difference(A->begin(), A->end(), B->begin(), B->end(),
-    std::inserter(*dif, dif->end()));
+    std::inserter(*dif, dif->end()),
+    [](const Candidate& a, const Candidate& b) {
+        return a->to < b->to;
+    });
 }
 
+void delete_vis_neigh(set<Candidate, CandidateComparator>* neighbours, set<Candidate, CandidateComparator>* visited)
+{
+}

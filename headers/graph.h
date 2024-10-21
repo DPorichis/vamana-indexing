@@ -70,6 +70,19 @@ typedef struct graph* Graph;
 // Alias for link, used in when searching for the neighbours//
 typedef struct link* Candidate;
 
+struct CandidateComparator {
+    bool operator()(const Candidate& a, const Candidate& b) const {
+        // For same destination, return false to prevent ordering
+        if (a->to == b->to)
+            return false;
+        // This may cause a bug, float equality not guaranteed
+        if (a->distance == b->distance)
+            return a->to < b->to;
+        
+        return a->distance < b->distance; 
+    };
+};
+
 
 
 // ============= Functions ============ //
@@ -99,3 +112,5 @@ Link create_link(Node from, Node to);
 float calculate_distance(Node a, Node b);
 
 Candidate create_candidate(Node to, Node query);
+
+Candidate create_candidate_copy(Candidate can);

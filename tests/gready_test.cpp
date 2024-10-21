@@ -40,21 +40,32 @@ void test_gready_search(void) {
 		Node item = add_node_graph(graph, 2, point);
 	}
 	init_dummy_graph(graph);
-	set<Candidate>* results = gready_search(graph, graph->nodes[3], graph->nodes[6], 10);
-	cout << "Test 2";
-	fflush(stdout);
 
+	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
+    set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
 
-	for (const auto& r : *results) {
+	int results = gready_search(graph, graph->nodes[3], graph->nodes[6], 10, neighbours, visited);
+
+	for (const auto& r : *neighbours) {
         cout << r->to << " with distance: " << r->distance << endl;
     }
 
-    destroy_graph(graph);
+	for (const auto& r : *neighbours)
+        free(r);
+	
+	delete neighbours;
+	
+	for (const auto& r : *visited)
+        free(r);
+	
+	delete visited;
+    
+	destroy_graph(graph);
 	return;
 }
 
 TEST_LIST = {
 	{ "init_dummy_graph", test_dummy},
-	//{ "gready_search", test_gready_search},
+	{ "gready_search", test_gready_search},
 	{ NULL, NULL }
 };
