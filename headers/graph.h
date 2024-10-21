@@ -60,6 +60,10 @@ struct graph
     int k; // Defines the k-neighbours bound
     int dimensions; // Defines the dimensions of each element
     vector<Node> nodes;
+    
+    graph(char t, int kn, int dim)
+        : type(t), k(kn), dimensions(dim) {}
+
 };
 typedef struct graph* Graph;
 

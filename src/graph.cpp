@@ -41,7 +41,7 @@ void destroy_node(Node n)
 {
     free(n->components);
     for (Link l : n->neighbours) {
-        delete l;
+        free(l);
     }
     n->neighbours.clear();
     delete n;
@@ -49,11 +49,7 @@ void destroy_node(Node n)
 
 Graph create_graph(char type, int k, int dimensions)
 {
-    Graph g = (Graph)malloc(sizeof(*g));
-    g->type = type;
-    g->k = k;
-    g->dimensions = dimensions;
-
+    Graph g = new graph(type, k, dimensions);
     return g;
 }
 
@@ -74,7 +70,8 @@ void destroy_graph(Graph g)
         destroy_node(g->nodes[i]);
     }
     g->nodes.clear();
-    free(g);
+
+    delete g;
 }
 
 

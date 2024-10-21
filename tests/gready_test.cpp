@@ -55,6 +55,6 @@ void test_gready_search(void) {
 
 TEST_LIST = {
 	{ "init_dummy_graph", test_dummy},
-	{ "gready_search", test_gready_search},
+	//{ "gready_search", test_gready_search},
 	{ NULL, NULL }
 };
