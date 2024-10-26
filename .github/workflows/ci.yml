@@ -24,7 +24,7 @@ jobs:
     - name: Build project
       run: |
         cd tests
-        make  all_tests
+        make  alltests
     
     - name: Run tests
       run: |
