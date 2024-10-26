@@ -1,5 +1,5 @@
 # all
-all: gready_test graph_test
+alltests: gready_test graph_test
 
 # paths
 SOURCE = ../src
