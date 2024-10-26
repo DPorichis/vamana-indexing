@@ -30,6 +30,7 @@ float add_neighbour_node(Node from, Node to)
     auto result = from->neighbours.insert(new_link);
 
     if (!result.second) {
+        free(new_link);
         return -1;
     }
     return new_link->distance;
@@ -39,20 +40,16 @@ float add_neighbour_node(Node from, Node to)
 void destroy_node(Node n)
 {
     free(n->components);
-    for (auto it = n->neighbours.begin(); it != n->neighbours.end(); ) {
-        delete *it;
-        it = n->neighbours.erase(it);
+    for (Link l : n->neighbours) {
+        free(l);
     }
-    free(n);
+    n->neighbours.clear();
+    delete n;
 }
 
 Graph create_graph(char type, int k, int dimensions)
 {
-    Graph g = (Graph)malloc(sizeof(*g));
-    g->type = type;
-    g->k = k;
-    g->dimensions = dimensions;
-
+    Graph g = new graph(type, k, dimensions);
     return g;
 }
 
@@ -69,10 +66,12 @@ Node add_node_graph(Graph g, int d_count, void* components)
 
 void destroy_graph(Graph g)
 {
-    for (auto it = g->nodes.begin(); it != g->nodes.end(); ++it) {
-        destroy_node(*it);
+    for (int i = 0; i < g->nodes.size(); ++i) {
+        destroy_node(g->nodes[i]);
     }
-    free(g);
+    g->nodes.clear();
+
+    delete g;
 }
 
 
@@ -90,11 +89,10 @@ float calculate_distance(Node a, Node b)
 
     float* matrix_a = (float*)a->components;
     float* matrix_b = (float*)b->components;
-    
     for(int i=0; i < dim; i++)
     {
-        float fact = pow(matrix_a[i] + matrix_b[i], 2);
-        sum += fact;
+        float fact = pow(matrix_a[i] - matrix_b[i], 2);
+        sum += fact;    
     }
     return sqrt(sum);
 
@@ -108,6 +106,15 @@ Candidate create_candidate(Node to, Node query)
     cand->to = to;
     cand->distance = calculate_distance(query,to);
     return cand;
+}
+
+Candidate create_candidate_copy(Candidate cand)
+{
+    Candidate cand_copy = (Candidate)malloc(sizeof(*cand));
+    cand_copy->to = cand->to;
+    cand_copy->distance = cand->distance;
+    return cand_copy;
+    
 }
 
 //=================== Help Functions ========================//
