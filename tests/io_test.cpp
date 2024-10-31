@@ -8,6 +8,8 @@ using namespace std;
 void test_create_from_file(void) {
 	// Test with the file "siftsmall_base.fvecs"
 	string path = "../data/siftsmall/siftsmall_base.fvecs";
+
+	// Create graph
 	Graph graph = create_graph_from_file(path, 'f', 5);
 
 	// The vectors of the dataset
@@ -17,7 +19,7 @@ void test_create_from_file(void) {
 	TEST_ASSERT(graph->type == 'f');
 	TEST_ASSERT(graph->k == 5);
 
-	// Checks that all vectors from the filehave the same dimesnion
+	// Checks that all vectors from the file have the same dimesnion
 	int dimension = vectors[0].d;
 	for (int i = 0; i < vectors.size(); i++) {
 		TEST_ASSERT(dimension == vectors[i].d);
@@ -27,22 +29,21 @@ void test_create_from_file(void) {
 	// Checks that nodes from file have been inserted correctly
 	TEST_ASSERT(graph->nodes.size() == vectors.size());
 
-	// Check if there is a match between the data of the dataset and the graph
-	// Node no.0
-	TEST_ASSERT(graph->nodes[0]->d_count == vectors[0].d);
-	for (int i = 0; i < graph->nodes[0]->d_count; i++) {
-		cout << ((float*)graph->nodes[0]->components)[i] << " " << vectors[0].components[i] << endl;
-
-		// vector<float> float_array = *(float*)&graph->nodes[0]->components;
-		// TEST_ASSERT(((float*)graph->nodes[0]->components)[i] == vectors[0].components[i]);
-		// cout << ((float*)graph->nodes[0]->components)[i] << " " << vectors[0].components[i] << endl;
-		// cout << float_array[i] << " " << vectors[0].components[i] << endl;
-		// cout << graph->nodes[0]->components << " " << (void*)vectors[0].components.data() << endl;		
+	// Checks that vector node no.0 is in the same position on the graph
+	for (int i = 0; i < graph->dimensions; i++) {
+		TEST_ASSERT(((float*)graph->nodes[0]->components)[i] == vectors[0].components[i]);
 	}
-	// cout << graph->nodes[0]->components[0] << " " << vectors[0].components << endl;
-	// float* float_array = (float*)&graph->nodes[0]->components;
-	// cout << float_array[0] << endl;
-	// destroy_graph(graph);
+
+	// Also check for a node at random position between 0 - graph_size
+	srand(static_cast<unsigned int>(time(0)));
+	int pos = rand() % graph->nodes.size();
+	for (int i = 0; i < graph->dimensions; i++) {
+		TEST_ASSERT(((float*)graph->nodes[pos]->components)[i] == vectors[pos].components[i]);
+	}
+
+	// Destroy graph
+	destroy_graph(graph);
+
 }
 
 TEST_LIST = {

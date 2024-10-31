@@ -9,7 +9,7 @@ using namespace std;
 
 vector<file_vector> read_vectors_from_file(const std::string& filename) {
     vector<file_vector> vectors;
-    ifstream infile(filename);
+    ifstream infile(filename, ios::binary);
 
     if (!infile) {
         std::cerr << "Error opening file: " << filename << std::endl;
@@ -37,21 +37,23 @@ vector<file_vector> read_vectors_from_file(const std::string& filename) {
 }
 
 Graph create_graph_from_file(const string& filename, int type, int k) {
-
+    // Store file data to vector
     vector<file_vector> vectors = read_vectors_from_file(filename);
-    Graph g = create_graph(type, k, vectors[0].d);
+    //  Graph creation
+    Graph graph = create_graph(type, k, vectors[0].d);
 
     // Insert graph nodes
     for (int i = 0; i < vectors.size(); i++) {
-        void* components = static_cast<void*>(vectors[i].components.data());
-        add_node_graph(g, vectors[i].d, components);
-        // cout << ((float*)g->nodes[0]->components)[i] << " " << vectors[0].components[i] << endl;
-
+        // Allocate the required memory. We use max in order to secure that we have enough space to store the data
+        // For example, if a dataset has floats and chars, we want an array of floats that have enough space to store chars as well
+        void* components = malloc(graph->dimensions * sizeof(*max_element(vectors[i].components.begin(), vectors[i].components.end())));
+        memcpy(components, vectors[i].components.data(), graph->dimensions * sizeof(*max_element(vectors[i].components.begin(), vectors[i].components.end())));    // Copy vector data to graph (Important)
+        add_node_graph(graph, vectors[i].d, components);
     }
 
     // Connecting the nodes
-    init_dummy_graph(g);
-    
-    return g;
+    init_dummy_graph(graph);
+
+    return graph;
 }
 
