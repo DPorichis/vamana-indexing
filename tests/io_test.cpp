@@ -2,6 +2,7 @@
 #include <iostream>
 #include "graph.h"
 #include "io.h"
+#include <iomanip>
 
 using namespace std;
 
@@ -46,7 +47,45 @@ void test_create_from_file(void) {
 
 }
 
+void test_query(void) {
+	// Test with the file "siftsmall_query.fvecs"
+	string path = "../data/siftsmall/siftsmall_query.fvecs";
+
+	// Create graph
+	Graph graph = create_graph_from_file("../data/siftsmall/siftsmall_base.fvecs", 'f', 5);	
+
+	// The vectors of the query dataset
+	vector<file_vector> vectors = read_vectors_from_file(path);
+
+	// The file position of query. Gets value by user input
+	int pos; 
+
+	// Call function
+	Node query = ask_query(path, graph->dimensions, pos);
+	
+	TEST_ASSERT(query != NULL);
+
+	// Check if there is a match between the vector node in pos position and the returned node by the function
+	TEST_ASSERT(vectors[pos].d == query->d_count);
+
+	for (int i = 0; i < query->d_count; i++) {
+		TEST_ASSERT(vectors[pos].components[i] == ((float*)query->components)[i]);
+	}
+
+	// Edits the terminal output for better viewing
+	cout << "\033[F\033[F"; 
+    cout << "\033[K";
+    cout << "\033[B\033[K"; 
+	cout << setw(52);
+	cout << "\033[2A";
+
+	// Destroy the query node and the graph
+	destroy_node(query);
+	destroy_graph(graph);
+}
+
 TEST_LIST = {
 	{ "list_create", test_create_from_file },
+	{ "perform_query", test_query},
 	{ NULL, NULL }
 };

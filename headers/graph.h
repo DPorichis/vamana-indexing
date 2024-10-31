@@ -50,6 +50,7 @@ struct node
     // Basic Constractor
     node(void* comp, int dim)
         : components(comp), d_count(dim), n_count(0) {}
+    node() {}
 };
 
 
