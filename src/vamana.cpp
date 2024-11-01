@@ -89,7 +89,7 @@ int gready_search(Graph g, Node s, Node query, int L,
 
 
 // Robust prunning implementation
-int robust_prunning(graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r)
+int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r)
 {
     for (const auto& neig : p->neighbours) {
         Candidate for_insert = create_candidate(neig->to, p);
@@ -99,7 +99,7 @@ int robust_prunning(graph g, Node p, set<Candidate, CandidateComparator>* v, flo
     }
     // Erase the p if it exists in the v set
     Candidate erase_self = create_candidate(p, p);
-    v->erase(create_candidate(p, p));
+    v->erase(erase_self);
     free(erase_self);
 
     // Fix this so it doesn't memory leak <3
@@ -120,17 +120,38 @@ int robust_prunning(graph g, Node p, set<Candidate, CandidateComparator>* v, flo
         auto result = p->neighbours.insert(for_insert);
 
         if(p->neighbours.size() == r)
+        {
+            cout << "R reached";
             break;
+        }
 
-        for (const auto& elem : *v) {
-            if(calculate_distance(elem->to, selected_cand->to) <= elem->distance)
+        Candidate target = create_candidate_copy(selected_cand);
+
+        for (auto it = v->begin(); it != v->end();) {
+            const auto& elem = *it;           
+            // cout << "Now testing element " << elem << endl;
+            // cout << "elem dim: " << elem->to->d_count << endl;
+            // cout << "select dim: " << target->to->d_count << endl;
+            // fflush(stdout);
+            if(elem == NULL)
             {
-                v->erase(elem);
+                // cout << "WHY?" << endl;
+                // fflush(stdout);
+            }
+            else if(a * calculate_distance(elem->to, target->to) <= elem->distance) // distance bugs because of float may occur
+            {
+                // cout << a * calculate_distance(elem->to, target->to) << " < " << elem->distance;
+                fflush(stdout);
+                it = v->erase(it);
                 free(elem);
+                fflush(stdout);
+            } else {
+                ++it;  // Only increment if no erase occurs
             }
         }
-    }
 
+        free(target);
+    }
     return 0;
 }
 

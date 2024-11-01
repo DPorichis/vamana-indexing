@@ -31,6 +31,7 @@ void test_insert(void){
     TEST_ASSERT(graph->nodes[0] == item);
     TEST_ASSERT(item->neighbours.empty());
     TEST_ASSERT(item->n_count == 0);
+    TEST_ASSERT(item->d_count == 3);
     TEST_ASSERT(item->components == point);
     
     item = add_node_graph(graph, 6, point);
@@ -49,6 +50,7 @@ void test_insert(void){
     TEST_ASSERT(graph->nodes[1] == item);
     TEST_ASSERT(item->neighbours.empty());
     TEST_ASSERT(item->n_count == 0);
+    TEST_ASSERT(item->d_count == 3);
     TEST_ASSERT(item->components == point1);
 
 

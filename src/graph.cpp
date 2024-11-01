@@ -82,8 +82,10 @@ float calculate_distance(Node a, Node b)
     int dim = a->d_count;
     // If the dimentions do not match, skip return error code -1
     if (dim != b->d_count)
+    {    
+        cout << "Not matching dimentions " << a->d_count << " != " << b->d_count << endl;
         return -1;
-
+    }
     // Calculate the Euclidian Distance
     float sum = 0;
 

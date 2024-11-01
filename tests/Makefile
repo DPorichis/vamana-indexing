@@ -1,5 +1,5 @@
 # all
-alltests: gready_test graph_test
+alltests: gready_test graph_test prune_test
 
 # paths
 SOURCE = ../src
@@ -14,6 +14,8 @@ GRPOBJ = $(BUILD)/graph_test.o $(BUILD)/graph.o
 
 GROBJ = $(BUILD)/vamana.o $(BUILD)/gready_test.o $(BUILD)/graph.o
 
+PROBJ = $(BUILD)/vamana.o $(BUILD)/prune_test.o $(BUILD)/graph.o
+
 $(BUILD)/%.o: $(SOURCE)/%.cpp | $(BUILD)
 	g++ $(CFLAGS) -c $< -o $@
 
@@ -25,6 +27,10 @@ gready_test: $(GROBJ)
 
 graph_test: $(GRPOBJ)
 	g++ $(CFLAGS) $(GRPOBJ) -o $(BIN)/graph_test
+
+prune_test: $(PROBJ)
+	g++ $(CFLAGS) $(PROBJ) -o $(BIN)/prune_test
+
 
 # io_test: $(COMOBJ)
 # 	g++ $(COMOBJ) -o $(BIN)/io_test
