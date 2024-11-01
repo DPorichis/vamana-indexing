@@ -88,6 +88,53 @@ int gready_search(Graph g, Node s, Node query, int L,
 }
 
 
+// Robust prunning implementation
+int robust_prunning(graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r)
+{
+    for (const auto& neig : p->neighbours) {
+        Candidate for_insert = create_candidate(neig->to, p);
+        auto result = v->insert(for_insert);
+        if(!result.second)
+            free(for_insert);
+    }
+    // Erase the p if it exists in the v set
+    Candidate erase_self = create_candidate(p, p);
+    v->erase(create_candidate(p, p));
+    free(erase_self);
+
+    // Fix this so it doesn't memory leak <3
+    p->neighbours.clear();
+
+    while(!v->empty())
+    {
+        Candidate selected_cand = NULL;
+        // DEN XREIAZETAI KAN EINAI SET ZHTA TO MIN 
+        for (const auto& elem : *v) {
+            if(selected_cand == NULL || selected_cand->distance > elem->distance)
+            {
+                selected_cand = elem;
+            }
+        }
+
+        Candidate for_insert = create_candidate(selected_cand->to, p);
+        auto result = p->neighbours.insert(for_insert);
+
+        if(p->neighbours.size() == r)
+            break;
+
+        for (const auto& elem : *v) {
+            if(calculate_distance(elem->to, selected_cand->to) <= elem->distance)
+            {
+                v->erase(elem);
+                free(elem);
+            }
+        }
+    }
+
+    return 0;
+}
+
+
 // Checks if the difference is the empty set
 void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, CandidateComparator>* B, set<Candidate, CandidateComparator>* dif)
 {

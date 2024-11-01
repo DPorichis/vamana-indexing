@@ -54,3 +54,6 @@ dkms.conf
 # Binary and object folders
 bin/*
 build/*
+data/*
+!bin/
+!build/
