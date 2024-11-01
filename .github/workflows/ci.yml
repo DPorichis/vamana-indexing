@@ -1,0 +1,33 @@
+name: C++ CI
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up C++ environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y g++ cmake
+
+    - name: Build project
+      run: |
+        cd tests
+        make  alltests
+    
+    - name: Run tests
+      run: |
+        cd tests
+        ../bin/graph_test
+        ../bin/gready_test

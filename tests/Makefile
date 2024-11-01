@@ -1,5 +1,4 @@
-# all
-all: gready_test graph_test io_test
+alltests: gready_test graph_test io_test
 
 # paths
 SOURCE = ../src
