@@ -72,12 +72,13 @@ void test_query(void) {
 		TEST_ASSERT(vectors[pos].components[i] == ((float*)query->components)[i]);
 	}
 
+	// ********* UNCOMMENT if we want user input ***************
 	// Edits the terminal output for better viewing
-	cout << "\033[F\033[F"; 
-    cout << "\033[K";
-    cout << "\033[B\033[K"; 
-	cout << setw(52);
-	cout << "\033[2A";
+	// cout << "\033[F\033[F"; 
+    // cout << "\033[K";
+    // cout << "\033[B\033[K"; 
+	// cout << setw(52);
+	// cout << "\033[2A";
 
 	// Destroy the query node and the graph
 	destroy_node(query);
