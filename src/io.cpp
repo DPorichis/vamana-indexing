@@ -70,8 +70,13 @@ Node ask_query(const std::string& filename, int graph_dimension, int& pos) {
     // Store file data to vector
     vector<file_vector> vectors = read_vectors_from_file(filename);
 
-    cout << endl << "Give me the file position of the query (0 - " << vectors.size() - 1 << ")" << endl;
-    cin >> pos;
+    //  ######  UNCOMMENT if we want user input ###########
+    // cout << endl << "Give me the file position of the query (0 - " << vectors.size() - 1 << ")" << endl;
+    // cin >> pos;
+
+    // Random query
+    srand(static_cast<unsigned int>(time(0)));
+    pos = rand() % vectors.size();
 
     if (pos < 0 || pos > vectors.size() - 1) {
         cerr << "Position outside of range" << endl;
