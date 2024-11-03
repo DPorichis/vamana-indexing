@@ -22,6 +22,7 @@ void test_dummy(void) {
 	{
 		Node item = graph->nodes[i];
 		// In order for the graph to be connected (according to the paper)
+		// cout << item->neighbours.size() << " > " << ceil(log2(n)) << endl;
 		TEST_ASSERT(item->neighbours.size() > ceil(log2(n)));
 	}
 
@@ -44,11 +45,18 @@ void test_gready_search(void) {
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
 
-	int results = gready_search(graph, graph->nodes[3], graph->nodes[6], 10, neighbours, visited);
+	int results = gready_search(graph, find_medoid(graph), graph->nodes[6], graph->k, 10, neighbours, visited);
 
+	int flag = 0;
 	for (const auto& r : *neighbours) {
         cout << r->to << " with distance: " << r->distance << endl;
+		if(r->distance < 7.1)
+			flag++;
     }
+
+	TEST_ASSERT(neighbours->size() == 10);
+	TEST_ASSERT(flag >= 7); // Has more than 70% accuracy
+
 
 	for (const auto& r : *neighbours)
         free(r);
@@ -64,8 +72,36 @@ void test_gready_search(void) {
 	return;
 }
 
+void test_medoid(void) {
+	Graph graph = create_graph('f', 5, 2);
+	int n = 31;
+	for(int i = 0; i < n; i++)
+	{	
+		float* point = (float*)malloc(sizeof(*point)*2);
+    	point[0] = i;
+    	point[1] = i;
+		Node item = add_node_graph(graph, 2, point);
+	}
+
+	Node medoid = find_medoid(graph);
+
+	cout << "Medoid Found " << medoid << endl << "[";
+	float* point = (float*)medoid->components;
+	for(int i = 0; i < medoid->d_count; i++)
+		cout << ", " << point[i];
+	cout << "]" << endl;
+
+	// Test if it finds the real medoid
+	TEST_ASSERT(point[0] == 15);
+	TEST_ASSERT(point[0] == 15);
+
+	destroy_graph(graph);
+	return;
+}
+
 TEST_LIST = {
 	{ "init_dummy_graph", test_dummy},
+	{ "test_medoid", test_medoid },
 	{ "gready_search", test_gready_search},
 	{ NULL, NULL }
 };

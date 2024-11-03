@@ -31,11 +31,11 @@ gready_test: $(GROBJ)
 graph_test: $(GRPOBJ)
 	g++ $(CFLAGS) $(GRPOBJ) -o $(BIN)/graph_test
 
-io_test: $(COMOBJ)
-	g++ $(CFLAGS) $(COMOBJ) -o $(BIN)/io_test
-
 prune_test: $(PROBJ)
 	g++ $(CFLAGS) $(PROBJ) -o $(BIN)/prune_test
+
+io_test: $(COMOBJ)
+	g++ $(CFLAGS) $(COMOBJ) -o $(BIN)/io_test
 
 vamana_test: $(VAMOBJ)
 	g++ $(CFLAGS) $(VAMOBJ) -o $(BIN)/vamana_test
