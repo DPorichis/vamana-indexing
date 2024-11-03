@@ -9,14 +9,14 @@ using namespace std;
 void test_create_vamana_index(void) {
     
     string path = "../data/siftsmall/siftsmall_base.fvecs";
-    Graph graph;
+    // Graph graph;
     int L = 100;
     int R = 20;
 
     // TEST_ASSERT(!create_vamana_index(&graph, path, L, R));
     // TEST_ASSERT(graph != NULL);
     
-    destroy_graph(graph);
+    // destroy_graph(graph);
 }
 
 TEST_LIST = {
