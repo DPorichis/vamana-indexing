@@ -192,3 +192,24 @@ void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, Candidate
 void delete_vis_neigh(set<Candidate, CandidateComparator>* neighbours, set<Candidate, CandidateComparator>* visited)
 {
 }
+
+// Finds medoid of a graph
+// Bad implementation O(d*n^2)
+Node find_medoid(Graph g)
+{
+    Node m = NULL;
+    double min_dist = 0;
+    for(int i = 0; i < g->nodes.size(); i++)
+    {
+        double dist_sum = 0;
+        for(int j = 0; j < g->nodes.size(); j++)
+            dist_sum += calculate_distance(g, g->nodes[i], g->nodes[j]);
+    
+        if(dist_sum < min_dist || m == NULL)
+        {
+            min_dist = dist_sum;
+            m = g->nodes[i];
+        }
+    }
+    return m;
+}

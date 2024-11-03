@@ -114,3 +114,4 @@ float calculate_distance(Graph g, Node a, Node b);
 Candidate create_candidate(Graph g, Node to, Node query);
 
 Candidate create_candidate_copy(Candidate can);
+

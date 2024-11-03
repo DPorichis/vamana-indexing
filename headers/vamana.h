@@ -15,3 +15,6 @@ int create_vamana_index(void);
 
 // Benchmarking
 int evaluate_index(void);
+
+// Finds the medoid node of a graph
+Node find_medoid(Graph);
