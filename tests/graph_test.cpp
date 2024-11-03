@@ -30,7 +30,6 @@ void test_insert(void){
     TEST_ASSERT(graph->nodes.size() == 1);
     TEST_ASSERT(graph->nodes[0] == item);
     TEST_ASSERT(item->neighbours.empty());
-    TEST_ASSERT(item->n_count == 0);
     TEST_ASSERT(item->d_count == 3);
     TEST_ASSERT(item->components == point);
     
@@ -49,7 +48,6 @@ void test_insert(void){
     TEST_ASSERT(graph->nodes.size() == 2);
     TEST_ASSERT(graph->nodes[1] == item);
     TEST_ASSERT(item->neighbours.empty());
-    TEST_ASSERT(item->n_count == 0);
     TEST_ASSERT(item->d_count == 3);
     TEST_ASSERT(item->components == point1);
 
@@ -74,17 +72,17 @@ void test_neighbours(void){
 
     Node item1 = add_node_graph(graph, 3, point1);
     
-    float dist = add_neighbour_node(item0, item1);
+    float dist = add_neighbour_node(graph, item0, item1);
     TEST_ASSERT(dist > 0);
     TEST_ASSERT(item0->neighbours.size() == 1);
     TEST_ASSERT(item1->neighbours.empty());
 
     // Doesn't allow self to self
-    dist = add_neighbour_node(item0, item0);
+    dist = add_neighbour_node(graph, item0, item0);
     TEST_ASSERT(dist < 0);
 
     // Doesn't allow double instances of the same neighbour
-    dist = add_neighbour_node(item0, item1);
+    dist = add_neighbour_node(graph, item0, item1);
     TEST_ASSERT(dist < 0);
     TEST_ASSERT(item0->neighbours.size() == 1);
 

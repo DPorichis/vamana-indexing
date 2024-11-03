@@ -22,6 +22,7 @@ void test_dummy(void) {
 	{
 		Node item = graph->nodes[i];
 		// In order for the graph to be connected (according to the paper)
+		// cout << item->neighbours.size() << " > " << ceil(log2(n)) << endl;
 		TEST_ASSERT(item->neighbours.size() > ceil(log2(n)));
 	}
 

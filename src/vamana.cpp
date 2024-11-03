@@ -12,8 +12,6 @@
 
 using namespace std;
 
-Candidate create_candidate(Node to, Node query);
-
 void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, CandidateComparator>* B, set<Candidate, CandidateComparator>* dif);
 
 // Given a Graph with unconnected nodes, it produces a fully connected graph
@@ -34,7 +32,7 @@ int init_dummy_graph(Graph g)
             {
                 int random_node = std::rand() % g->nodes.size();
                 Node to = g->nodes[random_node];
-                flag = add_neighbour_node(from, to);
+                flag = add_neighbour_node(g, from, to);
             }
         }
     }
@@ -47,7 +45,7 @@ int gready_search(Graph g, Node s, Node query, int k, int L,
 {
     if(k > L)
         L = k;
-    neighbours->insert(create_candidate(s, query));
+    neighbours->insert(create_candidate(g, s, query));
     Node current = s;
     set<Candidate, CandidateComparator> difference;
     update_dif(neighbours, visited, &difference);
@@ -67,7 +65,7 @@ int gready_search(Graph g, Node s, Node query, int k, int L,
             }
         }
         for (const auto& neig : selected_cand->to->neighbours) {
-            Candidate for_insert = create_candidate(neig->to, query);
+            Candidate for_insert = create_candidate(g, neig->to, query);
             auto result = neighbours->insert(for_insert);
             if(!result.second)
                 free(for_insert);
@@ -97,7 +95,7 @@ int gready_search(Graph g, Node s, Node query, int k, int L,
 int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r)
 {
     for (const auto& neig : p->neighbours) {
-        Candidate for_insert = create_candidate(neig->to, p);
+        Candidate for_insert = create_candidate(g, neig->to, p);
         cout << "Does it happend only once?" << endl;
         fflush(stdout);
         auto result = v->insert(for_insert);
@@ -110,7 +108,7 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
     }
 
     // Erase the p if it exists in the v set
-    Candidate erase_self = create_candidate(p, p);
+    Candidate erase_self = create_candidate(g, p, p);
     auto it_self = v->find(erase_self);
     if(it_self != v->end())
     {
@@ -140,7 +138,7 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
             }
         }
 
-        Candidate for_insert = create_candidate(selected_cand->to, p);
+        Candidate for_insert = create_candidate(g, selected_cand->to, p);
         auto result = p->neighbours.insert(for_insert);
 
         if(p->neighbours.size() == r)
@@ -162,7 +160,7 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
                 // cout << "WHY?" << endl;
                 // fflush(stdout);
             }
-            else if(a * calculate_distance(elem->to, target->to) <= elem->distance) // distance bugs because of float may occur
+            else if(a * calculate_distance(g ,elem->to, target->to) <= elem->distance) // distance bugs because of float may occur
             {
                 // cout << a * calculate_distance(elem->to, target->to) << " < " << elem->distance;
                 fflush(stdout);

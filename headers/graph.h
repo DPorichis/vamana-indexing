@@ -44,12 +44,11 @@ struct node
 {
     int d_count; // object dimension
     void* components;
-    int n_count;
     set<Link, LinkComp> neighbours;
 
     // Basic Constractor
     node(void* comp, int dim)
-        : components(comp), d_count(dim), n_count(0) {}
+        : components(comp), d_count(dim) {}
     node() {}
 };
 
@@ -101,17 +100,17 @@ void destroy_graph(Graph g);
 
 Node create_node(void* components, int d_count);
 
-float add_neighbour_node(Node from, Node to);
+float add_neighbour_node(Graph g, Node from, Node to);
 
 void destroy_node(Node n);
 
 
 // Distance and connection related functions //
 
-Link create_link(Node from, Node to);
+Link create_link(Graph g, Node from, Node to);
 
-float calculate_distance(Node a, Node b);
+float calculate_distance(Graph g, Node a, Node b);
 
-Candidate create_candidate(Node to, Node query);
+Candidate create_candidate(Graph g, Node to, Node query);
 
 Candidate create_candidate_copy(Candidate can);
