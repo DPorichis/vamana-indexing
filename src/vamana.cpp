@@ -41,12 +41,12 @@ int init_dummy_graph(Graph g)
     return 0;
 }
 
-int gready_search(Graph g, Node s, Node query, int L, 
+int gready_search(Graph g, Node s, Node query, int k, int L, 
     set<Candidate, CandidateComparator>* neighbours, 
     set<Candidate, CandidateComparator>* visited)
 {
-    if(g->k > L)
-        L = g->k;
+    if(k > L)
+        L = k;
     neighbours->insert(create_candidate(s, query));
     Node current = s;
     set<Candidate, CandidateComparator> difference;

@@ -5,7 +5,7 @@
 int init_dummy_graph(Graph g);
 
 // Alg 1
-int gready_search(Graph g, Node s, Node query, int L, set<Candidate, CandidateComparator>* neighbours, set<Candidate, CandidateComparator>* visited);
+int gready_search(Graph g, Node s, Node query, int k, int L, set<Candidate, CandidateComparator>* neighbours, set<Candidate, CandidateComparator>* visited);
 
 // Alg 2
 int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r);

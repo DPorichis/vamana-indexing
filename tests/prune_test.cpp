@@ -19,7 +19,7 @@ void test_pruning(void) {
 
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-	int results = gready_search(graph, graph->nodes[3], graph->nodes[6], 10, neighbours, visited);
+	int results = gready_search(graph, graph->nodes[3], graph->nodes[6], graph->k, 10, neighbours, visited);
 
 	// for (const auto& elem : *visited) {
 	// 	TEST_ASSERT(elem != NULL);
