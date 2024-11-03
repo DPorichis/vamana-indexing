@@ -30,5 +30,6 @@ jobs:
       run: |
         cd tests
         ../bin/graph_test
+        ../bin/io_test
         ../bin/gready_test
         ../bin/prune_test

@@ -54,7 +54,6 @@ dkms.conf
 # Binary and object folders
 bin/*
 build/*
-
-# But do track the directories themselves
+data/*
 !bin/
 !build/
