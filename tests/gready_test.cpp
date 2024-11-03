@@ -47,9 +47,16 @@ void test_gready_search(void) {
 
 	int results = gready_search(graph, graph->nodes[3], graph->nodes[6], graph->k, 10, neighbours, visited);
 
+	int flag = 0;
 	for (const auto& r : *neighbours) {
         cout << r->to << " with distance: " << r->distance << endl;
+		if(r->distance < 7.1)
+			flag++;
     }
+
+	TEST_ASSERT(neighbours->size() == 10);
+	TEST_ASSERT(flag >= 7); // Has more than 70% accuracy
+
 
 	for (const auto& r : *neighbours)
         free(r);

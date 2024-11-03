@@ -21,18 +21,16 @@ void test_pruning(void) {
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
 	int results = gready_search(graph, graph->nodes[3], graph->nodes[6], graph->k, 10, neighbours, visited);
 
-	// for (const auto& elem : *visited) {
-	// 	TEST_ASSERT(elem != NULL);
-	// }
-
 	cout << "Node neighbours before prunning: " << graph->nodes[3]->neighbours.size() << endl;
 
+	robust_prunning(graph, graph->nodes[3], visited, 1, 2);
 
-	robust_prunning(graph, graph->nodes[3], visited, 1.6, 2);
+	// Good reason for termination
+	TEST_ASSERT(graph->nodes[3]->neighbours.size() ==  2 || visited->size() == 0);
 
 	cout << "Node neighbours after prunning: " << graph->nodes[3]->neighbours.size() << endl;
 
-	for (const auto& r : *neighbours) {
+	for (const auto& r : graph->nodes[3]->neighbours) {
         cout << r->to << " with distance: " << r->distance << endl;
     }
 
@@ -47,10 +45,8 @@ void test_pruning(void) {
 	{    
 		free(r);
 	}
-
-	cout << "V has: " << visited->size() << endl;
 	delete visited;
-    
+
 	destroy_graph(graph);
 	return;
 }
