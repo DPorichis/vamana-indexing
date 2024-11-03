@@ -143,7 +143,7 @@ int robust_prunning(graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 // Vamana index implementation
 int create_vamana_index(Graph* g, const string& filename, int L, int R) {
     // Graph creation and initialization
-    *g = create_graph_from_file(filename, 'f', 10);
+    // *g = create_graph_from_file(filename, 'f', 10);
     // Graph graph = *g;
     // if (graph == NULL) {
     //     cerr << "Error while creating graph from file" << endl;
