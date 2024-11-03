@@ -1,5 +1,8 @@
 #include "graph.h"
+#include <string>
 #pragma once
+
+using namespace std;
 
 // Graph Initialization
 int init_dummy_graph(Graph g);
@@ -11,7 +14,7 @@ int gready_search(Graph g, Node s, Node query, int k, int L, set<Candidate, Cand
 int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r);
 
 // Alg 3
-int create_vamana_index(void);
+int create_vamana_index(Graph* g, const string& filename, int L, int R);
 
 // Benchmarking
 int evaluate_index(void);
