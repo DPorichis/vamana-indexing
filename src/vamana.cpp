@@ -73,7 +73,12 @@ int gready_search(Graph g, Node s, Node query, int L,
                 free(for_insert);
 
         }
-        visited->insert(create_candidate_copy(selected_cand));
+
+        Candidate to_insert = create_candidate_copy(selected_cand);
+        auto result = visited->insert(to_insert);
+        if(!result.second)
+            free(to_insert);
+
         // Remove items from neighbours until we reach legal size L
         while(neighbours->size() > L)
         {
@@ -93,17 +98,36 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 {
     for (const auto& neig : p->neighbours) {
         Candidate for_insert = create_candidate(neig->to, p);
+        cout << "Does it happend only once?" << endl;
+        fflush(stdout);
         auto result = v->insert(for_insert);
         if(!result.second)
+        {
+            cout << "This was freed" << endl;
+            fflush(stdout);
             free(for_insert);
+        }
     }
+
     // Erase the p if it exists in the v set
     Candidate erase_self = create_candidate(p, p);
-    v->erase(erase_self);
+    auto it_self = v->find(erase_self);
+    if(it_self != v->end())
+    {
+        cout << "Self-found" << endl;
+        const auto elem = *it_self;
+        v->erase(it_self);
+        free(elem);   
+    }
     free(erase_self);
 
     // Fix this so it doesn't memory leak <3
-    p->neighbours.clear();
+    // Empty all the existing neighbours
+    for (auto it = p->neighbours.begin(); it != p->neighbours.end();) {
+        const auto elem = *it;
+        it = p->neighbours.erase(it);
+        free(elem);
+    }
 
     while(!v->empty())
     {
@@ -128,7 +152,7 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
         Candidate target = create_candidate_copy(selected_cand);
 
         for (auto it = v->begin(); it != v->end();) {
-            const auto& elem = *it;           
+            const auto elem = *it;
             // cout << "Now testing element " << elem << endl;
             // cout << "elem dim: " << elem->to->d_count << endl;
             // cout << "select dim: " << target->to->d_count << endl;

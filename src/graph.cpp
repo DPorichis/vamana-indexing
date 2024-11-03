@@ -115,8 +115,7 @@ Candidate create_candidate_copy(Candidate cand)
     Candidate cand_copy = (Candidate)malloc(sizeof(*cand));
     cand_copy->to = cand->to;
     cand_copy->distance = cand->distance;
-    return cand_copy;
-    
+    return cand_copy;    
 }
 
 //=================== Help Functions ========================//
