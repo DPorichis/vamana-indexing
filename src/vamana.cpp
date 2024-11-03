@@ -144,52 +144,52 @@ int robust_prunning(graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 int create_vamana_index(Graph* g, const string& filename, int L, int R) {
     // Graph creation and initialization
     *g = create_graph_from_file(filename, 'f', 10);
-    Graph graph = *g;
-    if (graph == NULL) {
-        cerr << "Error while creating graph from file" << endl;
-        return -1;
-    }
-    if (init_dummy_graph(graph)) {
-        cerr << "Error in graph initialization";
-        return -2;
-    }
+    // Graph graph = *g;
+    // if (graph == NULL) {
+    //     cerr << "Error while creating graph from file" << endl;
+    //     return -1;
+    // }
+    // if (init_dummy_graph(graph)) {
+    //     cerr << "Error in graph initialization";
+    //     return -2;
+    // }
 
-    int pos;
-    pos = 8736;
-    /* UNCOMMENT if is the final execusion. Otherwise pos is 8736, after 1 minute of function execution
-    // int pos =  find_medoid(graph->nodes);
-    */
-    Node medoid_node = graph->nodes[pos];
+    // int pos;
+    // pos = 8736;
+    // /* UNCOMMENT if is the final execusion. Otherwise pos is 8736, after 1 minute of function execution
+    // // int pos =  find_medoid(graph->nodes);
+    // */
+    // Node medoid_node = graph->nodes[pos];
 
-    // Create random permutation of nodes, vectors is a copy of nodes (not the original)
-    vector<Node> vectors = graph->nodes;
-    random_device rd;
-    mt19937 generator(rd());
-    // Shuffle vector items according to Mersenne Twister engine
-    shuffle(vectors.begin(), vectors.end(), generator);
+    // // Create random permutation of nodes, vectors is a copy of nodes (not the original)
+    // vector<Node> vectors = graph->nodes;
+    // random_device rd;
+    // mt19937 generator(rd());
+    // // Shuffle vector items according to Mersenne Twister engine
+    // shuffle(vectors.begin(), vectors.end(), generator);
 
-    // K for gready search
-    int old_k = graph->k;
-    graph->k = 1;
+    // // K for gready search
+    // int old_k = graph->k;
+    // graph->k = 1;
 
-    // a parameter for pruning
-    int a = 1.6;
+    // // a parameter for pruning
+    // int a = 1.6;
 
-    for (int i = 0; i < vectors.size(); i++) {
-        // Create neighbours and visited sets
-        set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
-        set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-        gready_search(graph, medoid_node, vectors[i], L, neighbours, visited);
+    // for (int i = 0; i < vectors.size(); i++) {
+    //     // Create neighbours and visited sets
+    //     set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
+    //     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
+    //     gready_search(graph, medoid_node, vectors[i], L, neighbours, visited);
 
-        robust_prunning(graph, vectors[i], visited, a, R);
-        for (const auto& elem : vectors[i]->neighbours) {
-            elem->neighbours.insert(vectors[i]);
-            if (elem->neighbours.size() > R) {
-                robust_prunning(graph, elem, elem->neighbours, a, R);
-                elem->neighbours.erase(vectors[i]);
-            }
-        }
-    }
+    //     robust_prunning(graph, vectors[i], visited, a, R);
+    //     for (const auto& elem : vectors[i]->neighbours) {
+    //         elem->neighbours.insert(vectors[i]);
+    //         if (elem->neighbours.size() > R) {
+    //             robust_prunning(graph, elem, elem->neighbours, a, R);
+    //             elem->neighbours.erase(vectors[i]);
+    //         }
+    //     }
+    // }
 
     return 0;
 }
