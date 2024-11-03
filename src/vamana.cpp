@@ -52,10 +52,10 @@ int gready_search(Graph g, Node s, Node query, int k, int L,
 	int iter = 0;
     while(!difference.empty())
     {
-        cout << "== Iteration "<< iter << " =="<< endl;
-        cout << "#dif: " << difference.size() << endl;
-        cout << "#vis: " << visited->size() << endl;
-        cout << "#nei: " << neighbours->size() << endl;
+        // cout << "== Iteration "<< iter << " =="<< endl;
+        // cout << "#dif: " << difference.size() << endl;
+        // cout << "#vis: " << visited->size() << endl;
+        // cout << "#nei: " << neighbours->size() << endl;
         Candidate selected_cand = NULL;
         // DEN XREIAZETAI KAN EINAI SET ZHTA TO MIN 
         for (const auto& elem : difference) {
@@ -96,13 +96,9 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 {
     for (const auto& neig : p->neighbours) {
         Candidate for_insert = create_candidate(g, neig->to, p);
-        cout << "Does it happend only once?" << endl;
-        fflush(stdout);
         auto result = v->insert(for_insert);
         if(!result.second)
         {
-            cout << "This was freed" << endl;
-            fflush(stdout);
             free(for_insert);
         }
     }
@@ -112,7 +108,6 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
     auto it_self = v->find(erase_self);
     if(it_self != v->end())
     {
-        cout << "Self-found" << endl;
         const auto elem = *it_self;
         v->erase(it_self);
         free(elem);   
@@ -143,7 +138,7 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 
         if(p->neighbours.size() == r)
         {
-            cout << "R reached";
+            // cout << "R reached";
             break;
         }
 

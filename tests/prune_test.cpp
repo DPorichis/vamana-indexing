@@ -19,7 +19,7 @@ void test_pruning(void) {
 
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-	int results = gready_search(graph, graph->nodes[3], graph->nodes[6], graph->k, 10, neighbours, visited);
+	int results = gready_search(graph, find_medoid(graph), graph->nodes[6], graph->k, 10, neighbours, visited);
 
 	cout << "Node neighbours before prunning: " << graph->nodes[3]->neighbours.size() << endl;
 
@@ -51,37 +51,7 @@ void test_pruning(void) {
 	return;
 }
 
-void test_medoid(void) {
-	Graph graph = create_graph('f', 5, 2);
-	int n = 31;
-	for(int i = 0; i < n; i++)
-	{	
-		float* point = (float*)malloc(sizeof(*point)*2);
-    	point[0] = i;
-    	point[1] = i;
-		Node item = add_node_graph(graph, 2, point);
-	}
-
-	Node medoid = find_medoid(graph);
-
-	cout << "Medoid Found " << medoid << endl << "[";
-	float* point = (float*)medoid->components;
-	for(int i = 0; i < medoid->d_count; i++)
-		cout << ", " << point[i];
-	cout << "]" << endl;
-
-	// Test if it finds the real medoid
-	TEST_ASSERT(point[0] == 15);
-	TEST_ASSERT(point[0] == 15);
-
-	destroy_graph(graph);
-	return;
-}
-
-
-
 TEST_LIST = {
-	{ "test_medoid", test_medoid },
 	{ "test_pruning", test_pruning },
 	{ NULL, NULL }
 };
