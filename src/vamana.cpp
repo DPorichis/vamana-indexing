@@ -56,14 +56,10 @@ int gready_search(Graph g, Node s, Node query, int k, int L,
         // cout << "#dif: " << difference.size() << endl;
         // cout << "#vis: " << visited->size() << endl;
         // cout << "#nei: " << neighbours->size() << endl;
-        Candidate selected_cand = NULL;
-        // DEN XREIAZETAI KAN EINAI SET ZHTA TO MIN 
-        for (const auto& elem : difference) {
-            if(selected_cand == NULL || selected_cand->distance > elem->distance)
-            {
-                selected_cand = elem;
-            }
-        }
+
+        // Get the min, which in our set is the first element
+        Candidate selected_cand = *difference.begin();
+        
         for (const auto& neig : selected_cand->to->neighbours) {
             Candidate for_insert = create_candidate(g, neig->to, query);
             auto result = neighbours->insert(for_insert);
@@ -124,14 +120,10 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 
     while(!v->empty())
     {
-        Candidate selected_cand = NULL;
-        // DEN XREIAZETAI KAN EINAI SET ZHTA TO MIN 
-        for (const auto& elem : *v) {
-            if(selected_cand == NULL || selected_cand->distance > elem->distance)
-            {
-                selected_cand = elem;
-            }
-        }
+
+        // Get the min, which in our set is the first element
+        Candidate selected_cand = *(v->begin());
+
 
         Candidate for_insert = create_candidate(g, selected_cand->to, p);
         auto result = p->neighbours.insert(for_insert);
