@@ -1,6 +1,7 @@
 #include "acutest.h"
 #include "graph.h"
 #include "vamana.h"
+#include "io.h"
 #include <iostream>
 #include <cmath>
 
@@ -15,6 +16,7 @@ void test_dummy(void) {
     	point[0] = i;
     	point[1] = i;
 		Node item = add_node_graph(graph, 2, point);
+		
 	}
 	init_dummy_graph(graph);
 	int total_num = 0;
@@ -96,6 +98,16 @@ void test_medoid(void) {
 	TEST_ASSERT(point[0] == 15);
 
 	destroy_graph(graph);
+
+	string path = "../data/siftsmall/siftsmall_base.fvecs";
+    int L = 100;
+    int R = 20;
+    graph = create_graph_from_file(path, 'f', 5);
+    TEST_ASSERT(graph->dimensions == 128);
+    Node node = find_medoid(graph);
+    TEST_ASSERT(node->d_count == 128);
+
+
 	return;
 }
 

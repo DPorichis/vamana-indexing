@@ -11,7 +11,7 @@ CFLAGS = -g -I$(HEAD)
 
 GRPOBJ = $(BUILD)/graph_test.o $(BUILD)/graph.o
 
-GROBJ = $(BUILD)/vamana.o $(BUILD)/gready_test.o $(BUILD)/graph.o
+GROBJ = $(BUILD)/vamana.o $(BUILD)/gready_test.o $(BUILD)/graph.o $(BUILD)/io.o
 
 COMOBJ = $(BUILD)/io.o $(BUILD)/graph.o $(BUILD)/vamana.o $(BUILD)/io_test.o
 

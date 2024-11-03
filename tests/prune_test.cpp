@@ -17,13 +17,14 @@ void test_pruning(void) {
 	}
 	init_dummy_graph(graph);
 
+
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
 	int results = gready_search(graph, find_medoid(graph), graph->nodes[6], graph->k, 10, neighbours, visited);
 
 	cout << "Node neighbours before prunning: " << graph->nodes[3]->neighbours.size() << endl;
 
-	robust_prunning(graph, graph->nodes[3], visited, 1, 2);
+	robust_prunning(graph, graph->nodes[3], visited, 3, 2);
 
 	// Good reason for termination
 	TEST_ASSERT(graph->nodes[3]->neighbours.size() ==  2 || visited->size() == 0);

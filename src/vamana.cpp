@@ -196,6 +196,7 @@ Node find_medoid(Graph g)
     double min_dist = 0;
     for(int i = 0; i < g->nodes.size(); i++)
     {
+        //cout << "Node " << i << endl;
         double dist_sum = 0;
         for(int j = 0; j < g->nodes.size(); j++)
             dist_sum += calculate_distance(g, g->nodes[i], g->nodes[j]);

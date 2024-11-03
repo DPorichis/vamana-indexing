@@ -13,7 +13,7 @@ typedef struct node* Node;
 // Represents a neighbour relationship //
 struct link
 {
-    float distance;
+    double distance;
     Node to;
 
     bool operator==(const link& other) const {
@@ -52,6 +52,11 @@ struct node
     node() {}
 };
 
+typedef double (*DistanceFunc)(void*, void*, int);
+
+double calculate_int(void* a, void* b, int dim);
+double calculate_char(void* a, void* b, int dim);
+double calculate_float(void* a, void* b, int dim);
 
 // Represents the entirity of the graph and its meta data //
 struct graph
@@ -59,13 +64,24 @@ struct graph
     char type; // Type of data in components
     int k; // Defines the k-neighbours bound
     int dimensions; // Defines the dimensions of each element
+    DistanceFunc find_distance;
     vector<Node> nodes;
     
     graph(char t, int kn, int dim)
-        : type(t), k(kn), dimensions(dim) {}
+        : type(t), k(kn), dimensions(dim) 
+    {
+        if(t == 'f')
+            find_distance = calculate_float;
+        else if(t == 'c')
+            find_distance = calculate_char;
+        else
+            find_distance = calculate_int;
+    }
 
 };
 typedef struct graph* Graph;
+
+
 
 // Alias for link, used in when searching for the neighbours//
 typedef struct link* Candidate;
@@ -109,7 +125,8 @@ void destroy_node(Node n);
 
 Link create_link(Graph g, Node from, Node to);
 
-float calculate_distance(Graph g, Node a, Node b);
+// Wrapper function for calling graph
+double calculate_distance(Graph g, Node a, Node b);
 
 Candidate create_candidate(Graph g, Node to, Node query);
 

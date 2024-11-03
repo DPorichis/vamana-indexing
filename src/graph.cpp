@@ -77,7 +77,7 @@ void destroy_graph(Graph g)
 
 // Calculates and returns the distance between two instances
 // or -1 if the dimentions do not match
-float calculate_distance(Graph g, Node a, Node b)
+double calculate_distance(Graph g, Node a, Node b)
 {
     int dim = a->d_count;
     // If the dimentions do not match, skip return error code -1
@@ -86,49 +86,49 @@ float calculate_distance(Graph g, Node a, Node b)
         cout << "Not matching dimentions " << a->d_count << " != " << b->d_count << endl;
         return -1;
     }
-    // Calculate the Euclidian Distance
-    float sum = 0;
-
-    if(g->type == 'f')
-    {
-        float* matrix_a = (float*)a->components;
-        float* matrix_b = (float*)b->components;
-        for(int i=0; i < dim; i++)
-        {
-            float fact = pow(matrix_a[i] - matrix_b[i], 2);
-            sum += fact;    
-        }
-    }
-    else if(g->type == 'i')
-    {
-        int* matrix_a = (int*)a->components;
-        int* matrix_b = (int*)b->components;
-        for(int i=0; i < dim; i++)
-        {
-            float fact = pow(matrix_a[i] - matrix_b[i], 2);
-            sum += fact;    
-        }    
-    }
-    else if(g->type == 'c')
-    {
-        char* matrix_a = (char*)a->components;
-        char* matrix_b = (char*)b->components;
-        for(int i=0; i < dim; i++)
-        {
-            float fact = pow((int)matrix_a[i] - (int)matrix_b[i], 2);
-            sum += fact;    
-        }
-    }
-    else
-    {
-        cout << "Invalid type specifier, acceptable types are f, i or c but recieved " << g->type << endl;
-        return -2;
-    }
-    
-    return sqrt(sum);
-
+    return g->find_distance(a->components, b->components, dim);
 }
 
+double calculate_int(void* a, void* b, int dim)
+{
+    int* v_a = (int*)a;
+    int* v_b = (int*)b;
+    double sum = 0.0f;
+
+    for (int i = 0; i < dim; ++i) {
+        float diff = (float)(v_a[i] - v_b[i]);
+        sum += diff * diff;
+    }
+
+    return sqrt(sum);
+}
+
+double calculate_char(void* a, void* b, int dim)
+{
+    unsigned char* v_a = (unsigned char*)a;
+    unsigned char* v_b = (unsigned char*)b;
+    double sum = 0.0f;
+    for (int i = 0; i < dim; ++i) {
+        float diff = (float)((int)v_a[i] - (int)v_b[i]);
+        sum += diff * diff;
+    }
+
+    return sqrt(sum);
+}
+
+double calculate_float(void* a, void* b, int dim)
+{
+    float* v_a = (float*)a;
+    float* v_b = (float*)b;
+    float sum = 0.0f;
+
+    for (int i = 0; i < dim; ++i) {
+        float diff = v_a[i] - v_b[i];
+        sum += diff * diff;
+    }
+
+    return sqrt(sum);
+}
 
 // Creates a candidate representation
 Candidate create_candidate(Graph g, Node to, Node query)
