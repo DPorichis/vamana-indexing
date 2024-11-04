@@ -11,9 +11,11 @@ int main(int argc, char* argv[]) {
     float a;
     char type;
 
-    if(argc != 6)
+    if(argc != 7)
+    {    
         cerr << "Incorrect arguments. Usage ./bin/project [filename] [data type] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
-
+        return -1;
+    }    
     //**** Read arguments ****//
 
     // Retrive type
@@ -28,6 +30,13 @@ int main(int argc, char* argv[]) {
     // Retrive k  
     try {
         k = stoi(argv[3]);
+        if(k < 1)
+        {
+            cout << "k must be >= 1 (k passed '" << argv[3] << "')" << endl;
+            cout << "Reminder: Usage ./bin/project [filename] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
+            return -1;
+        }
+
     } catch (const std::invalid_argument&) {
         cout << "Argument passed as k (" << argv[3] << ") is not a valid integer." << endl;
         cout << "Reminder: Usage ./bin/project [filename] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
@@ -40,6 +49,13 @@ int main(int argc, char* argv[]) {
     // Retrive dimensions
     try {
         dimensions = stoi(argv[4]);
+        if(dimensions < 1)
+        {
+            cout << "dimensions must be >= 1 (dimensions passed '" << argv[4] << "')" << endl;
+            cout << "Reminder: Usage ./bin/project [filename] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
+            return -1;
+        }
+    
     } catch (const std::invalid_argument&) {
         cout << "Argument passed as dimensions (" << argv[4] << ") is not a valid integer." << endl;
         cout << "Reminder: Usage ./bin/project [filename] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
@@ -52,6 +68,12 @@ int main(int argc, char* argv[]) {
     // Retrive a
     try {
         float a = std::stof(argv[5]);
+        if(a < 1)
+        {
+            cout << "a must be >= 1 (a passed '" << argv[5] << "')" << endl;
+            cout << "Reminder: Usage ./bin/project [filename] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
+            return -1;
+        }
     } catch (const std::invalid_argument&) {
         cout << "Argument passed as a (" << argv[5] << ") is not a valid float." << endl;
         cout << "Reminder: Usage ./bin/project [filename] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
