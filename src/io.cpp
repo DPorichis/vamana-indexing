@@ -40,13 +40,6 @@ vector<file_vector_float> read_float_vectors_from_file(const std::string& filena
 // Create graph from dataset. Returns graph for success, NULL otherwise
 Graph create_graph_from_file(const string& filename, int type, int k) {
     // Store file data to vector
-    // if (type == 'f')
-    //     vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
-    // else if (type == 'i')
-    //     vector<file_vector_int> vectors = read_int_vectors_from_file(filename);
-    // else if (type == 'c')
-    //     vector<file_vector_char> vectors = read_char_vectors_from_file(filename);
-
     vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
     //  Graph creation
     Graph graph = create_graph(type, k, vectors[0].d);
@@ -75,16 +68,7 @@ Graph create_graph_from_file(const string& filename, int type, int k) {
 // Performs (and allocates) query. Returns the file position of query for success, -1 otherwise
 Node ask_query(const std::string& filename, int type, int graph_dimension, int& pos) {
     // Store file data to vector
-    
-    if (type == 'f')
-        vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
-    else if (type == 'i')
-        vector<file_vector_int> vectors = read_int_vectors_from_file(filename);
-    else if (type == 'c')
-        vector<file_vector_char> vectors = read_char_vectors_from_file(filename);
-        
     vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
-
 
     // Random query
     

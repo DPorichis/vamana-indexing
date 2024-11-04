@@ -20,9 +20,10 @@ void test_create_vamana_index(void) {
     int L = 80;
     int R = 20;
     int K = 70;
+    int a = 1.2;
     //    graph = create_graph_from_file(path, 'f', K);
     int medoid_pos;
-    TEST_ASSERT(!create_vamana_index(&graph, path, L, R, medoid_pos));
+    TEST_ASSERT(!create_vamana_index(&graph, path, L, R, a, medoid_pos));
     // TEST_ASSERT(graph != NULL);
     
     set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
@@ -39,6 +40,7 @@ void test_create_vamana_index(void) {
     //     cout << "Must be : " << vectors[pos].components[i] << endl;
     //     i++;
     // }
+    
     // Recall calculation
     i = 0;
     set<int> algorithm_results;

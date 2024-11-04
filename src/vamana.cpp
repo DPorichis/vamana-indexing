@@ -191,7 +191,7 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 
 /*-------- Gready search and prunning need error return values--------------*/
 // Vamana index implementation
-int create_vamana_index(Graph* g, const string& filename, int L, int R, int& medoid_pos) {
+int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,int& medoid_pos) {
     // Graph creation and initialization
     *g = create_graph_from_file(filename, 'f', R);
     Graph graph = *g;
@@ -204,13 +204,9 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R, int& med
         return -2;
     }
 
-    // int pos;
-    // pos = 8736;
-    /* UNCOMMENT if is the final execusion. Otherwise pos is 8736, after 1 minute of function execution
-    // int pos =  find_medoid(graph->nodes);
-    */
-    // medoid_pos =  find_medoid(graph);
-    medoid_pos = 8736;
+    // Find medoid
+    medoid_pos =  find_medoid(graph);
+    
     Node medoid_node = graph->nodes[medoid_pos];
 
     // Create random permutation of nodes, vectors is a copy of nodes (not the original)
@@ -223,9 +219,6 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R, int& med
     // K for gready search
     int k = 1;
 
-    // a parameter for pruning
-    int a = 1.6;
-
     for (int i = 0; i < vectors.size(); i++) {
         // Create neighbours and visited sets
         // cout << i << endl;
@@ -236,8 +229,6 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R, int& med
         robust_prunning(graph, vectors[i], visited, a, R);
         for (const auto& j : vectors[i]->neighbours) {
             // Create temp set
-            // Link comp or Cand Comp
-            // set<Candidate, LinkComp>* visited_set = &(j->to->neighbours.begin(), j->to->neighbours.end());
             set<Candidate, CandidateComparator>* visited_set = new set<Candidate, CandidateComparator>();
             for (const Link& link : j->to->neighbours) {
                 Candidate to_insert = create_candidate_copy((Link)link);
@@ -271,17 +262,6 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R, int& med
                 free(r);
 
             delete visited_set;
-            // for (const auto& elem_nb : elem->to->neighbours) {
-            //     Candidate cand = create_candidate(graph, elem_nb->to, elem->to);
-            // }
-            // Link for_insert = create_link(graph, )
-            // elem->to->neighbours.insert(vectors[i]);
-            // add_neighbour_node(graph, elem->to, vectors[i]);
-            // if (elem->to->neighbours.size() > R) {
-            //     robust_prunning(graph, elem, elem->to->neighbours, a, R);
-            //     elem->to->neighbours.erase(vectors[i]);
-            // }
-
         }
         
         for (const auto& r : *neighbours)
@@ -315,21 +295,6 @@ void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, Candidate
     });
 }
 
-void delete_vis_neigh(set<Candidate, CandidateComparator>* neighbours, set<Candidate, CandidateComparator>* visited)
-{
-}
-
-// Calculates euclidean distance of vectors a and b
-// float euclidean_distance(const float* a, const float* b, int dimensions) {
-//     float sum = 0.0f;
-//     for (int i = 0; i < dimensions; ++i) {
-//         float diff = a[i] - b[i];
-//         sum += diff * diff;
-//     }
-//     return sqrt(sum);
-// }
-
-// int find_medoid(const vector<Node>& nodes) {
 int find_medoid(Graph graph) {
     int n = graph->nodes.size();
     if (n == 0) {
@@ -358,25 +323,3 @@ int find_medoid(Graph graph) {
     }
     return medoid_position;
 }
-
-// // Finds medoid of a graph
-// // Bad implementation O(d*n^2)
-// Node find_medoid(Graph g)
-// {
-//     Node m = NULL;
-//     double min_dist = 0;
-//     for(int i = 0; i < g->nodes.size(); i++)
-//     {
-//         //cout << "Node " << i << endl;
-//         double dist_sum = 0;
-//         for(int j = 0; j < g->nodes.size(); j++)
-//             dist_sum += calculate_distance(g, g->nodes[i], g->nodes[j]);
-    
-//         if(dist_sum < min_dist || m == NULL)
-//         {
-//             min_dist = dist_sum;
-//             m = g->nodes[i];
-//         }
-//     }
-//     return m;
-// }

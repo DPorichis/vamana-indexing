@@ -33,6 +33,13 @@ If you have a ground truth for your data you will be asked to enter it after the
 
 You will also be asked to select how many queries you want to perform from the file you provided. 
 
+An example execusion is : 
+
+`./bin/project ./data/siftsmall/siftsmall_base.fvecs f 20 1.4 ./data/siftsmall/siftsmall_query.fvecs`
+
+
+and the groundtruth file is : `./data/siftsmall/siftsmall_groundtruth.ivecs`
+
 #### Unit Testing
 
 
@@ -70,6 +77,8 @@ Candidate sets use the stored distance to order themselves (from closest to fart
 
 This sorting makes finding the min in our algorithm faster while maintaining the sort comes at a price of logn for each entry, which we believe is a fair trade.
 
+#### I/0
+For the data insertion we use a struct that contains two elements. The first one called "d" contains the node dimension. The other one is a vector that contains the components of the node. 
 
 ### Test Report
 

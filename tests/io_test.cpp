@@ -62,12 +62,6 @@ void test_query(void) {
 	Graph graph = create_graph_from_file("../data/siftsmall/siftsmall_base.fvecs", 'f', 5);	
 
 	// The vectors of the query dataset
-	if (graph->type == 'f')
-        vector<file_vector_float> vectors = read_float_vectors_from_file(path);
-    else if (graph->type == 'i')
-        vector<file_vector_int> vectors = read_int_vectors_from_file(path);
-    else if (graph->type == 'c')
-        vector<file_vector_char> vectors = read_char_vectors_from_file(path);
 
 	vector<file_vector_float> vectors = read_float_vectors_from_file(path);
 
