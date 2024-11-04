@@ -12,16 +12,19 @@ using namespace std;
 // Creates a graph and initializes all of the meta data
 Graph create_graph(char type, int k, int dimensions)
 {
+    // Call the constructor
     Graph g = new graph(type, k, dimensions);
     return g;
 }
 
 // Adds a node for a given point to the graph, and returns a pointer to it
+// Returns NULL if the dimensions dont match with the graph selected for insertion
 Node add_node_graph(Graph g, int d_count, void* components)
 {
     if(d_count != g->dimensions)
         return NULL;
     
+    // Create and add
     Node n = create_node(components, d_count);
     g->nodes.push_back(n);
 
@@ -32,11 +35,13 @@ Node add_node_graph(Graph g, int d_count, void* components)
 // including the points that were allocated by the user
 void destroy_graph(Graph g)
 {
+    // Delete each node
     for (int i = 0; i < g->nodes.size(); ++i) {
         destroy_node(g->nodes[i]);
     }
     g->nodes.clear();
 
+    // And yourself
     delete g;
 }
 
@@ -46,23 +51,29 @@ void destroy_graph(Graph g)
 // Creates a node representation for the given data
 Node create_node(void* components, int d_count)
 {
+    // Call the constructor
     Node n = new node(components, d_count);
     return n;
 }
 
-// Adds a Node to as a neighbour to node from in the given graph G
+// Adds a Node to as a neighbour to node from in the given graph G,
+// Returns the distance of the two neighbours, or -1 in error state
 float add_neighbour_node(Graph g, Node from, Node to)
 {
     if(from == NULL || to == NULL || from == to)
         return -1;
     
+    // Create and insert
     Link new_link = create_link(g, from, to);
     auto result = from->neighbours.insert(new_link);
-
+    
+    // If we failed to insert return error -1
     if (!result.second) {
         free(new_link);
         return -1;
     }
+
+    // Return the distance of the neighbours
     return new_link->distance;
 }
 
@@ -70,11 +81,16 @@ float add_neighbour_node(Graph g, Node from, Node to)
 // including the point that was allocated by the user
 void destroy_node(Node n)
 {
+    // Free the point that user passed as argument
     free(n->components);
+
+    // Destroy all neighbours
     for (Link l : n->neighbours) {
         free(l);
     }
     n->neighbours.clear();
+    
+    // Destroy self
     delete n;
 }
 
@@ -124,16 +140,19 @@ double calculate_distance(Graph g, Node a, Node b)
         cout << "Not matching dimentions " << a->d_count << " != " << b->d_count << endl;
         return -1;
     }
+
+    // Call the find_distance stored in the graph meta data with the two points as arguments
     return g->find_distance(a->components, b->components, dim);
 }
 
 // Distance calculation for int vectors
 double calculate_int(void* a, void* b, int dim)
 {
+    // Cast as int tables
     int* v_a = (int*)a;
     int* v_b = (int*)b;
-    double sum = 0.0f;
 
+    double sum = 0.0f; // sum is always a double
     for (int i = 0; i < dim; ++i) {
         float diff = (float)(v_a[i] - v_b[i]);
         sum += diff * diff;
@@ -145,9 +164,11 @@ double calculate_int(void* a, void* b, int dim)
 // Distance calculation for char vectors
 double calculate_char(void* a, void* b, int dim)
 {
+    // Cast as unsigned char tables
     unsigned char* v_a = (unsigned char*)a;
     unsigned char* v_b = (unsigned char*)b;
-    double sum = 0.0f;
+
+    double sum = 0.0f; // sum is always a double
     for (int i = 0; i < dim; ++i) {
         float diff = (float)((int)v_a[i] - (int)v_b[i]);
         sum += diff * diff;
@@ -159,9 +180,10 @@ double calculate_char(void* a, void* b, int dim)
 // Distance calculation for float vectors
 double calculate_float(void* a, void* b, int dim)
 {
+    // Cast as float tables
     float* v_a = (float*)a;
     float* v_b = (float*)b;
-    float sum = 0.0f;
+    float sum = 0.0f; // sum is always a double
 
     for (int i = 0; i < dim; ++i) {
         float diff = v_a[i] - v_b[i];

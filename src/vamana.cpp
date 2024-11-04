@@ -27,6 +27,8 @@ int init_dummy_graph(Graph g)
         Node from = g->nodes[i];
         for(int j=0; j < min_neigh; j++)
         {
+            // Make sure that we try again if we try to insert a 
+            // neighbour that already exists
             int flag = -1;
             while(flag < 0)
             {
@@ -46,15 +48,21 @@ int gready_search(Graph g, Node s, Node query, int k, int L,
     set<Candidate, CandidateComparator>* neighbours, 
     set<Candidate, CandidateComparator>* visited)
 {
+    // k must not exceed L
     if(k > L)
         L = k;
+
+    // Add s to neighbour list
     neighbours->insert(create_candidate(g, s, query));
     Node current = s;
+
+    // Calculate the difference between L and V
     set<Candidate, CandidateComparator> difference;
     update_dif(neighbours, visited, &difference);
 	int iter = 0;
     while(!difference.empty())
     {
+        // // Debugging printing
         // cout << "== Iteration "<< iter << " =="<< endl;
         // cout << "#dif: " << difference.size() << endl;
         // cout << "#vis: " << visited->size() << endl;
@@ -63,14 +71,17 @@ int gready_search(Graph g, Node s, Node query, int k, int L,
         // Get the min, which in our set is the first element
         Candidate selected_cand = *difference.begin();
         
+        // Update L to include the neighbours of p*
         for (const auto& neig : selected_cand->to->neighbours) {
             Candidate for_insert = create_candidate(g, neig->to, query);
             auto result = neighbours->insert(for_insert);
+            // If already in L, free new element so we dont have leaks
             if(!result.second)
                 free(for_insert);
 
         }
 
+        // Update V to include p*
         Candidate to_insert = create_candidate_copy(selected_cand);
         auto result = visited->insert(to_insert);
         if(!result.second)
@@ -79,10 +90,13 @@ int gready_search(Graph g, Node s, Node query, int k, int L,
         // Remove items from neighbours until we reach legal size L
         while(neighbours->size() > L)
         {
+            // The biggest element in the set is the last one, remove that one
             auto to_erase = std::prev(neighbours->end());
             free(*to_erase);
             neighbours->erase(to_erase);
         }
+
+        // Recalculate the difference
         update_dif(neighbours, visited, &difference);
         iter++;
     }
@@ -94,6 +108,7 @@ int gready_search(Graph g, Node s, Node query, int k, int L,
 // Returns 0 on correct execution
 int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r)
 {
+    // Update V to include neighbours of p
     for (const auto& neig : p->neighbours) {
         Candidate for_insert = create_candidate(g, neig->to, p);
         auto result = v->insert(for_insert);
@@ -103,7 +118,7 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
         }
     }
 
-    // Erase the p if it exists in the v set
+    // But not p (erase the p if it exists in the v set)
     Candidate erase_self = create_candidate(g, p, p);
     auto it_self = v->find(erase_self);
     if(it_self != v->end())
@@ -114,7 +129,6 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
     }
     free(erase_self);
 
-    // Fix this so it doesn't memory leak <3
     // Empty all the existing neighbours
     for (auto it = p->neighbours.begin(); it != p->neighbours.end();) {
         const auto elem = *it;
@@ -128,16 +142,18 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
         // Get the min, which in our set is the first element
         Candidate selected_cand = *(v->begin());
 
-
+        // Insert p* to the neighbours of p
         Candidate for_insert = create_candidate(g, selected_cand->to, p);
         auto result = p->neighbours.insert(for_insert);
 
+        // Stop when we reached R neighbours
         if(p->neighbours.size() == r)
         {
             // cout << "R reached";
             break;
         }
-
+        
+        // Distance to compare to
         Candidate target = create_candidate_copy(selected_cand);
 
         for (auto it = v->begin(); it != v->end();) {
@@ -146,20 +162,22 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
             // cout << "elem dim: " << elem->to->d_count << endl;
             // cout << "select dim: " << target->to->d_count << endl;
             // fflush(stdout);
-            if(elem == NULL)
+            if(elem == NULL) // Debugging
             {
                 // cout << "WHY?" << endl;
                 // fflush(stdout);
             }
-            else if(a * calculate_distance(g ,elem->to, target->to) <= elem->distance) // distance bugs because of float may occur
+            // if not smaller when multiplied with the a factor
+            else if(a * calculate_distance(g ,elem->to, target->to) <= elem->distance)
             {
                 // cout << a * calculate_distance(elem->to, target->to) << " < " << elem->distance;
-                fflush(stdout);
-                it = v->erase(it);
+                // fflush(stdout);
+                
+                // Remove the item from v
+                it = v->erase(it); // This will update the iterator
                 free(elem);
-                fflush(stdout);
             } else {
-                ++it;  // Only increment if no erase occurs
+                ++it;  // Next element
             }
         }
 
