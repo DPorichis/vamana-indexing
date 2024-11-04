@@ -14,14 +14,16 @@ void test_create_vamana_index(void) {
 
     // Groundtruth data
     string groundtruth = "../data/siftsmall/siftsmall_groundtruth.ivecs";
-    vector<file_vector2> vectors = read_int_vectors_from_file(groundtruth);
+    vector<file_vector_int> vectors = read_int_vectors_from_file(groundtruth);
 
     Graph graph;
     int L = 80;
     int R = 20;
     int K = 70;
+    int a = 1.2;
     //    graph = create_graph_from_file(path, 'f', K);
-    TEST_ASSERT(!create_vamana_index(&graph, path, L, R));
+    int medoid_pos;
+    TEST_ASSERT(!create_vamana_index(&graph, path, L, R, a, medoid_pos));
     // TEST_ASSERT(graph != NULL);
     
     set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
@@ -29,8 +31,8 @@ void test_create_vamana_index(void) {
 
     string queries = "../data/siftsmall/siftsmall_query.fvecs";
     int pos; 
-	Node query = ask_query(queries, graph->dimensions, pos);
-    gready_search(graph, graph->nodes[8736], query, K, L, neighbours, visited);
+	Node query = ask_query(queries, graph->type, graph->dimensions, pos);
+    gready_search(graph, graph->nodes[medoid_pos], query, K, L, neighbours, visited);
     int i = 0;
     // Print the nodes
     // for (const auto& r : *neighbours) {
@@ -38,6 +40,7 @@ void test_create_vamana_index(void) {
     //     cout << "Must be : " << vectors[pos].components[i] << endl;
     //     i++;
     // }
+    
     // Recall calculation
     i = 0;
     set<int> algorithm_results;
