@@ -1,0 +1,48 @@
+alltests: gready_test graph_test io_test prune_test vamana_test
+all: gready_test graph_test io_test prune_test vamana_test project
+
+
+# paths
+SOURCE = ./src
+HEAD = ./headers
+TESTS = ./tests
+BUILD = ./build
+BIN = ./bin
+
+CFLAGS = -g -I$(HEAD)
+
+PROJOBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/graph.o $(BUILD)/main.o
+
+GRPOBJ = $(BUILD)/graph_test.o $(BUILD)/graph.o
+
+GROBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/gready_test.o $(BUILD)/graph.o
+
+COMOBJ = $(BUILD)/io.o $(BUILD)/graph.o $(BUILD)/vamana.o $(BUILD)/io_test.o
+
+PROBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/prune_test.o $(BUILD)/graph.o
+
+VAMOBJ = $(BUILD)/vamana.o $(BUILD)/vamana_test.o $(BUILD)/graph.o $(BUILD)/io.o
+
+$(BUILD)/%.o: $(SOURCE)/%.cpp | $(BUILD)
+	g++ $(CFLAGS) -c $< -o $@
+
+$(BUILD)/%.o: $(TESTS)/%.cpp | $(BUILD)
+	g++ $(CFLAGS) -c $< -o $@
+
+project: $(PROJOBJ)
+	g++ $(CFLAGS) $(PROJOBJ) -o $(BIN)/project
+
+gready_test: $(GROBJ)
+	g++ $(CFLAGS) $(GROBJ) -o $(BIN)/gready_test
+
+graph_test: $(GRPOBJ)
+	g++ $(CFLAGS) $(GRPOBJ) -o $(BIN)/graph_test
+
+prune_test: $(PROBJ)
+	g++ $(CFLAGS) $(PROBJ) -o $(BIN)/prune_test
+
+io_test: $(COMOBJ)
+	g++ $(CFLAGS) $(COMOBJ) -o $(BIN)/io_test
+
+vamana_test: $(VAMOBJ)
+	g++ $(CFLAGS) $(VAMOBJ) -o $(BIN)/vamana_test

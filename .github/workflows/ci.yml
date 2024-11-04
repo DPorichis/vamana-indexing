@@ -33,3 +33,4 @@ jobs:
         ../bin/io_test
         ../bin/gready_test
         ../bin/prune_test
+        ../bin/vamana_test
