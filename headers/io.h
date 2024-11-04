@@ -12,8 +12,16 @@ struct file_vector {
     std::vector<float> components;  // Vector components
 };
 
+struct file_vector2 {
+    int d;                          // Dimension of the vector
+    std::vector<int> components;  // Vector components
+};
+
+
 // Inserting data in the library structure
 vector<file_vector> read_vectors_from_file(const string& filename);
+
+vector<file_vector2> read_int_vectors_from_file(const string& filename);
 
 // Create graph from dataset. Returns graph for success, NULL otherwise
 Graph create_graph_from_file(const string& filename, int type, int k);

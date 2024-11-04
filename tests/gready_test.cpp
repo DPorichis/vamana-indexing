@@ -47,7 +47,8 @@ void test_gready_search(void) {
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
 
-	int results = gready_search(graph, find_medoid(graph), graph->nodes[6], graph->k, 10, neighbours, visited);
+	// int results = gready_search(graph, find_medoid(graph), graph->nodes[6], graph->k, 10, neighbours, visited);
+	int results = gready_search(graph, graph->nodes[8736], graph->nodes[6], graph->k, 10, neighbours, visited);
 
 	int flag = 0;
 	for (const auto& r : *neighbours) {
