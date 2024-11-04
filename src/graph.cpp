@@ -1,4 +1,5 @@
 // This file contains the graph structure implementation and relevant functions
+
 #include "header.h"
 #include "graph.h"
 #include <iostream>
@@ -6,21 +7,50 @@
 
 using namespace std;
 
-// Creates a link from-to
-Link create_link(Graph g, Node from, Node to)
+//**** Graph Functions ****//
+
+// Creates a graph and initializes all of the meta data
+Graph create_graph(char type, int k, int dimensions)
 {
-    Link link = (Link)malloc(sizeof(*link));
-    link->to = to;
-    link->distance = calculate_distance(g, from, to);
-    return link;
+    Graph g = new graph(type, k, dimensions);
+    return g;
 }
 
+// Adds a node for a given point to the graph, and returns a pointer to it
+Node add_node_graph(Graph g, int d_count, void* components)
+{
+    if(d_count != g->dimensions)
+        return NULL;
+    
+    Node n = create_node(components, d_count);
+    g->nodes.push_back(n);
+
+    return n;
+}
+
+// Destroys the graph and deletes all of its data, 
+// including the points that were allocated by the user
+void destroy_graph(Graph g)
+{
+    for (int i = 0; i < g->nodes.size(); ++i) {
+        destroy_node(g->nodes[i]);
+    }
+    g->nodes.clear();
+
+    delete g;
+}
+
+
+//**** Node Functions ****//
+
+// Creates a node representation for the given data
 Node create_node(void* components, int d_count)
 {
     Node n = new node(components, d_count);
     return n;
 }
 
+// Adds a Node to as a neighbour to node from in the given graph G
 float add_neighbour_node(Graph g, Node from, Node to)
 {
     if(from == NULL || to == NULL || from == to)
@@ -36,7 +66,8 @@ float add_neighbour_node(Graph g, Node from, Node to)
     return new_link->distance;
 }
 
-
+// Destroys the node representation and all of its data
+// including the point that was allocated by the user
 void destroy_node(Node n)
 {
     free(n->components);
@@ -47,36 +78,43 @@ void destroy_node(Node n)
     delete n;
 }
 
-Graph create_graph(char type, int k, int dimensions)
+//**** Connection Functions ****//
+
+// Creates a link representation for the connection of two nodes
+// of graph g
+Link create_link(Graph g, Node from, Node to)
 {
-    Graph g = new graph(type, k, dimensions);
-    return g;
+    Link link = (Link)malloc(sizeof(*link));
+    link->to = to;
+    link->distance = calculate_distance(g, from, to);
+    return link;
 }
 
-Node add_node_graph(Graph g, int d_count, void* components)
+// Creates a candiadate represantation for two nodes
+// (Its the same thing as with create_link, used for better understanding)
+Candidate create_candidate(Graph g, Node to, Node query)
 {
-    if(d_count != g->dimensions)
-        return NULL;
-    
-    Node n = create_node(components, d_count);
-    g->nodes.push_back(n);
-
-    return n;
+    Candidate cand = (Candidate)malloc(sizeof(*cand));
+    cand->to = to;
+    cand->distance = calculate_distance(g, query, to);
+    return cand;
 }
 
-void destroy_graph(Graph g)
+// Creates and returns an exact copy of a candidate, used for creating duplicates
+// of a candidate to prevent accidental freeing.
+Candidate create_candidate_copy(Candidate cand)
 {
-    for (int i = 0; i < g->nodes.size(); ++i) {
-        destroy_node(g->nodes[i]);
-    }
-    g->nodes.clear();
-
-    delete g;
+    Candidate cand_copy = (Candidate)malloc(sizeof(*cand));
+    cand_copy->to = cand->to;
+    cand_copy->distance = cand->distance;
+    return cand_copy;    
 }
 
 
-// Calculates and returns the distance between two instances
-// or -1 if the dimentions do not match
+//**** Distance Functions ****//
+
+// Wrapper function for calling the graph function given in the graph's meta data
+// returning error code -1 when the dimentions of the two nodes are not the same
 double calculate_distance(Graph g, Node a, Node b)
 {
     int dim = a->d_count;
@@ -89,6 +127,7 @@ double calculate_distance(Graph g, Node a, Node b)
     return g->find_distance(a->components, b->components, dim);
 }
 
+// Distance calculation for int vectors
 double calculate_int(void* a, void* b, int dim)
 {
     int* v_a = (int*)a;
@@ -103,6 +142,7 @@ double calculate_int(void* a, void* b, int dim)
     return sqrt(sum);
 }
 
+// Distance calculation for char vectors
 double calculate_char(void* a, void* b, int dim)
 {
     unsigned char* v_a = (unsigned char*)a;
@@ -116,6 +156,7 @@ double calculate_char(void* a, void* b, int dim)
     return sqrt(sum);
 }
 
+// Distance calculation for float vectors
 double calculate_float(void* a, void* b, int dim)
 {
     float* v_a = (float*)a;
@@ -129,23 +170,3 @@ double calculate_float(void* a, void* b, int dim)
 
     return sqrt(sum);
 }
-
-// Creates a candidate representation
-Candidate create_candidate(Graph g, Node to, Node query)
-{
-    Candidate cand = (Candidate)malloc(sizeof(*cand));
-    cand->to = to;
-    cand->distance = calculate_distance(g, query, to);
-    return cand;
-}
-
-Candidate create_candidate_copy(Candidate cand)
-{
-    Candidate cand_copy = (Candidate)malloc(sizeof(*cand));
-    cand_copy->to = cand->to;
-    cand_copy->distance = cand->distance;
-    return cand_copy;    
-}
-
-//=================== Help Functions ========================//
-// The following functions are not included in the interface //

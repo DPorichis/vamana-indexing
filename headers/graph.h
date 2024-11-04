@@ -30,6 +30,8 @@ struct link
 };
 typedef struct link* Link;
 
+// Link comperator is based on the to field of each link
+// (what pointer it points to)
 struct LinkComp
 {
     bool operator()(const Link& a, const Link& b) const {
@@ -52,6 +54,9 @@ struct node
     node() {}
 };
 
+
+// Distance calculation functions for each type of data //
+
 typedef double (*DistanceFunc)(void*, void*, int);
 
 double calculate_int(void* a, void* b, int dim);
@@ -64,12 +69,14 @@ struct graph
     char type; // Type of data in components
     int k; // Defines the k-neighbours bound
     int dimensions; // Defines the dimensions of each element
-    DistanceFunc find_distance;
-    vector<Node> nodes;
+    DistanceFunc find_distance; // Selected calculate function based on the data type
+    vector<Node> nodes; // All the vector Nodes
     
+    // Basic constructor
     graph(char t, int kn, int dim)
         : type(t), k(kn), dimensions(dim) 
     {
+        // Select the right function depending on the data type
         if(t == 'f')
             find_distance = calculate_float;
         else if(t == 'c')
@@ -83,9 +90,11 @@ typedef struct graph* Graph;
 
 
 
-// Alias for link, used in when searching for the neighbours//
+// Alias for link, used in when searching for the neighbours //
 typedef struct link* Candidate;
 
+// Candidates are stored based on the distance attribute, but they are considered
+// equal when pointing to the same thing
 struct CandidateComparator {
     bool operator()(const Candidate& a, const Candidate& b) const {
         // For same destination, return false to prevent ordering
@@ -99,36 +108,50 @@ struct CandidateComparator {
     };
 };
 
-
-
 // ============= Functions ============ //
 
 // Graph Functions //
 
+
+// Creates a graph and initializes all of the meta data
 Graph create_graph(char type, int k, int dimensions);
 
+// Adds a node for a given point to the graph, and returns a pointer to it
 Node add_node_graph(Graph g, int d_count, void* components);
 
+// Destroys the graph and deletes all of its data, 
+// including the points that were allocated by the user
 void destroy_graph(Graph g);
 
 
 // Node Functions //
 
+// Creates a node representation for the given data
 Node create_node(void* components, int d_count);
 
+// Adds a Node to as a neighbour to node from in the given graph G
 float add_neighbour_node(Graph g, Node from, Node to);
 
+// Destroys the node representation and all of its data
+// including the point that was allocated by the user
 void destroy_node(Node n);
 
 
 // Distance and connection related functions //
 
+// Creates a link representation for the connection of two nodes
+// of graph g
 Link create_link(Graph g, Node from, Node to);
 
-// Wrapper function for calling graph
+// Wrapper function for calling the graph function given in the graph's meta data
+// returning error code -1 when the dimentions of the two nodes are not the same
 double calculate_distance(Graph g, Node a, Node b);
 
+// Creates a candiadate represantation for two nodes
+// (Its the same thing as with create_link, used for better understanding)
 Candidate create_candidate(Graph g, Node to, Node query);
 
+// Creates and returns an exact copy of a candidate, used for creating duplicates
+// of a candidate to prevent accidental freeing.
 Candidate create_candidate_copy(Candidate can);
 
