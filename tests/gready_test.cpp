@@ -1,6 +1,7 @@
 #include "acutest.h"
 #include "graph.h"
 #include "vamana.h"
+#include "io.h"
 #include <iostream>
 #include <cmath>
 
@@ -15,6 +16,7 @@ void test_dummy(void) {
     	point[0] = i;
     	point[1] = i;
 		Node item = add_node_graph(graph, 2, point);
+		
 	}
 	init_dummy_graph(graph);
 	int total_num = 0;
@@ -84,19 +86,31 @@ void test_medoid(void) {
 		Node item = add_node_graph(graph, 2, point);
 	}
 
-	Node medoid = find_medoid(graph);
+	// Simple test
 
-	cout << "Medoid Found " << medoid << endl << "[";
+	Node medoid = find_medoid(graph);
 	float* point = (float*)medoid->components;
-	for(int i = 0; i < medoid->d_count; i++)
-		cout << ", " << point[i];
-	cout << "]" << endl;
+	
+	// cout << "Medoid Found " << medoid << endl << "[";
+	// for(int i = 0; i < medoid->d_count; i++)
+	// 	cout << ", " << point[i];
+	// cout << "]" << endl;
 
 	// Test if it finds the real medoid
 	TEST_ASSERT(point[0] == 15);
 	TEST_ASSERT(point[0] == 15);
-
 	destroy_graph(graph);
+
+	// Test with 10.000 data points //
+	string path = "../data/siftsmall/siftsmall_base.fvecs";
+    graph = create_graph_from_file(path, 'f', 5);
+    
+	TEST_ASSERT(graph->dimensions == 128);
+    Node node = find_medoid(graph);
+	TEST_ASSERT(node == graph->nodes[8736]);
+    TEST_ASSERT(node->d_count == 128);
+	destroy_graph(graph);
+
 	return;
 }
 

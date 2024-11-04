@@ -1,4 +1,5 @@
 // This file contains the graph structure implementation and relevant functions
+
 #include "header.h"
 #include "graph.h"
 #include <iostream>
@@ -6,7 +7,97 @@
 
 using namespace std;
 
-// Creates a link from-to
+//**** Graph Functions ****//
+
+// Creates a graph and initializes all of the meta data
+Graph create_graph(char type, int k, int dimensions)
+{
+    // Call the constructor
+    Graph g = new graph(type, k, dimensions);
+    return g;
+}
+
+// Adds a node for a given point to the graph, and returns a pointer to it
+// Returns NULL if the dimensions dont match with the graph selected for insertion
+Node add_node_graph(Graph g, int d_count, void* components, int pos)
+{
+    if(d_count != g->dimensions)
+        return NULL;
+    
+    // Create and add
+    Node n = create_node(components, d_count, pos);
+    g->nodes.push_back(n);
+
+    return n;
+}
+
+// Destroys the graph and deletes all of its data, 
+// including the points that were allocated by the user
+void destroy_graph(Graph g)
+{
+    // Delete each node
+    for (int i = 0; i < g->nodes.size(); ++i) {
+        destroy_node(g->nodes[i]);
+    }
+    g->nodes.clear();
+
+    // And yourself
+    delete g;
+}
+
+
+//**** Node Functions ****//
+
+// Creates a node representation for the given data
+Node create_node(void* components, int d_count, int pos)
+{
+    // Call the constructor
+    Node n = new node(components, d_count, pos);
+    return n;
+}
+
+// Adds a Node to as a neighbour to node from in the given graph G,
+// Returns the distance of the two neighbours, or -1 in error state
+float add_neighbour_node(Graph g, Node from, Node to)
+{
+    if(from == NULL || to == NULL || from == to)
+        return -1;
+    
+    // Create and insert
+    Link new_link = create_link(g, from, to);
+    auto result = from->neighbours.insert(new_link);
+    
+    // If we failed to insert return error -1
+    if (!result.second) {
+        free(new_link);
+        return -1;
+    }
+
+    // Return the distance of the neighbours
+    return new_link->distance;
+}
+
+// Destroys the node representation and all of its data
+// including the point that was allocated by the user
+void destroy_node(Node n)
+{
+    // Free the point that user passed as argument
+    free(n->components);
+
+    // Destroy all neighbours
+    for (Link l : n->neighbours) {
+        free(l);
+    }
+    n->neighbours.clear();
+    
+    // Destroy self
+    delete n;
+}
+
+//**** Connection Functions ****//
+
+// Creates a link representation for the connection of two nodes
+// of graph g
 Link create_link(Graph g, Node from, Node to)
 {
     Link link = (Link)malloc(sizeof(*link));
@@ -15,122 +106,8 @@ Link create_link(Graph g, Node from, Node to)
     return link;
 }
 
-Node create_node(void* components, int d_count, int pos)
-{
-    Node n = new node(components, d_count, pos);
-    return n;
-}
-
-float add_neighbour_node(Graph g, Node from, Node to)
-{
-    if(from == NULL || to == NULL || from == to)
-        return -1;
-    
-    Link new_link = create_link(g, from, to);
-    auto result = from->neighbours.insert(new_link);
-
-    if (!result.second) {
-        free(new_link);
-        return -1;
-    }
-    return new_link->distance;
-}
-
-
-void destroy_node(Node n)
-{
-    free(n->components);
-    for (Link l : n->neighbours) {
-        free(l);
-    }
-    n->neighbours.clear();
-    delete n;
-}
-
-Graph create_graph(char type, int k, int dimensions)
-{
-    Graph g = new graph(type, k, dimensions);
-    return g;
-}
-
-Node add_node_graph(Graph g, int d_count, void* components, int pos)
-{
-    if(d_count != g->dimensions)
-        return NULL;
-    
-    Node n = create_node(components, d_count, pos);
-    g->nodes.push_back(n);
-
-    return n;
-}
-
-void destroy_graph(Graph g)
-{
-    for (int i = 0; i < g->nodes.size(); ++i) {
-        destroy_node(g->nodes[i]);
-    }
-    g->nodes.clear();
-
-    delete g;
-}
-
-
-// Calculates and returns the distance between two instances
-// or -1 if the dimentions do not match
-float calculate_distance(Graph g, Node a, Node b)
-{
-    int dim = a->d_count;
-    // If the dimentions do not match, skip return error code -1
-    if (dim != b->d_count)
-    {    
-        cout << "Not matching dimentions " << a->d_count << " != " << b->d_count << endl;
-        return -1;
-    }
-    // Calculate the Euclidian Distance
-    float sum = 0;
-
-    if(g->type == 'f')
-    {
-        float* matrix_a = (float*)a->components;
-        float* matrix_b = (float*)b->components;
-        for(int i=0; i < dim; i++)
-        {
-            float fact = pow(matrix_a[i] - matrix_b[i], 2);
-            sum += fact;    
-        }
-    }
-    else if(g->type == 'i')
-    {
-        int* matrix_a = (int*)a->components;
-        int* matrix_b = (int*)b->components;
-        for(int i=0; i < dim; i++)
-        {
-            float fact = pow(matrix_a[i] - matrix_b[i], 2);
-            sum += fact;    
-        }    
-    }
-    else if(g->type == 'c')
-    {
-        char* matrix_a = (char*)a->components;
-        char* matrix_b = (char*)b->components;
-        for(int i=0; i < dim; i++)
-        {
-            float fact = pow((int)matrix_a[i] - (int)matrix_b[i], 2);
-            sum += fact;    
-        }
-    }
-    else
-    {
-        cout << "Invalid type specifier, acceptable types are f, i or c but recieved " << g->type << endl;
-        return -2;
-    }
-    
-    return sqrt(sum);
-
-}
-
-
-// Creates a candidate representation
+// Creates a candiadate represantation for two nodes
+// (Its the same thing as with create_link, used for better understanding)
 Candidate create_candidate(Graph g, Node to, Node query)
 {
     Candidate cand = (Candidate)malloc(sizeof(*cand));
@@ -139,6 +116,8 @@ Candidate create_candidate(Graph g, Node to, Node query)
     return cand;
 }
 
+// Creates and returns an exact copy of a candidate, used for creating duplicates
+// of a candidate to prevent accidental freeing.
 Candidate create_candidate_copy(Candidate cand)
 {
     Candidate cand_copy = (Candidate)malloc(sizeof(*cand));
@@ -147,5 +126,69 @@ Candidate create_candidate_copy(Candidate cand)
     return cand_copy;    
 }
 
-//=================== Help Functions ========================//
-// The following functions are not included in the interface //
+
+//**** Distance Functions ****//
+
+// Wrapper function for calling the graph function given in the graph's meta data
+// returning error code -1 when the dimentions of the two nodes are not the same
+double calculate_distance(Graph g, Node a, Node b)
+{
+    int dim = a->d_count;
+    // If the dimentions do not match, skip return error code -1
+    if (dim != b->d_count)
+    {    
+        cout << "Not matching dimentions " << a->d_count << " != " << b->d_count << endl;
+        return -1;
+    }
+
+    // Call the find_distance stored in the graph meta data with the two points as arguments
+    return g->find_distance(a->components, b->components, dim);
+}
+
+// Distance calculation for int vectors
+double calculate_int(void* a, void* b, int dim)
+{
+    // Cast as int tables
+    int* v_a = (int*)a;
+    int* v_b = (int*)b;
+
+    double sum = 0.0f; // sum is always a double
+    for (int i = 0; i < dim; ++i) {
+        float diff = (float)(v_a[i] - v_b[i]);
+        sum += diff * diff;
+    }
+
+    return sqrt(sum);
+}
+
+// Distance calculation for char vectors
+double calculate_char(void* a, void* b, int dim)
+{
+    // Cast as unsigned char tables
+    unsigned char* v_a = (unsigned char*)a;
+    unsigned char* v_b = (unsigned char*)b;
+
+    double sum = 0.0f; // sum is always a double
+    for (int i = 0; i < dim; ++i) {
+        float diff = (float)((int)v_a[i] - (int)v_b[i]);
+        sum += diff * diff;
+    }
+
+    return sqrt(sum);
+}
+
+// Distance calculation for float vectors
+double calculate_float(void* a, void* b, int dim)
+{
+    // Cast as float tables
+    float* v_a = (float*)a;
+    float* v_b = (float*)b;
+    float sum = 0.0f; // sum is always a double
+
+    for (int i = 0; i < dim; ++i) {
+        float diff = v_a[i] - v_b[i];
+        sum += diff * diff;
+    }
+
+    return sqrt(sum);
+}
