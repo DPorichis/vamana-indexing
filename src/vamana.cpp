@@ -179,53 +179,77 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 // Vamana index implementation
 int create_vamana_index(Graph* g, const string& filename, int L, int R) {
     // Graph creation and initialization
-    // *g = create_graph_from_file(filename, 'f', 10);
-    // Graph graph = *g;
-    // if (graph == NULL) {
-    //     cerr << "Error while creating graph from file" << endl;
-    //     return -1;
-    // }
-    // if (init_dummy_graph(graph)) {
-    //     cerr << "Error in graph initialization";
-    //     return -2;
-    // }
+    *g = create_graph_from_file(filename, 'f', 10);
+    Graph graph = *g;
+    if (graph == NULL) {
+        cerr << "Error while creating graph from file" << endl;
+        return -1;
+    }
+    if (init_dummy_graph(graph)) {
+        cerr << "Error in graph initialization";
+        return -2;
+    }
 
-    // int pos;
-    // pos = 8736;
-    // /* UNCOMMENT if is the final execusion. Otherwise pos is 8736, after 1 minute of function execution
-    // // int pos =  find_medoid(graph->nodes);
-    // */
-    // Node medoid_node = graph->nodes[pos];
+    int pos;
+    pos = 8736;
+    /* UNCOMMENT if is the final execusion. Otherwise pos is 8736, after 1 minute of function execution
+    // int pos =  find_medoid(graph->nodes);
+    */
+    Node medoid_node = graph->nodes[pos];
 
-    // // Create random permutation of nodes, vectors is a copy of nodes (not the original)
-    // vector<Node> vectors = graph->nodes;
-    // random_device rd;
-    // mt19937 generator(rd());
-    // // Shuffle vector items according to Mersenne Twister engine
-    // shuffle(vectors.begin(), vectors.end(), generator);
+    // Create random permutation of nodes, vectors is a copy of nodes (not the original)
+    vector<Node> vectors = graph->nodes;
+    random_device rd;
+    mt19937 generator(rd());
+    // Shuffle vector items according to Mersenne Twister engine
+    shuffle(vectors.begin(), vectors.end(), generator);
 
-    // // K for gready search
-    // int old_k = graph->k;
-    // graph->k = 1;
+    // K for gready search
+    int k = 1;
 
-    // // a parameter for pruning
-    // int a = 1.6;
+    // a parameter for pruning
+    int a = 1.6;
 
-    // for (int i = 0; i < vectors.size(); i++) {
-    //     // Create neighbours and visited sets
-    //     set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
-    //     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-    //     gready_search(graph, medoid_node, vectors[i], L, neighbours, visited);
+    for (int i = 0; i < vectors.size(); i++) {
+        // Create neighbours and visited sets
+        // cout << i << endl;
+        set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
+        set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
+        gready_search(graph, medoid_node, vectors[i], k, L, neighbours, visited);
 
-    //     robust_prunning(graph, vectors[i], visited, a, R);
-    //     for (const auto& elem : vectors[i]->neighbours) {
-    //         elem->neighbours.insert(vectors[i]);
-    //         if (elem->neighbours.size() > R) {
-    //             robust_prunning(graph, elem, elem->neighbours, a, R);
-    //             elem->neighbours.erase(vectors[i]);
-    //         }
-    //     }
-    // }
+        robust_prunning(graph, vectors[i], visited, a, R);
+        for (const auto& j : vectors[i]->neighbours) {
+            // Create temp set
+            // Link comp or Cand Comp
+            // set<Candidate, LinkComp>* visited_set = &(j->to->neighbours.begin(), j->to->neighbours.end());
+            set<Candidate, CandidateComparator>* visited_set = new set<Candidate, CandidateComparator>();
+            for (const Link& link : j->to->neighbours) {
+                visited_set->insert(create_candidate_copy((Link)link));
+            }
+
+            visited_set->insert(create_candidate(graph, vectors[i], j->to));
+
+            if (visited_set->size() > R) {
+                robust_prunning(graph, j->to, visited_set, a, R);
+            }
+            else {
+                j->to->neighbours.insert(create_link(graph, j->to, vectors[i]));
+            }
+            
+            delete visited_set;
+            // for (const auto& elem_nb : elem->to->neighbours) {
+            //     Candidate cand = create_candidate(graph, elem_nb->to, elem->to);
+            // }
+            // Link for_insert = create_link(graph, )
+            // elem->to->neighbours.insert(vectors[i]);
+            // add_neighbour_node(graph, elem->to, vectors[i]);
+            // if (elem->to->neighbours.size() > R) {
+            //     robust_prunning(graph, elem, elem->to->neighbours, a, R);
+            //     elem->to->neighbours.erase(vectors[i]);
+            // }
+
+        }
+    }
 
     return 0;
 }
@@ -249,23 +273,41 @@ void delete_vis_neigh(set<Candidate, CandidateComparator>* neighbours, set<Candi
 {
 }
 
-// Finds medoid of a graph
-// Bad implementation O(d*n^2)
-Node find_medoid(Graph g)
-{
-    Node m = NULL;
-    double min_dist = 0;
-    for(int i = 0; i < g->nodes.size(); i++)
-    {
-        double dist_sum = 0;
-        for(int j = 0; j < g->nodes.size(); j++)
-            dist_sum += calculate_distance(g, g->nodes[i], g->nodes[j]);
-    
-        if(dist_sum < min_dist || m == NULL)
-        {
-            min_dist = dist_sum;
-            m = g->nodes[i];
+// Calculates euclidean distance of vectors a and b
+float euclidean_distance(const float* a, const float* b, int dimensions) {
+    float sum = 0.0f;
+    for (int i = 0; i < dimensions; ++i) {
+        float diff = a[i] - b[i];
+        sum += diff * diff;
+    }
+    return sqrt(sum);
+}
+// int find_medoid(const vector<Node>& nodes) {
+int find_medoid(Graph graph) {
+    int n = graph->nodes.size();
+    if (n == 0) {
+        cerr << "Empty nodes vector" << endl;
+        // return NULL;
+        return -1;
+    }
+    int dimensions = graph->nodes[0]->d_count;
+    Node medoid = NULL;
+    int medoid_position = -1;
+    float min_distance = numeric_limits<float>::max();
+    // Calculate distance of each node to all other nodes
+    for (int i = 0; i < n; i++) {
+        float total_distance = 0.0f;
+        for (int j = 0; j < n; j++) {
+            if (i != j) {
+                total_distance += euclidean_distance((float*)graph->nodes[i]->components, (float*)graph->nodes[j]->components, dimensions);
+            }
+        }
+        // Update medoid if we find node with smaller total distance
+        if (total_distance < min_distance) {
+            min_distance = total_distance;
+            medoid = graph->nodes[i];
+            medoid_position = i;
         }
     }
-    return m;
+    return medoid_position;
 }

@@ -1,4 +1,5 @@
 #include "graph.h"
+#include "io.h"
 #include <string>
 #pragma once
 
@@ -20,4 +21,5 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R);
 int evaluate_index(void);
 
 // Finds the medoid node of a graph
-Node find_medoid(Graph);
+// int find_medoid(const vector<Node>& nodes);
+int find_medoid(Graph graph);

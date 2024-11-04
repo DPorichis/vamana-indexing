@@ -44,11 +44,12 @@ struct node
 {
     int d_count; // object dimension
     void* components;
+    int pos;
     set<Link, LinkComp> neighbours;
 
     // Basic Constractor
-    node(void* comp, int dim)
-        : components(comp), d_count(dim) {}
+    node(void* comp, int dim, int position)
+        : components(comp), d_count(dim), pos(position) {}
     node() {}
 };
 
@@ -91,7 +92,7 @@ struct CandidateComparator {
 
 Graph create_graph(char type, int k, int dimensions);
 
-Node add_node_graph(Graph g, int d_count, void* components);
+Node add_node_graph(Graph g, int d_count, void* components, int pos);
 
 void destroy_graph(Graph g);
 

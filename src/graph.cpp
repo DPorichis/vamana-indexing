@@ -15,9 +15,9 @@ Link create_link(Graph g, Node from, Node to)
     return link;
 }
 
-Node create_node(void* components, int d_count)
+Node create_node(void* components, int d_count, int pos)
 {
-    Node n = new node(components, d_count);
+    Node n = new node(components, d_count, pos);
     return n;
 }
 
@@ -53,12 +53,12 @@ Graph create_graph(char type, int k, int dimensions)
     return g;
 }
 
-Node add_node_graph(Graph g, int d_count, void* components)
+Node add_node_graph(Graph g, int d_count, void* components, int pos)
 {
     if(d_count != g->dimensions)
         return NULL;
     
-    Node n = create_node(components, d_count);
+    Node n = create_node(components, d_count, pos);
     g->nodes.push_back(n);
 
     return n;
