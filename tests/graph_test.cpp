@@ -26,7 +26,7 @@ void test_insert(void){
         point[1] = 0;
         point[2] = 0;
 
-        Node item = add_node_graph(graph, 3, point);
+        Node item = add_node_graph(graph, 3, point, 0);
 
         TEST_ASSERT(item!= NULL);
         TEST_ASSERT(graph->nodes.size() == 1);
@@ -35,7 +35,7 @@ void test_insert(void){
         TEST_ASSERT(item->d_count == 3);
         TEST_ASSERT(item->components == point);
         
-        item = add_node_graph(graph, 6, point);
+        item = add_node_graph(graph, 6, point, 1);
         TEST_ASSERT(item== NULL);
         TEST_ASSERT(graph->nodes.size() == 1);
 
@@ -44,7 +44,7 @@ void test_insert(void){
         point1[1] = 1;
         point1[2] = 1;
 
-        item = add_node_graph(graph, 3, point1);
+        item = add_node_graph(graph, 3, point1, 1);
 
         TEST_ASSERT(point!= NULL);
         TEST_ASSERT(graph->nodes.size() == 2);
@@ -65,7 +65,7 @@ void test_insert(void){
         point[1] = 0;
         point[2] = 0;
 
-        Node item = add_node_graph(graph, 3, point);
+        Node item = add_node_graph(graph, 3, point, 0);
 
         TEST_ASSERT(item!= NULL);
         TEST_ASSERT(graph->nodes.size() == 1);
@@ -74,7 +74,7 @@ void test_insert(void){
         TEST_ASSERT(item->d_count == 3);
         TEST_ASSERT(item->components == point);
         
-        item = add_node_graph(graph, 6, point);
+        item = add_node_graph(graph, 6, point, 1);
         TEST_ASSERT(item== NULL);
         TEST_ASSERT(graph->nodes.size() == 1);
 
@@ -83,7 +83,7 @@ void test_insert(void){
         point1[1] = 1;
         point1[2] = 1;
 
-        item = add_node_graph(graph, 3, point1);
+        item = add_node_graph(graph, 3, point1, 1);
 
         TEST_ASSERT(point!= NULL);
         TEST_ASSERT(graph->nodes.size() == 2);
@@ -104,7 +104,7 @@ void test_insert(void){
         point[1] = 'a';
         point[2] = 'a';
 
-        Node item = add_node_graph(graph, 3, point);
+        Node item = add_node_graph(graph, 3, point, 0);
 
         TEST_ASSERT(item!= NULL);
         TEST_ASSERT(graph->nodes.size() == 1);
@@ -113,7 +113,7 @@ void test_insert(void){
         TEST_ASSERT(item->d_count == 3);
         TEST_ASSERT(item->components == point);
         
-        item = add_node_graph(graph, 6, point);
+        item = add_node_graph(graph, 6, point, 1);
         TEST_ASSERT(item== NULL);
         TEST_ASSERT(graph->nodes.size() == 1);
 
@@ -122,7 +122,7 @@ void test_insert(void){
         point1[1] = 'b';
         point1[2] = 'b';
 
-        item = add_node_graph(graph, 3, point1);
+        item = add_node_graph(graph, 3, point1, 1);
 
         TEST_ASSERT(point!= NULL);
         TEST_ASSERT(graph->nodes.size() == 2);
@@ -146,14 +146,14 @@ void test_neighbours(void){
         point0[1] = 0;
         point0[2] = 0;
 
-        Node item0 = add_node_graph(graph, 3, point0);
+        Node item0 = add_node_graph(graph, 3, point0, 0);
 
         float* point1 = (float*)malloc(sizeof(*point1)*3);
         point1[0] = 1;
         point1[1] = 1;
         point1[2] = 1;
 
-        Node item1 = add_node_graph(graph, 3, point1);
+        Node item1 = add_node_graph(graph, 3, point1, 1);
         
         float dist = add_neighbour_node(graph, item0, item1);
         TEST_ASSERT(dist > 0);
@@ -180,14 +180,14 @@ void test_neighbours(void){
         point0[1] = 'a';
         point0[2] = 'a';
 
-        Node item0 = add_node_graph(graph, 3, point0);
+        Node item0 = add_node_graph(graph, 3, point0, 0);
 
         char* point1 = (char*)malloc(sizeof(*point1)*3);
         point1[0] = 'b';
         point1[1] = 'b';
         point1[2] = 'b';
 
-        Node item1 = add_node_graph(graph, 3, point1);
+        Node item1 = add_node_graph(graph, 3, point1, 1);
         
         float dist = add_neighbour_node(graph, item0, item1);
         TEST_ASSERT(dist > 0);
@@ -213,14 +213,14 @@ void test_neighbours(void){
         point0[1] = 0;
         point0[2] = 0;
 
-        Node item0 = add_node_graph(graph, 3, point0);
+        Node item0 = add_node_graph(graph, 3, point0, 0);
 
         int* point1 = (int*)malloc(sizeof(*point1)*3);
         point1[0] = 1;
         point1[1] = 1;
         point1[2] = 1;
 
-        Node item1 = add_node_graph(graph, 3, point1);
+        Node item1 = add_node_graph(graph, 3, point1, 1);
         
         float dist = add_neighbour_node(graph, item0, item1);
         TEST_ASSERT(dist > 0);

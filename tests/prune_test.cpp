@@ -13,14 +13,14 @@ void test_pruning(void) {
 		float* point = (float*)malloc(sizeof(*point)*2);
     	point[0] = i;
     	point[1] = i;
-		Node item = add_node_graph(graph, 2, point);
+		Node item = add_node_graph(graph, 2, point, i);
 	}
 	init_dummy_graph(graph);
 
 
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-	int results = gready_search(graph, find_medoid(graph), graph->nodes[6], graph->k, 10, neighbours, visited);
+	int results = gready_search(graph, graph->nodes[find_medoid(graph)], graph->nodes[6], graph->k, 10, neighbours, visited);
 
 	cout << "Node neighbours before prunning: " << graph->nodes[3]->neighbours.size() << endl;
 

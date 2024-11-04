@@ -129,7 +129,7 @@ void destroy_graph(Graph g);
 // Node Functions //
 
 // Creates a node representation for the given data
-Node create_node(void* components, int d_count);
+Node create_node(void* components, int d_count, int pos);
 
 // Adds a Node to as a neighbour to node from in the given graph G
 // Returns the distance of the two neighbours, or -1 in error state

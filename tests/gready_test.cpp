@@ -15,7 +15,7 @@ void test_dummy(void) {
 		float* point = (float*)malloc(sizeof(*point)*2);
     	point[0] = i;
     	point[1] = i;
-		Node item = add_node_graph(graph, 2, point);
+		Node item = add_node_graph(graph, 2, point, i);
 		
 	}
 	init_dummy_graph(graph);
@@ -40,16 +40,15 @@ void test_gready_search(void) {
 		float* point = (float*)malloc(sizeof(*point)*2);
     	point[0] = i;
     	point[1] = i;
-		Node item = add_node_graph(graph, 2, point);
+		Node item = add_node_graph(graph, 2, point, i);
 	}
 	init_dummy_graph(graph);
 
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
 
-	// int results = gready_search(graph, find_medoid(graph), graph->nodes[6], graph->k, 10, neighbours, visited);
-	int results = gready_search(graph, graph->nodes[8736], graph->nodes[6], graph->k, 10, neighbours, visited);
-
+	int results = gready_search(graph, graph->nodes[find_medoid(graph)], graph->nodes[6], graph->k, 10, neighbours, visited);
+	
 	int flag = 0;
 	for (const auto& r : *neighbours) {
         cout << r->to << " with distance: " << r->distance << endl;
@@ -83,13 +82,13 @@ void test_medoid(void) {
 		float* point = (float*)malloc(sizeof(*point)*2);
     	point[0] = i;
     	point[1] = i;
-		Node item = add_node_graph(graph, 2, point);
+		Node item = add_node_graph(graph, 2, point, i);
 	}
 
 	// Simple test
 
-	Node medoid = find_medoid(graph);
-	float* point = (float*)medoid->components;
+	int medoid = find_medoid(graph);
+	float* point = (float*)graph->nodes[medoid]->components;
 	
 	// cout << "Medoid Found " << medoid << endl << "[";
 	// for(int i = 0; i < medoid->d_count; i++)
@@ -106,9 +105,9 @@ void test_medoid(void) {
     graph = create_graph_from_file(path, 'f', 5);
     
 	TEST_ASSERT(graph->dimensions == 128);
-    Node node = find_medoid(graph);
-	TEST_ASSERT(node == graph->nodes[8736]);
-    TEST_ASSERT(node->d_count == 128);
+
+	TEST_ASSERT(find_medoid(graph) == 8736);
+    TEST_ASSERT(graph->nodes[medoid]->d_count == 128);
 	destroy_graph(graph);
 
 	return;
