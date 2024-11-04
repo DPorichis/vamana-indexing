@@ -20,7 +20,7 @@ void test_create_vamana_index(void) {
     int L = 80;
     int R = 20;
     int K = 70;
-    graph = create_graph_from_file(path, 'f', K);
+    //    graph = create_graph_from_file(path, 'f', K);
     TEST_ASSERT(!create_vamana_index(&graph, path, L, R));
     // TEST_ASSERT(graph != NULL);
     
@@ -57,6 +57,17 @@ void test_create_vamana_index(void) {
     double recall = static_cast<double>(intersection.size()) / true_results.size();
     cout << "Recall: " << recall * 100 << "%" << endl;
 
+    for (const auto& r : *neighbours)
+        free(r);
+	
+	delete neighbours;
+	
+	for (const auto& r : *visited)
+        free(r);
+	
+	delete visited;
+        
+    destroy_node(query);
     destroy_graph(graph);
 }
 

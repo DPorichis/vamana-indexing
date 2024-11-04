@@ -193,7 +193,7 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 // Vamana index implementation
 int create_vamana_index(Graph* g, const string& filename, int L, int R) {
     // Graph creation and initialization
-    *g = create_graph_from_file(filename, 'f', 10);
+    *g = create_graph_from_file(filename, 'f', R);
     Graph graph = *g;
     if (graph == NULL) {
         cerr << "Error while creating graph from file" << endl;
@@ -238,18 +238,36 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R) {
             // set<Candidate, LinkComp>* visited_set = &(j->to->neighbours.begin(), j->to->neighbours.end());
             set<Candidate, CandidateComparator>* visited_set = new set<Candidate, CandidateComparator>();
             for (const Link& link : j->to->neighbours) {
-                visited_set->insert(create_candidate_copy((Link)link));
+                Candidate to_insert = create_candidate_copy((Link)link);
+                auto result = visited_set->insert(to_insert);
+                // If it wasn't inserted, free to manage memory leaks
+                if (!result.second) {
+                    free(to_insert);
+                }
+
             }
 
-            visited_set->insert(create_candidate(graph, vectors[i], j->to));
+            Candidate to_insert = create_candidate(graph, vectors[i], j->to);
+            auto result = visited_set->insert(to_insert);
+            // If it wasn't inserted, free to manage memory leaks
+            if (!result.second) {
+                free(to_insert);
+            }
 
             if (visited_set->size() > R) {
                 robust_prunning(graph, j->to, visited_set, a, R);
             }
             else {
-                j->to->neighbours.insert(create_link(graph, j->to, vectors[i]));
+                Link for_insert = create_link(graph, j->to, vectors[i]);
+                auto result = j->to->neighbours.insert(for_insert);
+                if (!result.second) {
+                    free(for_insert);
+                }
             }
             
+            for (const auto& r : *visited_set)
+                free(r);
+
             delete visited_set;
             // for (const auto& elem_nb : elem->to->neighbours) {
             //     Candidate cand = create_candidate(graph, elem_nb->to, elem->to);
@@ -263,6 +281,17 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R) {
             // }
 
         }
+        
+        for (const auto& r : *neighbours)
+            free(r);
+        
+        delete neighbours;
+        
+        for (const auto& r : *visited)
+            free(r);
+        
+        delete visited;
+
     }
 
     return 0;
