@@ -1,5 +1,7 @@
 #include "acutest.h"
 #include <iostream>
+#include <algorithm>
+#include <set>
 #include "graph.h"
 #include "vamana.h"
 #include "io.h"
@@ -15,9 +17,9 @@ void test_create_vamana_index(void) {
     vector<file_vector2> vectors = read_int_vectors_from_file(groundtruth);
 
     Graph graph;
-    int L = 20;
-    int R = 5;
-    int K = 10;
+    int L = 80;
+    int R = 20;
+    int K = 70;
     graph = create_graph_from_file(path, 'f', K);
     TEST_ASSERT(!create_vamana_index(&graph, path, L, R));
     // TEST_ASSERT(graph != NULL);
@@ -30,12 +32,30 @@ void test_create_vamana_index(void) {
 	Node query = ask_query(queries, graph->dimensions, pos);
     gready_search(graph, graph->nodes[8736], query, K, L, neighbours, visited);
     int i = 0;
+    // Print the nodes
+    // for (const auto& r : *neighbours) {
+    //     cout << r->to->pos << " with distance: " << r->distance << endl;
+    //     cout << "Must be : " << vectors[pos].components[i] << endl;
+    //     i++;
+    // }
+    // Recall calculation
+    i = 0;
+    set<int> algorithm_results;
     for (const auto& r : *neighbours) {
-        cout << r->to->pos << " with distance: " << r->distance << endl;
-        cout << "Must be : " << vectors[pos].components[i] << endl;
+        if (K == i)
+            break;
+        algorithm_results.insert(r->to->pos);
         i++;
     }
+    set<int> true_results(vectors[pos].components.begin(), vectors[pos].components.begin() + K);
+    
+    set<int> intersection;
+    set_intersection(algorithm_results.begin(), algorithm_results.end(),
+                     true_results.begin(), true_results.end(),
+                     inserter(intersection, intersection.begin()));
 
+    double recall = static_cast<double>(intersection.size()) / true_results.size();
+    cout << "Recall: " << recall * 100 << "%" << endl;
 
     destroy_graph(graph);
 }
