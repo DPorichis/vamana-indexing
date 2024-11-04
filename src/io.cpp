@@ -55,7 +55,7 @@ Graph create_graph_from_file(const string& filename, int type, int k) {
     }
         // Copy vector data to graph (Important)
         memcpy(components, vectors[i].components.data(), graph->dimensions * sizeof(*max_element(vectors[i].components.begin(), vectors[i].components.end())));    // Copy vector data to graph (Important)
-        add_node_graph(graph, vectors[i].d, components);
+        add_node_graph(graph, vectors[i].d, components, i);
     }
 
     // Connecting the nodes
@@ -96,6 +96,36 @@ Node ask_query(const std::string& filename, int graph_dimension, int& pos) {
     query->d_count = vectors[pos].d;
     query->components = malloc(query->d_count * sizeof(*max_element(vectors[pos].components.begin(), vectors[pos].components.end())));
     memcpy(query->components, vectors[pos].components.data(), vectors[pos].d * sizeof(*max_element(vectors[pos].components.begin(), vectors[pos].components.end())));
+    query->pos = pos;
 
     return query;  
+}
+
+vector<file_vector2> read_int_vectors_from_file(const string& filename) {
+    vector<file_vector2> vectors;
+    ifstream infile(filename, ios::binary);
+
+    if (!infile) {
+        cerr << "Error opening file: " << filename << endl;
+        return vectors; // Return empty vector on error
+    }
+
+    while (infile.peek() != EOF) { // Check if end of file
+        file_vector2 vec;
+        
+        // Read the dimension
+        infile.read(reinterpret_cast<char*>(&vec.d), sizeof(vec.d));
+        if (infile.eof()) break; // Break if we reach EOF
+        
+        // Allocate the correct size for components
+        vec.components.resize(vec.d);
+        
+        // Read the components
+        infile.read(reinterpret_cast<char*>(vec.components.data()), vec.d * sizeof(int));
+        
+        vectors.push_back(vec); // Store the vector
+    }
+
+    infile.close(); // Close the file
+    return vectors; // Return the vector list
 }
