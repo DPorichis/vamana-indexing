@@ -191,7 +191,7 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 
 /*-------- Gready search and prunning need error return values--------------*/
 // Vamana index implementation
-int create_vamana_index(Graph* g, const string& filename, int L, int R) {
+int create_vamana_index(Graph* g, const string& filename, int L, int R, int& medoid_pos) {
     // Graph creation and initialization
     *g = create_graph_from_file(filename, 'f', R);
     Graph graph = *g;
@@ -204,12 +204,14 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R) {
         return -2;
     }
 
-    int pos;
-    pos = 8736;
+    // int pos;
+    // pos = 8736;
     /* UNCOMMENT if is the final execusion. Otherwise pos is 8736, after 1 minute of function execution
     // int pos =  find_medoid(graph->nodes);
     */
-    Node medoid_node = graph->nodes[pos];
+    // medoid_pos =  find_medoid(graph);
+    medoid_pos = 8736;
+    Node medoid_node = graph->nodes[medoid_pos];
 
     // Create random permutation of nodes, vectors is a copy of nodes (not the original)
     vector<Node> vectors = graph->nodes;

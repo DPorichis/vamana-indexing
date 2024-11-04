@@ -1,4 +1,7 @@
 #include <iostream>
+#include <algorithm>
+#include <set>
+#include "vamana.h"
 using namespace std;
 
 
@@ -11,9 +14,9 @@ int main(int argc, char* argv[]) {
     float a;
     char type;
 
-    if(argc != 7)
-    {    
-        cerr << "Incorrect arguments. Usage ./bin/project [filename] [data type] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
+    if(argc != 6)
+    {                                       //    0           1            2           3             4             5  
+        cerr << "Incorrect arguments. Usage ./bin/project [filename] [data type] [k parameter] [a-parameter] [queriesfile]" << endl;
         return -1;
     }    
     //**** Read arguments ****//
@@ -46,50 +49,93 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    // Retrive dimensions
-    try {
-        dimensions = stoi(argv[4]);
-        if(dimensions < 1)
-        {
-            cout << "dimensions must be >= 1 (dimensions passed '" << argv[4] << "')" << endl;
-            cout << "Reminder: Usage ./bin/project [filename] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
-            return -1;
-        }
-    
-    } catch (const std::invalid_argument&) {
-        cout << "Argument passed as dimensions (" << argv[4] << ") is not a valid integer." << endl;
-        cout << "Reminder: Usage ./bin/project [filename] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
-        return -1;
-    } catch (const std::out_of_range&) {
-        cout << "Argument passed as dimensions (" << argv[4] << ") is out of range for an integer." << endl;
-        return -1;
-    }
-
     // Retrive a
     try {
-        float a = std::stof(argv[5]);
+        float a = std::stof(argv[4]);
         if(a < 1)
         {
-            cout << "a must be >= 1 (a passed '" << argv[5] << "')" << endl;
+            cout << "a must be >= 1 (a passed '" << argv[4] << "')" << endl;
             cout << "Reminder: Usage ./bin/project [filename] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
             return -1;
         }
     } catch (const std::invalid_argument&) {
-        cout << "Argument passed as a (" << argv[5] << ") is not a valid float." << endl;
+        cout << "Argument passed as a (" << argv[4] << ") is not a valid float." << endl;
         cout << "Reminder: Usage ./bin/project [filename] [k parameter] [dimensions-parameter] [a-parameter] [queriesfile]" << endl;
         return -1;
     } catch (const std::out_of_range&) {
-        cout << "Argument passed as a (" << argv[5] << ") is out of range for a float." << endl;
+        cout << "Argument passed as a (" << argv[4] << ") is out of range for a float." << endl;
         return -1;
     }
 
-    //***** Gerasime do your thing *****//
+    // Paths creators
+    // Path of folder
+    string path = "./data/siftsmall/";
 
+    // Path for data_set
+    string data_set = path + argv[1];
+
+    // Path for query_set
+    string queries = path + argv[5];
+
+    // Parameters initialization 
+    int L = 80;
+    int R = 20;
+    int medoid_pos;
     // Create the Vamana Index
+    Graph graph;
+    cout << "Creating vamana graph..." << endl;
+    if (create_vamana_index(&graph, data_set, L, R, medoid_pos)) {
+        cout << "Error creating vamana" << endl;
+        return -1;
+    }
 
     // Ready for queries
+    cout << "Graph completed!" << endl;
+    int queries_count;
+    cout << "How many queries would you want to check for their " << k << " neighbours?" << endl;
+    cin >> queries_count;
 
-    //
+    // Vectors for groundtruth data
+    string groundtruth = "./data/siftsmall/siftsmall_groundtruth.ivecs";
+    vector<file_vector_int> vectors = read_int_vectors_from_file(groundtruth);
+    srand(static_cast<unsigned int>(time(0)));
+  
+    for (int i = 0; i < queries_count; i++) {
+        set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
+        set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
+        int query_pos;
+        Node query = ask_query(queries, graph->type,graph->dimensions, query_pos);
+        gready_search(graph, graph->nodes[medoid_pos], query, k, L, neighbours, visited);
+        set<int> algorithm_results;
+        int j = 0;
+        for (const auto& r : *neighbours) {
+            if (k == j)
+                break;
+            algorithm_results.insert(r->to->pos);
+            j++;
+        }
+        set<int> true_results(vectors[query_pos].components.begin(), vectors[query_pos].components.begin() + k);
+        
+        set<int> intersection;
+        set_intersection(algorithm_results.begin(), algorithm_results.end(),
+                        true_results.begin(), true_results.end(),
+                        inserter(intersection, intersection.begin()));
 
+        double recall = static_cast<double>(intersection.size()) / true_results.size();
+        cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
+        
+        for (const auto& r : *neighbours)
+            free(r);
+        
+        delete neighbours;
+        
+        for (const auto& r : *visited)
+            free(r);
+        
+        delete visited;
+
+        destroy_node(query);
+    }
+    destroy_graph(graph);
 
 }

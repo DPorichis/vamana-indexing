@@ -21,7 +21,7 @@ int gready_search(Graph g, Node s, Node query, int k, int L, set<Candidate, Cand
 int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r);
 
 // Alg 3
-int create_vamana_index(Graph* g, const string& filename, int L, int R);
+int create_vamana_index(Graph* g, const string& filename, int L, int R,  int& medoid_pos);
 
 // Benchmarking
 int evaluate_index(void);
