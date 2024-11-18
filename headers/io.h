@@ -23,6 +23,36 @@ struct file_vector_char {
 };  
 
 
+struct options {
+
+    // Type of file
+    // 0 for simple data file
+    // 1 for graph file
+    int file_type;
+    
+    std::string data_filename;
+    char data_type;
+
+    std::string queries_filename;
+    int query_count;
+    
+    std::string truth_filename;
+
+    float a;
+    int k;
+    int L;
+    int R;
+
+    bool printing;
+
+    // Basic Constractor
+    options()
+        : file_type(0), data_filename(""), data_type('f'), queries_filename(""), query_count(1), truth_filename(""),
+        a(1), k(1), L(1), R(1), printing(true) {}
+};
+
+typedef struct options* Options;
+
 // Inserting data in the library structure
 vector<file_vector_float> read_float_vectors_from_file(const string& filename);
 
@@ -35,6 +65,15 @@ Graph create_graph_from_file(const string& filename, int type, int k);
 
 // Performs (and allocates) query. Returns the query as a node for success, NULL otherwise
 Node ask_query(const string& filename, int type, int graph_dimension, int& pos);
+
+// Function for reading command line arguments
+int read_command_line_args(int argc, char* argv[], Options opt);
+
+// Function for reading the configuration file
+int read_config_file(string filename, Options opt);
+
+// Prints out the options for debugging and reporting purposes
+void print_options(Options opt);
 
 // Release all memory for exiting.....I dont think we need this...
 int destroy_data(void);
