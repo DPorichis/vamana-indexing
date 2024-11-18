@@ -44,11 +44,12 @@ struct options {
     int R;
 
     bool printing;
-
+    bool savegraph;
+    
     // Basic Constractor
     options()
         : file_type(0), data_filename(""), data_type('f'), queries_filename(""), query_count(1), truth_filename(""),
-        a(1), k(1), L(1), R(1), printing(true) {}
+        a(1), k(1), L(1), R(1), printing(true), savegraph(false) {}
 };
 
 typedef struct options* Options;

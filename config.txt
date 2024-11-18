@@ -6,4 +6,5 @@ L=50
 a=1.4
 queries=./data/siftsmall/siftsmall_query.fvecs
 queriescount=2
-printing=false
+printing=true
+savegraph=false

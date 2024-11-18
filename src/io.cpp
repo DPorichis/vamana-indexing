@@ -273,6 +273,13 @@ int update_option(string flag, string value, Options opt)
         else
             opt->printing = false;
     }
+    else if(flag == "savegraph")
+    {
+        if(value[0] == 't')
+            opt->savegraph = true;
+        else
+            opt->savegraph = false;
+    }
     else if(flag == "datatype")
     {
         opt->data_type = value[0];
@@ -337,8 +344,6 @@ int update_option(string flag, string value, Options opt)
     }
     return 0;
 }
-
-
 
 int check_options(Options opt)
 {
