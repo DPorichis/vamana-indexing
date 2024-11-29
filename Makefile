@@ -1,7 +1,6 @@
 alltests: gready_test graph_test io_test prune_test vamana_test
 all: gready_test graph_test io_test prune_test vamana_test project
 
-
 # paths
 SOURCE = ./src
 HEAD = ./headers

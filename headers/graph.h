@@ -48,6 +48,7 @@ struct node
     void* components;
     int pos;
     set<Link, LinkComp> neighbours;
+    set<int> categories;
 
     // Basic Constractor
     node(void* comp, int dim, int position)
