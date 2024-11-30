@@ -1,4 +1,4 @@
-alltests: gready_test graph_test io_test prune_test vamana_test
+alltests: gready_test graph_test io_test prune_test vamana_test filtered_test
 
 # paths
 SOURCE = ../src
