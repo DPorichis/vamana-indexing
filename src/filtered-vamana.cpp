@@ -17,6 +17,9 @@
 using namespace std;
 
 void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, CandidateComparator>* B, set<Candidate, CandidateComparator>* dif);
+bool isSubset(set<int> A, set<int> B);
+
+
 
 // Given a graph with unconnected n nodes, it creates log(n) random connections
 // from each node to anothers in order to produce a connected graph.
@@ -133,7 +136,7 @@ int filtered_gready_search(Graph g, Node *S, int s_count, Node query, int k, int
 // Alg 2 from the given paper. Performs robust prunning on a node p of graph g based on the v set passed by the user and the arguments
 // a, r. The node's p neighbours will be updated accordingly with the prunning.
 // Returns 0 on correct execution
-int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r)
+int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r)
 {
     // Update V to include neighbours of p
     for (const auto& neig : p->neighbours) {
@@ -193,6 +196,20 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
             {
                 // cout << "WHY?" << endl;
                 // fflush(stdout);
+            }
+
+            set<int> intersection;
+            set_intersection(elem->to->categories.begin(),
+                elem->to->categories.end(),
+                p->categories.begin(),
+                p->categories.end(),
+                inserter(intersection, intersection.begin())
+            );
+            
+
+            if(!isSubset(intersection, selected_cand->to->categories))
+            {
+                ++it;
             }
             // if not smaller when multiplied with the a factor
             else if(a * calculate_distance(g ,elem->to, target->to) <= elem->distance)
@@ -321,6 +338,17 @@ void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, Candidate
         return a->to < b->to;
     });
 }
+
+bool isSubset(set<int> A, set<int> B)
+{
+    for(int val: A)
+    {
+        if(A.find(val) == B.end())
+            return false;
+    }
+    return true;
+}
+
 
 int find_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoids) {
     
