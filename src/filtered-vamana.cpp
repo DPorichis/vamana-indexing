@@ -1,4 +1,4 @@
-#include "vamana.h"
+#include "filtered-vamana.h"
 #include "graph.h"
 #include "io.h"
 
@@ -48,7 +48,7 @@ int init_dummy_graph(Graph g)
 // Alg 1 from the given paper. Performs gready search on a graph g from starting point s, looking for neighbours of node query
 // Returns its results in the neighbours and visited sets pointers that must be passed by the user.
 // Returns 0 on correct execution
-int filtered_gready_search(Graph g, Node S, int s_count, Node query, int k, int L, 
+int filtered_gready_search(Graph g, Node *S, int s_count, Node query, int k, int L, 
     set<int> query_categories, 
     set<Candidate, CandidateComparator>* neighbours, 
     set<Candidate, CandidateComparator>* visited)
@@ -62,13 +62,14 @@ int filtered_gready_search(Graph g, Node S, int s_count, Node query, int k, int 
         set<int> intersection;
         set_intersection(query_categories.begin(),
             query_categories.end(),
-            (S+i)->categories.begin(),
-            (S+i)->categories.end(),
+            S[i]->categories.begin(),
+            S[i]->categories.end(),
             inserter(intersection, intersection.begin())
         );
         if(!intersection.empty())
         {
-            neighbours->insert(create_candidate(g, (S+i), query));
+            cout << "candidate inserted" << endl;
+            neighbours->insert(create_candidate(g, S[i], query));
         }
     }
 
@@ -79,10 +80,10 @@ int filtered_gready_search(Graph g, Node S, int s_count, Node query, int k, int 
     while(!difference.empty())
     {
         // // Debugging printing
-        // cout << "== Iteration "<< iter << " =="<< endl;
-        // cout << "#dif: " << difference.size() << endl;
-        // cout << "#vis: " << visited->size() << endl;
-        // cout << "#nei: " << neighbours->size() << endl;
+        cout << "== Iteration "<< iter << " =="<< endl;
+        cout << "#dif: " << difference.size() << endl;
+        cout << "#vis: " << visited->size() << endl;
+        cout << "#nei: " << neighbours->size() << endl;
 
         // Get the min, which in our set is the first element
         Candidate selected_cand = *difference.begin();
@@ -99,8 +100,8 @@ int filtered_gready_search(Graph g, Node S, int s_count, Node query, int k, int 
             set<int> intersection;
             set_intersection(query_categories.begin(),
                 query_categories.end(),
-                selected_cand->to->categories.begin(),
-                selected_cand->to->categories.end(),
+                neig->to->categories.begin(),
+                neig->to->categories.end(),
                 inserter(intersection, intersection.begin())
             );
             if(!intersection.empty())
@@ -214,90 +215,93 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 
 /*-------- Gready search and prunning need error return values--------------*/
 // Vamana index implementation
-int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,int& medoid_pos) {
-    // Graph creation and initialization
-    *g = create_graph_from_file(filename, 'f', R);
-    Graph graph = *g;
-    if (graph == NULL) {
-        cerr << "Error while creating graph from file" << endl;
-        return -1;
-    }
-    if (init_dummy_graph(graph)) {
-        cerr << "Error in graph initialization";
-        return -2;
-    }
+int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int& medoid_pos){
+    // // Graph creation and initialization
+    // *g = create_graph_from_file(filename, 'f', R);
+    // Graph graph = *g;
+    // if (graph == NULL) {
+    //     cerr << "Error while creating graph from file" << endl;
+    //     return -1;
+    // }
+    // if (init_dummy_graph(graph)) {
+    //     cerr << "Error in graph initialization";
+    //     return -2;
+    // }
 
-    // Find medoid
-    medoid_pos =  find_medoid(graph);
+    // set<int> categories;
+    // map<int, int>* medoids;
+
+    // // Find medoid
+    // medoid_pos =  find_filtered_medoid(graph, categories, medoids);
     
-    Node medoid_node = graph->nodes[medoid_pos];
+    // Node medoid_node = graph->nodes[medoid_pos];
 
-    // Create random permutation of nodes, vectors is a copy of nodes (not the original)
-    vector<Node> vectors = graph->nodes;
-    random_device rd;
-    mt19937 generator(rd());
-    // Shuffle vector items according to Mersenne Twister engine
-    shuffle(vectors.begin(), vectors.end(), generator);
+    // // Create random permutation of nodes, vectors is a copy of nodes (not the original)
+    // vector<Node> vectors = graph->nodes;
+    // random_device rd;
+    // mt19937 generator(rd());
+    // // Shuffle vector items according to Mersenne Twister engine
+    // shuffle(vectors.begin(), vectors.end(), generator);
 
-    // K for gready search
-    int k = 1;
+    // // K for gready search
+    // int k = 1;
 
-    for (int i = 0; i < vectors.size(); i++) {
-        // Create neighbours and visited sets
-        // cout << i << endl;
-        set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
-        set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-        gready_search(graph, medoid_node, vectors[i], k, L, neighbours, visited);
+    // for (int i = 0; i < vectors.size(); i++) {
+    //     // Create neighbours and visited sets
+    //     // cout << i << endl;
+    //     set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
+    //     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
+    //     gready_search(graph, medoid_node, vectors[i], k, L, neighbours, visited);
 
-        robust_prunning(graph, vectors[i], visited, a, R);
-        for (const auto& j : vectors[i]->neighbours) {
-            // Create temp set
-            set<Candidate, CandidateComparator>* visited_set = new set<Candidate, CandidateComparator>();
-            for (const Link& link : j->to->neighbours) {
-                Candidate to_insert = create_candidate_copy((Link)link);
-                auto result = visited_set->insert(to_insert);
-                // If it wasn't inserted, free to manage memory leaks
-                if (!result.second) {
-                    free(to_insert);
-                }
+    //     robust_prunning(graph, vectors[i], visited, a, R);
+    //     for (const auto& j : vectors[i]->neighbours) {
+    //         // Create temp set
+    //         set<Candidate, CandidateComparator>* visited_set = new set<Candidate, CandidateComparator>();
+    //         for (const Link& link : j->to->neighbours) {
+    //             Candidate to_insert = create_candidate_copy((Link)link);
+    //             auto result = visited_set->insert(to_insert);
+    //             // If it wasn't inserted, free to manage memory leaks
+    //             if (!result.second) {
+    //                 free(to_insert);
+    //             }
 
-            }
+    //         }
 
-            Candidate to_insert = create_candidate(graph, vectors[i], j->to);
-            auto result = visited_set->insert(to_insert);
-            // If it wasn't inserted, free to manage memory leaks
-            if (!result.second) {
-                free(to_insert);
-            }
+    //         Candidate to_insert = create_candidate(graph, vectors[i], j->to);
+    //         auto result = visited_set->insert(to_insert);
+    //         // If it wasn't inserted, free to manage memory leaks
+    //         if (!result.second) {
+    //             free(to_insert);
+    //         }
 
-            if (visited_set->size() > R) {
-                robust_prunning(graph, j->to, visited_set, a, R);
-            }
-            else {
-                Link for_insert = create_link(graph, j->to, vectors[i]);
-                auto result = j->to->neighbours.insert(for_insert);
-                if (!result.second) {
-                    free(for_insert);
-                }
-            }
+    //         if (visited_set->size() > R) {
+    //             robust_prunning(graph, j->to, visited_set, a, R);
+    //         }
+    //         else {
+    //             Link for_insert = create_link(graph, j->to, vectors[i]);
+    //             auto result = j->to->neighbours.insert(for_insert);
+    //             if (!result.second) {
+    //                 free(for_insert);
+    //             }
+    //         }
             
-            for (const auto& r : *visited_set)
-                free(r);
+    //         for (const auto& r : *visited_set)
+    //             free(r);
 
-            delete visited_set;
-        }
+    //         delete visited_set;
+    //     }
         
-        for (const auto& r : *neighbours)
-            free(r);
+    //     for (const auto& r : *neighbours)
+    //         free(r);
         
-        delete neighbours;
+    //     delete neighbours;
         
-        for (const auto& r : *visited)
-            free(r);
+    //     for (const auto& r : *visited)
+    //         free(r);
         
-        delete visited;
+    //     delete visited;
 
-    }
+    // }
 
     return 0;
 }
@@ -358,7 +362,7 @@ int find_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoid
             }
         }
         if(medoid_position != -1)
-            medoids->insert(category, medoid_position); 
+            medoids->insert({category, medoid_position}); 
     }
     return 0;
 }

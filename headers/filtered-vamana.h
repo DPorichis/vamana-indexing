@@ -1,6 +1,8 @@
 #include "graph.h"
 #include "io.h"
 #include <string>
+#include <map>
+#include <set>
 #pragma once
 
 using namespace std;
@@ -13,7 +15,7 @@ int init_dummy_graph(Graph g);
 // Alg 1 from the given paper. Performs gready search on a graph g from starting point s, looking for neighbours of node query
 // Returns its results in the neighbours and visited sets pointers that must be passed by the user.
 // Returns 0 on correct execution
-int filtered_gready_search(Graph g, Node S, int s_count, Node query, int k, int L, set<int> query_categories, 
+int filtered_gready_search(Graph g, Node *S, int s_count, Node query, int k, int L, set<int> query_categories, 
 set<Candidate, CandidateComparator>* neighbours, set<Candidate, CandidateComparator>* visited);
 
 // Alg 2 from the given paper. Performs robust prunning on a node p of graph g based on the v set passed by the user and the arguments

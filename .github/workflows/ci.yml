@@ -34,3 +34,4 @@ jobs:
         ../bin/gready_test
         ../bin/prune_test
         ../bin/vamana_test
+        ../bin/filtered_test

@@ -19,6 +19,8 @@ PROBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/prune_test.o $(BUILD)/graph.o
 
 VAMOBJ = $(BUILD)/vamana.o $(BUILD)/vamana_test.o $(BUILD)/graph.o $(BUILD)/io.o
 
+FILOBJ = $(BUILD)/filtered-vamana.o $(BUILD)/io.o $(BUILD)/filtered_test.o $(BUILD)/graph.o
+
 $(BUILD)/%.o: $(SOURCE)/%.cpp | $(BUILD)
 	g++ $(CFLAGS) -c $< -o $@
 
@@ -39,3 +41,6 @@ io_test: $(COMOBJ)
 
 vamana_test: $(VAMOBJ)
 	g++ $(CFLAGS) $(VAMOBJ) -o $(BIN)/vamana_test
+
+filtered_test: $(FILOBJ)
+	g++ $(CFLAGS) $(FILOBJ) -o $(BIN)/filtered_test

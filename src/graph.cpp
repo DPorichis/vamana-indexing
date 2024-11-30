@@ -19,6 +19,20 @@ Graph create_graph(char type, int k, int dimensions)
 
 // Adds a node for a given point to the graph, and returns a pointer to it
 // Returns NULL if the dimensions dont match with the graph selected for insertion
+Node add_node_graph(Graph g, int d_count, void* components, int pos, set<int> categories)
+{
+    if(d_count != g->dimensions)
+        return NULL;
+    
+    // Create and add
+    Node n = create_node(components, d_count, pos, categories);
+    g->nodes.push_back(n);
+
+    return n;
+}
+
+// Adds a node for a given point to the graph, and returns a pointer to it
+// Returns NULL if the dimensions dont match with the graph selected for insertion
 Node add_node_graph(Graph g, int d_count, void* components, int pos)
 {
     if(d_count != g->dimensions)
@@ -47,6 +61,17 @@ void destroy_graph(Graph g)
 
 
 //**** Node Functions ****//
+
+// Creates a node representation for the given data
+Node create_node(void* components, int d_count, int pos, set<int> categories)
+{
+    // Call the constructor
+    Node n = new node(components, d_count, pos);
+    set<int>::iterator itr;
+    for (itr = categories.begin(); itr != categories.end(); itr++) 
+        n->categories.insert(*itr);
+    return n;
+}
 
 // Creates a node representation for the given data
 Node create_node(void* components, int d_count, int pos)
