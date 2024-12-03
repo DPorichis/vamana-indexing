@@ -83,6 +83,7 @@ void test_gready_search(void) {
 	delete visited;
     
 	destroy_graph(graph);
+    free(S);
 	return;
 }
 
@@ -122,8 +123,82 @@ void test_medoid(void) {
 	return;
 }
 
+void test_pruning(void) {
+	Graph graph = create_graph('f', 5, 2);
+	int n = 30;
+	for(int i = 0; i < n; i++)
+	{	
+        set<int> categories;
+        categories.insert(i);
+        categories.insert(i+1);
+        categories.insert(i+2);
+		float* point = (float*)malloc(sizeof(*point)*2);
+    	point[0] = i;
+    	point[1] = i;
+		Node item = add_node_graph(graph, 2, point, i, categories);	
+    }
+	init_dummy_graph(graph);
+
+    set<int> all_categories;
+    for(int i = 0; i < n + 2; i++)
+        all_categories.insert(i);
+
+    set<int> query_categories = {6,7};
+
+    map<int, int> medoid_map;
+    int medoid = find_filtered_medoid(graph, all_categories, &medoid_map);
+
+    int s_count = 2;
+
+    Node* S = (Node *)malloc(sizeof(*S)*s_count);
+
+    int i = 0;
+    for (const int& val : query_categories) {
+        cout << val << " -> " << graph->nodes[medoid_map[val]] << endl;
+        S[i] = graph->nodes[medoid_map[val]];
+        i++;
+    }
+
+	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
+    set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
+	int results = filtered_gready_search(graph, S, s_count, graph->nodes[3], graph->k, 10, query_categories, neighbours, visited);
+
+	cout << "Node neighbours before prunning: " << graph->nodes[3]->neighbours.size() << endl;
+
+	filtered_robust_prunning(graph, graph->nodes[3], visited, 3, 2);
+
+	// Good reason for termination
+	TEST_ASSERT(graph->nodes[3]->neighbours.size() ==  2 || visited->size() == 0);
+
+	cout << "Node neighbours after prunning: " << graph->nodes[3]->neighbours.size() << endl;
+
+	for (const auto& r : graph->nodes[3]->neighbours) {
+        cout << r->to << " with distance: " << r->distance << endl;
+    }
+
+	cout << "V had: " << visited->size() << endl;
+
+	for (const auto& r : *neighbours)
+        free(r);
+	
+	delete neighbours;
+	
+	for (const auto& r : *visited)
+	{    
+		free(r);
+	}
+	delete visited;
+
+	destroy_graph(graph);
+	free(S);
+    
+    return;
+}
+
+
 TEST_LIST = {
 	{ "test_medoid", test_medoid },
     { "test_gready", test_gready_search },
+    { "test_pruning", test_pruning },
 	{ NULL, NULL }
 };
