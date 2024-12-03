@@ -22,6 +22,15 @@ struct file_vector_char {
     std::vector<char> components;  // Vector components
 };  
 
+/*Insert data from binary file to 2D vector "data"
+    2D vector contains:
+        vectors with the following formation:
+            ((2 or 4 values) + node_dimensions)
+              |    |                
+            data  query                         */
+void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data);
+
+
 
 // Inserting data in the library structure
 vector<file_vector_float> read_float_vectors_from_file(const string& filename);
@@ -31,7 +40,7 @@ vector<file_vector_int> read_int_vectors_from_file(const string& filename);
 vector<file_vector_char> read_char_vectors_from_file(const string& filename);
 
 // Create graph from dataset. Returns graph for success, NULL otherwise
-Graph create_graph_from_file(const string& filename, int type, int k);
+Graph create_graph_from_file(const string& filename, int type, int k, int dimensions);
 
 // Performs (and allocates) query. Returns the query as a node for success, NULL otherwise
 Node ask_query(const string& filename, int type, int graph_dimension, int& pos);

@@ -7,7 +7,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
     int k;
-    int dimensions;
+    int dimensions = 102;
     float a;
     char type;
 
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
     // Create the Vamana Index
     Graph graph;
     cout << "Creating vamana graph..." << endl;
-    if (create_vamana_index(&graph, data_set, L, R, a, medoid_pos)) {
+    if (create_vamana_index(&graph, data_set, L, R, a, medoid_pos, dimensions)) {
         cout << "Error creating vamana" << endl;
         return -1;
     }
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 
    
     if (groundtruth.compare("n") != 0) {
-         // Vectors for groundtruth data
+        // Vectors for groundtruth data
         vector<file_vector_int> vectors = read_int_vectors_from_file(groundtruth);
     
         srand(static_cast<unsigned int>(time(0)));

@@ -3,8 +3,37 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
 using namespace std;
+
+
+// Insert binary data into the 2D vector "data"
+void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data) {
+    ifstream file;
+    file.open(filename, ios::binary);
+    
+    if (!file.is_open()) {
+        cout << "Error opening file: " << filename << endl;
+        return;
+    }
+
+    uint32_t vectors_count;     // Num of vectors in file
+    file.read((char *)&vectors_count, sizeof(uint32_t));
+
+    data.resize(vectors_count);
+
+    vector<float> buffer(dimensions);
+
+    int i = 0;
+    while (file.read((char*)buffer.data(), dimensions * sizeof(float))) {
+        vector<float> temp(dimensions);
+        for (int j = 0; j < dimensions; j++) {
+            temp[j] = static_cast<float>(buffer[j]);
+        }
+        data[i++] = move(temp);
+    }
+    // Close file
+    file.close();
+}
 
 
 vector<file_vector_float> read_float_vectors_from_file(const std::string& filename) {
@@ -38,24 +67,25 @@ vector<file_vector_float> read_float_vectors_from_file(const std::string& filena
 
 
 // Create graph from dataset. Returns graph for success, NULL otherwise
-Graph create_graph_from_file(const string& filename, int type, int k) {
-    // Store file data to vector
-    vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
+Graph create_graph_from_file(const string& filename, int type, int k, int dimensions) {
+    // Store file data to 2D vector
+    vector<vector<float>> nodes;
+    readBinary(filename, dimensions, nodes);
     //  Graph creation
-    Graph graph = create_graph(type, k, vectors[0].d);
+    Graph graph = create_graph(type, k, dimensions);
 
     // Insert graph nodes
-    for (int i = 0; i < vectors.size(); i++) {
+    for (int i = 0; i < nodes.size(); i++) {
         // Allocate the required memory. We use max in order to secure that we have enough space to store the data
         // For example, if a dataset has floats and chars, we want an array of floats that have enough space to store chars as well
-        void* components = malloc(graph->dimensions * sizeof(*max_element(vectors[i].components.begin(), vectors[i].components.end())));
+        void* components = malloc(dimensions * sizeof(float));
         if (components == NULL) {
         cerr << "Error allocating memory for graph nodes from file" << endl;
         return NULL;
     }
         // Copy vector data to graph (Important)
-        memcpy(components, vectors[i].components.data(), graph->dimensions * sizeof(*max_element(vectors[i].components.begin(), vectors[i].components.end())));    // Copy vector data to graph (Important)
-        add_node_graph(graph, vectors[i].d, components, i);
+        memcpy(components, nodes[i].data(), dimensions * sizeof(float));
+        add_node_graph(graph, dimensions, components, i);
     }
 
     // Connecting the nodes
@@ -64,24 +94,18 @@ Graph create_graph_from_file(const string& filename, int type, int k) {
     return graph;
 }
 
-
 // Performs (and allocates) query. Returns the file position of query for success, -1 otherwise
-Node ask_query(const std::string& filename, int type, int graph_dimension, int& pos) {
+Node ask_query(const std::string& filename, int type, int dimensions, int& pos) {
     // Store file data to vector
-    vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
+    // vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
+    vector<vector<float>> queries;
+    readBinary(filename, dimensions, queries);
 
     // Random query
-    
-    pos = rand() % vectors.size();
+    pos = rand() % queries.size();
 
-    if (pos < 0 || pos > vectors.size() - 1) {
+    if (pos < 0 || pos > queries.size() - 1) {
         cerr << "Position outside of range" << endl;
-        return NULL;
-    }
-
-    //Checks for match between graph and node dimension
-    if (vectors[pos].d != graph_dimension) {
-        cerr << "Dimension of query doesn't match to graph's" << endl;
         return NULL;
     }
     
@@ -89,9 +113,9 @@ Node ask_query(const std::string& filename, int type, int graph_dimension, int& 
     Node query = new node;
 
     // Node initialization
-    query->d_count = vectors[pos].d;
-    query->components = malloc(query->d_count * sizeof(*max_element(vectors[pos].components.begin(), vectors[pos].components.end())));
-    memcpy(query->components, vectors[pos].components.data(), vectors[pos].d * sizeof(*max_element(vectors[pos].components.begin(), vectors[pos].components.end())));
+    query->d_count = dimensions;
+    query->components = malloc(query->d_count * sizeof(float));
+    memcpy(query->components, queries[pos].data(),query->d_count * sizeof(float));
     query->pos = pos;
 
     return query;  
