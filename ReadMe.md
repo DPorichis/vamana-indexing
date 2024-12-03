@@ -26,19 +26,50 @@ This project can be compiled by using the make all command in the base folder.
 #### Execution
 
 You can run this project by executing `./bin/project ...` from the base folder, followed by the arguments as shown below:
-
-`./bin/project [filename] [data type] [k parameter] [a-parameter] [queriesfile]`
-
-If you have a ground truth for your data you will be asked to enter it after the graph creation, via prompt
-
-You will also be asked to select how many queries you want to perform from the file you provided. 
+- `data=[filename]`: file containing the data points / graph representation
+- `datatype=[f/c/i]`: type of data in file (Defaults to f)
+- `filetype=[0/1]`: 0 for raw-data, 1 for graph representation (Defaults to 0)
+- `k=[int >= 1]`: (Defaults to 1)
+- `R=[int >= 1]`: (Defaults to 1)
+- `L=[int >= 1]`: (Defaults to 1)
+- `a=[float >= 1]`: (Defaults to 1)
+- `queries=[filename]`: file containing the queries (empty supported only when queriescount is set to 0)
+- `queriescount=[int >= 0]`: number of quieries to be performed from file (Defaults to 1)
+- `printing=[true/false]`: Enable or disable detailed printing (Defaults to true)
+- `savegraph=[true/false]`: Save the graph created to a file (Defaults to false)
+- `truthfile=[filename]`: File containing the ground truth. Accuracy will not be calculated when a value is not set
 
 An example execusion is : 
 
-`./bin/project ./data/siftsmall/siftsmall_base.fvecs f 20 1.4 ./data/siftsmall/siftsmall_query.fvecs`
+`./bin/project data=./data/siftsmall/siftsmall_base.fvecs
+datatype=f k=20 R=40 L=50 a=1.4
+queries=./data/siftsmall/siftsmall_query.fvecs
+queriescount=2`
 
+You can also set the attributes inside a config file and execute like this:
 
-and the groundtruth file is : `./data/siftsmall/siftsmall_groundtruth.ivecs`
+`./bin/project -config ./config.txt`
+
+*The config file must not have extra whitespaces and have only one attribute in each line.*
+
+Comments can be made in a line using the #
+
+Sample of a config:
+
+```
+# I am a config file
+data=./data/siftsmall/siftsmall_base.fvecs
+datatype=f
+k=20
+R=40
+L=50
+a=1.4
+queries=./data/siftsmall/siftsmall_query.fvecs
+queriescount=2
+printing=true
+savegraph=false
+```
+
 
 #### Unit Testing
 
