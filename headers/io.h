@@ -3,6 +3,7 @@
 #include <string>
 #include "vamana.h"
 #include "graph.h"
+#include <cstdint>
 
 using namespace std;
 
@@ -22,6 +23,18 @@ struct file_vector_char {
     std::vector<char> components;  // Vector components
 };  
 
+/*Insert data from binary file to 2D vector "data"
+    2D vector contains:
+        vectors with the following formation:
+            ((2 or 4 values) + node_dimensions)
+              |    |                
+            data  query                         */
+void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data);
+
+
+/*  Export k nearest neighbours to a file in the following format:
+       num_of_queries * vector with size k with the position of the nearest neighbours */
+void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path);
 
 struct options {
 
@@ -62,10 +75,16 @@ vector<file_vector_int> read_int_vectors_from_file(const string& filename);
 vector<file_vector_char> read_char_vectors_from_file(const string& filename);
 
 // Create graph from dataset. Returns graph for success, NULL otherwise
-Graph create_graph_from_file(const string& filename, int type, int k);
+Graph create_graph_from_file(const string& filename, int type, int k, int dimensions);
 
 // Performs (and allocates) query. Returns the query as a node for success, NULL otherwise
 Node ask_query(const string& filename, int type, int graph_dimension, int& pos);
+
+
+// Creates file with KNN for recall calculation using sampling 
+void create_groundtruth_file(const string& source_file, const string& queries_file, const string& output_file);
+
+float compare_with_id(const std::vector<float>& a, const std::vector<float>& b);
 
 // Function for reading command line arguments
 int read_command_line_args(int argc, char* argv[], Options opt);
@@ -75,6 +94,7 @@ int read_config_file(string filename, Options opt);
 
 // Prints out the options for debugging and reporting purposes
 void print_options(Options opt);
+
 
 // Release all memory for exiting.....I dont think we need this...
 int destroy_data(void);

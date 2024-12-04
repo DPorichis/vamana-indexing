@@ -2,12 +2,60 @@
 #include <bits/stdc++.h>
 #include <iostream>
 #include <fstream>
+#include <numeric>
 #include <vector>
 
 using namespace std;
 
 int update_option(string flag, string value, Options opt);
 int check_options(Options opt);
+
+
+// Insert binary data into the 2D vector "data"
+void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data) {
+    ifstream file;
+    file.open(filename, ios::binary);
+    
+    if (!file.is_open()) {
+        cout << "Error opening file: " << filename << endl;
+        return;
+    }
+
+    uint32_t vectors_count;     // Num of vectors in file
+    file.read((char *)&vectors_count, sizeof(uint32_t));
+
+    data.resize(vectors_count);
+
+    vector<float> buffer(dimensions);
+
+    int i = 0;
+    while (file.read((char*)buffer.data(), dimensions * sizeof(float))) {
+        vector<float> temp(dimensions);
+        for (int j = 0; j < dimensions; j++) {
+            temp[j] = static_cast<float>(buffer[j]);
+        }
+        data[i++] = move(temp);
+    }
+    // Close file
+    file.close();
+}
+
+// Export k nearest neighbours to a file
+void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path) {
+    ofstream file(path, ios::out | ios::binary);
+    int K = 100;
+    uint32_t q_count = neighbours.size();
+    // K and the size of a KNN's element must be the same
+    if (K != neighbours[0].size()) {
+        printf("K and KNN not the same size..Error!\n");
+        return;
+    }
+    for (int i = 0; i < q_count; i++) {
+        auto const& temp_n = neighbours[i];
+        file.write(reinterpret_cast<char const *>(&temp_n[0]), K * sizeof(uint32_t)); 
+    }
+    file.close();
+}
 
 
 vector<file_vector_float> read_float_vectors_from_file(const std::string& filename) {
@@ -41,24 +89,25 @@ vector<file_vector_float> read_float_vectors_from_file(const std::string& filena
 
 
 // Create graph from dataset. Returns graph for success, NULL otherwise
-Graph create_graph_from_file(const string& filename, int type, int k) {
-    // Store file data to vector
-    vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
+Graph create_graph_from_file(const string& filename, int type, int k, int dimensions) {
+    // Store file data to 2D vector
+    vector<vector<float>> nodes;
+    readBinary(filename, dimensions, nodes);
     //  Graph creation
-    Graph graph = create_graph(type, k, vectors[0].d);
+    Graph graph = create_graph(type, k, dimensions);
 
     // Insert graph nodes
-    for (int i = 0; i < vectors.size(); i++) {
+    for (int i = 0; i < nodes.size(); i++) {
         // Allocate the required memory. We use max in order to secure that we have enough space to store the data
         // For example, if a dataset has floats and chars, we want an array of floats that have enough space to store chars as well
-        void* components = malloc(graph->dimensions * sizeof(*max_element(vectors[i].components.begin(), vectors[i].components.end())));
+        void* components = malloc(dimensions * sizeof(float));
         if (components == NULL) {
         cerr << "Error allocating memory for graph nodes from file" << endl;
         return NULL;
     }
         // Copy vector data to graph (Important)
-        memcpy(components, vectors[i].components.data(), graph->dimensions * sizeof(*max_element(vectors[i].components.begin(), vectors[i].components.end())));    // Copy vector data to graph (Important)
-        add_node_graph(graph, vectors[i].d, components, i);
+        memcpy(components, nodes[i].data(), dimensions * sizeof(float));
+        add_node_graph(graph, dimensions, components, i);
     }
 
     // Connecting the nodes
@@ -67,24 +116,18 @@ Graph create_graph_from_file(const string& filename, int type, int k) {
     return graph;
 }
 
-
 // Performs (and allocates) query. Returns the file position of query for success, -1 otherwise
-Node ask_query(const std::string& filename, int type, int graph_dimension, int& pos) {
+Node ask_query(const std::string& filename, int type, int dimensions, int& pos) {
     // Store file data to vector
-    vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
+    // vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
+    vector<vector<float>> queries;
+    readBinary(filename, dimensions, queries);
 
     // Random query
-    
-    pos = rand() % vectors.size();
+    pos = rand() % queries.size();
 
-    if (pos < 0 || pos > vectors.size() - 1) {
+    if (pos < 0 || pos > queries.size() - 1) {
         cerr << "Position outside of range" << endl;
-        return NULL;
-    }
-
-    //Checks for match between graph and node dimension
-    if (vectors[pos].d != graph_dimension) {
-        cerr << "Dimension of query doesn't match to graph's" << endl;
         return NULL;
     }
     
@@ -92,9 +135,9 @@ Node ask_query(const std::string& filename, int type, int graph_dimension, int& 
     Node query = new node;
 
     // Node initialization
-    query->d_count = vectors[pos].d;
-    query->components = malloc(query->d_count * sizeof(*max_element(vectors[pos].components.begin(), vectors[pos].components.end())));
-    memcpy(query->components, vectors[pos].components.data(), vectors[pos].d * sizeof(*max_element(vectors[pos].components.begin(), vectors[pos].components.end())));
+    query->d_count = dimensions;
+    query->components = malloc(query->d_count * sizeof(float));
+    memcpy(query->components, queries[pos].data(),query->d_count * sizeof(float));
     query->pos = pos;
 
     return query;  
@@ -158,6 +201,114 @@ vector<file_vector_char> read_char_vectors_from_file(const string& filename) {
     return vectors; // Return the vector list
 }
 
+
+// Creates file with KNN for recall calculation using sampling 
+void create_groundtruth_file(const string& source_file, const string& queries_file, const string& output_file) {
+    int data_dimensions = 102;
+
+    // Read data
+    vector<vector<float>> nodes;
+    readBinary(source_file, data_dimensions, nodes);
+
+    // Read queries
+    vector<vector<float>> queries;
+    readBinary(queries_file, data_dimensions + 2, queries);
+
+    // To save KNN results
+    vector<vector<uint32_t>> knn;
+
+    // Find 100 Nearest Neighbours
+    int k = 100;
+
+    for (unsigned int i = 0; i < queries.size(); i++) {
+        uint32_t query_type = queries[i][0];
+        int v = queries[i][1];
+        float l = queries[i][2];
+        float r = queries[i][3];
+        vector<float> query_values;
+
+        // Push back 2 zeros for aligning with the vectors of dataset
+        query_values.push_back(0);
+        query_values.push_back(0);
+        // Push the other values
+        for(int j = 4; j < queries[i].size(); j++) {
+            query_values.push_back(queries[i][j]);
+        }
+
+        vector<uint32_t> knn_candidate;
+
+        // Different handling according to query type
+        if (query_type == 0) {
+            for (uint32_t j = 0; j < nodes[i].size(); j++) {
+                knn_candidate.push_back(j);
+            }
+        }
+        else if (query_type == 1) {
+            for (uint32_t j = 0; j < nodes[i].size(); j++) {
+                if (nodes[j][0] == v) {
+                    knn_candidate.push_back(j);
+                }
+            }
+        }
+        else if (query_type == 2) {
+            for (uint32_t j = 0; j < nodes[i].size(); j++) {
+                if (nodes[j][1] >= l && nodes[j][1] <= r) {
+                    knn_candidate.push_back(j);
+                }
+            }
+        }
+        else if (query_type == 3) {
+            for (uint32_t j = 0; j < nodes[i].size(); j++) {
+                if (nodes[j][0] == v && nodes[j][1] >= l && nodes[j][1] <= r) {
+                    knn_candidate.push_back(j);
+                }
+            }
+        }
+
+        // If KNN is less than K, fill with last nodes
+        if (knn_candidate.size() < k) {
+            uint32_t s = 1;
+            while (knn_candidate.size() < k) {
+                knn_candidate.push_back(nodes.size() - s);
+                s++;
+            }
+        }
+
+        // Calculate distances between query_values 
+        vector<float> distances;
+        distances.resize(knn_candidate.size());
+        for (uint32_t j = 0; j < knn_candidate.size(); j++) {
+            distances[j] = compare_with_id(nodes[knn_candidate[j]], query_values);
+        }
+
+        vector<uint32_t> positions;
+        positions.resize(knn_candidate.size());
+        iota(positions.begin(), positions.end(), 0);
+        sort(positions.begin(), positions.end(), [&](uint32_t a, uint32_t b) {
+            return distances[a] < distances[b];
+        });
+        vector<uint32_t> knn_sorted;
+        knn_sorted.resize(k);
+        for (uint32_t j = 0; j < k; j++) {
+            knn_sorted[j] = knn_candidate[positions[j]];
+        }
+        knn.push_back(knn_sorted);
+    }
+    // Save the results
+    saveKNN(knn, output_file);
+    return;
+
+}
+
+float compare_with_id(const std::vector<float>& a, const std::vector<float>& b) {
+    float sum = 0.0;
+    // Skip the first 2 dimensions
+    for (size_t i = 2; i < a.size(); ++i) {
+        float diff = a[i] - b[i];
+        sum += diff * diff;
+    }
+    return sum;
+    
 int read_config_file(string filename, Options opt)
 {
     std::ifstream inputFile(filename);

@@ -6,7 +6,7 @@ using namespace std;
 
 
 int main(int argc, char* argv[]) {
-    
+
     Options opt = new options();
 
     int dimensions;
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
     Graph graph;
     if(opt->printing)
         cout << "Creating vamana graph..." << endl;
-    if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos)) {
+    if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, dimensions)) {
         cout << "Error creating vamana" << endl;
         delete opt;
         return -1;
@@ -48,10 +48,11 @@ int main(int argc, char* argv[]) {
     if(opt->printing)
         cout << "Graph completed!" << endl;
    
+
     if (opt->truth_filename.compare("") != 0) {
         // Vectors for groundtruth data
         vector<file_vector_int> vectors = read_int_vectors_from_file(opt->truth_filename);
-    
+      
         srand(static_cast<unsigned int>(time(0)));
   
         for (int i = 0; i < opt->query_count; i++) {

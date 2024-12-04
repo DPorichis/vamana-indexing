@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <vector>
 
 #include <cstdlib>
 #include <ctime>
@@ -191,9 +192,9 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 
 /*-------- Gready search and prunning need error return values--------------*/
 // Vamana index implementation
-int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,int& medoid_pos) {
+int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,int& medoid_pos, int dimensions) {
     // Graph creation and initialization
-    *g = create_graph_from_file(filename, 'f', R);
+    *g = create_graph_from_file(filename, 'f', R, dimensions);            
     Graph graph = *g;
     if (graph == NULL) {
         cerr << "Error while creating graph from file" << endl;
