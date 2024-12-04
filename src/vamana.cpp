@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <vector>
 
 #include <cstdlib>
 #include <ctime>

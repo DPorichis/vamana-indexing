@@ -3,6 +3,7 @@
 #include <string>
 #include "vamana.h"
 #include "graph.h"
+#include <cstdint>
 
 using namespace std;
 
@@ -31,6 +32,9 @@ struct file_vector_char {
 void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data);
 
 
+/*  Export k nearest neighbours to a file in the following format:
+       num_of_queries * vector with size k with the position of the nearest neighbours */
+void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path);
 
 // Inserting data in the library structure
 vector<file_vector_float> read_float_vectors_from_file(const string& filename);
@@ -44,6 +48,11 @@ Graph create_graph_from_file(const string& filename, int type, int k, int dimens
 
 // Performs (and allocates) query. Returns the query as a node for success, NULL otherwise
 Node ask_query(const string& filename, int type, int graph_dimension, int& pos);
+
+// Creates file with KNN for recall calculation using sampling 
+void create_groundtruth_file(const string& source_file, const string& queries_file, const string& output_file);
+
+float compare_with_id(const std::vector<float>& a, const std::vector<float>& b);
 
 // Release all memory for exiting.....I dont think we need this...
 int destroy_data(void);
