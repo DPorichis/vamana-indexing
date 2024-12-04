@@ -207,7 +207,7 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
             );
             
 
-            if(!isSubset(intersection, selected_cand->to->categories))
+            if(!isSubset(intersection, target->to->categories))
             {
                 ++it;
             }
