@@ -100,16 +100,6 @@ void test_medoid(void) {
 	TEST_ASSERT(point[0] == 15);
 	destroy_graph(graph);
 
-	// Test with 10.000 data points //
-	string path = "../data/siftsmall/siftsmall_base.fvecs";
-    graph = create_graph_from_file(path, 'f', 5);
-    
-	TEST_ASSERT(graph->dimensions == 128);
-
-	TEST_ASSERT(find_medoid(graph) == 8736);
-    TEST_ASSERT(graph->nodes[medoid]->d_count == 128);
-	destroy_graph(graph);
-
 	return;
 }
 

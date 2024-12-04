@@ -308,6 +308,7 @@ float compare_with_id(const std::vector<float>& a, const std::vector<float>& b) 
         sum += diff * diff;
     }
     return sum;
+}
     
 int read_config_file(string filename, Options opt)
 {

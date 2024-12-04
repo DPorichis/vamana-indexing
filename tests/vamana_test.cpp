@@ -21,9 +21,13 @@ void test_create_vamana_index(void) {
     int R = 20;
     int K = 70;
     int a = 1.2;
+
+    // CHECK DIMEMENTIONS
+    int dimentions;
+
     //    graph = create_graph_from_file(path, 'f', K);
     int medoid_pos;
-    TEST_ASSERT(!create_vamana_index(&graph, path, L, R, a, medoid_pos));
+    TEST_ASSERT(!create_vamana_index(&graph, path, L, R, a, medoid_pos, dimentions));
     // TEST_ASSERT(graph != NULL);
     
     set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
