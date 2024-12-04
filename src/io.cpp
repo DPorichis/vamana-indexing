@@ -7,6 +7,9 @@
 
 using namespace std;
 
+int update_option(string flag, string value, Options opt);
+int check_options(Options opt);
+
 
 // Insert binary data into the 2D vector "data"
 void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data) {
@@ -198,6 +201,7 @@ vector<file_vector_char> read_char_vectors_from_file(const string& filename) {
     return vectors; // Return the vector list
 }
 
+
 // Creates file with KNN for recall calculation using sampling 
 void create_groundtruth_file(const string& source_file, const string& queries_file, const string& output_file) {
     int data_dimensions = 102;
@@ -304,4 +308,207 @@ float compare_with_id(const std::vector<float>& a, const std::vector<float>& b) 
         sum += diff * diff;
     }
     return sum;
+    
+int read_config_file(string filename, Options opt)
+{
+    std::ifstream inputFile(filename);
+
+    // Error in opening
+    if (!inputFile) {
+        std::cerr << "Error opening file " << filename << std::endl;
+        delete opt;
+        return -1;
+    }
+
+    std::string line;
+    
+    // Read the file line by line
+    while (std::getline(inputFile, line)) {
+        
+        // Skip comments and empty lines
+        if (line.empty() || line[0] == '#') {
+            cout << "skipping";
+            continue;
+        }
+
+        // Split the line in two (flag)=(value)
+        size_t pos = line.find('=');
+        if (pos != std::string::npos) {
+            std::string flag = line.substr(0, pos);
+            std::string value = line.substr(pos + 1);
+            if(update_option(flag, value, opt) == -1)
+            {
+                inputFile.close();
+                return -1;            
+            }   
+        }
+    }
+    inputFile.close();
+
+    if(check_options(opt) == -1)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+int read_command_line_args(int argc, char* argv[], Options opt)
+{
+    // Read the file line by line
+    for(int i = 1; i < argc; i++) {
+
+        string line = argv[i];
+        // Split the line in two (flag)=(value)
+        size_t pos = line.find('=');
+        if (pos != std::string::npos) {
+            std::string flag = line.substr(0, pos);
+            std::string value = line.substr(pos + 1);
+            if(update_option(flag, value, opt) == -1)
+            {
+                return -1;            
+            }   
+        }
+    }
+    if(check_options(opt) == -1)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+
+void print_options(Options opt)
+{
+    cout << "--- Options overview ---" << endl;
+    cout << "- Data file: " << opt->data_filename << endl;
+    cout << "- Data type: " << opt->data_type << endl;
+    if(opt->file_type == 0)
+        cout << "- File type: Raw-data File" << endl;
+    else
+        cout << "- File type: Graph File" << endl;
+    cout << "----" << endl;
+    cout << "- Queries file: " << opt->queries_filename << endl;
+    cout << "- Queries to be performed: " << opt->query_count << endl;
+    cout << "----" << endl;
+    if(opt->truth_filename.compare("") == 0)
+        cout << "- No ground truth file provided, accuracy stats won't be calculated" << endl;
+    else
+        cout << "- Groundtruth file: " << opt->truth_filename << endl;
+    cout << "----" << endl;
+    cout << "- a: " << opt->a << endl;
+    cout << "- k: " << opt->k << endl;
+    cout << "- L: " << opt->L << endl;
+    cout << "- R: " << opt->R << endl;
+    cout << "----" << endl;
+}
+
+int update_option(string flag, string value, Options opt)
+{
+    if(flag == "data")
+    {
+        opt->data_filename = value;
+    }
+    else if(flag == "filetype")
+    {
+        if(value[0] == 'd')
+            opt->file_type = 0;
+        else
+            opt->file_type = 1;
+    }
+    else if(flag == "printing")
+    {
+        if(value[0] == 't')
+            opt->printing = true;
+        else
+            opt->printing = false;
+    }
+    else if(flag == "savegraph")
+    {
+        if(value[0] == 't')
+            opt->savegraph = true;
+        else
+            opt->savegraph = false;
+    }
+    else if(flag == "datatype")
+    {
+        opt->data_type = value[0];
+        if(value[0] != 'c' && value[0] != 'f' && value[0] != 'i')
+        {
+            cout << "Invalid data_type: data_type must be ('c', 'f' or 'i') " << endl;
+            return -1;
+        }
+    }
+    else if(flag == "truth")
+    {
+        opt->truth_filename = value;
+    }
+    else if(flag == "queries")
+    {
+        opt->queries_filename = value;
+    }
+    else if(flag == "queriescount")
+    {
+        opt->query_count = std::stoi(value);
+        if(opt->query_count < 1)
+        {
+            cout << "Invalid querieCount: querieCount must be >= 1" << endl;
+            return -1;
+        }
+    }
+    else if(flag == "R")
+    {
+        opt->R = std::stoi(value);
+        if(opt->R < 1)
+        {
+            cout << "Invalid R: R must be >= 1" << endl;
+            return -1;
+        }
+    }
+    else if(flag == "L")
+    {
+        opt->L = std::stoi(value);
+        if(opt->L < 1)
+        {
+            cout << "Invalid L: L must be >= 1" << endl;
+            return -1;
+        }
+    }
+    else if(flag == "k")
+    {
+        opt->k = std::stoi(value);
+        if(opt->k < 1)
+        {
+            cout << "Invalid k: k must be >= 1" << endl;
+            return -1;
+        }
+    }
+    else if(flag == "a")
+    {
+        opt->a = std::stof(value);
+        if(opt->a < 1)
+        {
+            cout << "Invalid a: a must be >= 1" << endl;
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int check_options(Options opt)
+{
+    int ret = 0;
+    
+    if(opt->data_filename.compare("") == 0)
+    {
+        cout << "Error: No datafile provided. Use data=[yourfile]" << endl;
+        ret = -1;
+    }
+    if(opt->queries_filename.compare("") == 0)
+    {
+        cout << "Error: No queries file provided. Use queries=[yourfile] " << endl;
+        ret = -1;
+    }
+    return ret;
 }
