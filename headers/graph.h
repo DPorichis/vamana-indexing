@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <set>
+#include <map>
 using namespace std;
 
 
@@ -73,10 +74,13 @@ struct graph
     int dimensions; // Defines the dimensions of each element
     DistanceFunc find_distance; // Selected calculate function based on the data type
     vector<Node> nodes; // All the vector Nodes
+    int unfiltered_medoid;
+    set<int> all_categories;
+    map<int,int> medoid_mapping;
     
     // Basic constructor
     graph(char t, int kn, int dim)
-        : type(t), k(kn), dimensions(dim) 
+        : type(t), k(kn), dimensions(dim), unfiltered_medoid(0)
     {
         // Select the right function depending on the data type
         if(t == 'f')
@@ -85,6 +89,23 @@ struct graph
             find_distance = calculate_char;
         else
             find_distance = calculate_int;
+    }
+
+    graph(char t, int kn, int dim, bool filt)
+    : type(t), k(kn), dimensions(dim) 
+    {
+        // Select the right function depending on the data type
+        if(t == 'f')
+            find_distance = calculate_float;
+        else if(t == 'c')
+            find_distance = calculate_char;
+        else
+            find_distance = calculate_int;
+
+        if(filt == true)
+            unfiltered_medoid = -1;
+        else
+            unfiltered_medoid = 0;
     }
 
 };

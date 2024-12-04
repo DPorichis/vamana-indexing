@@ -26,7 +26,9 @@ Node add_node_graph(Graph g, int d_count, void* components, int pos, set<int> ca
     
     // Create and add
     Node n = create_node(components, d_count, pos, categories);
+
     g->nodes.push_back(n);
+    g->all_categories.insert(categories.begin(), categories.end());
 
     return n;
 }
