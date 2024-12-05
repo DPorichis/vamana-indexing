@@ -232,93 +232,91 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
 
 /*-------- Gready search and prunning need error return values--------------*/
 // Vamana index implementation
-int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int& medoid_pos){
-    // // Graph creation and initialization
-    // *g = create_graph_from_file(filename, 'f', R);
-    // Graph graph = *g;
-    // if (graph == NULL) {
-    //     cerr << "Error while creating graph from file" << endl;
-    //     return -1;
-    // }
-    // if (init_dummy_graph(graph)) {
-    //     cerr << "Error in graph initialization";
-    //     return -2;
-    // }
+int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions){
+    // Graph creation and initialization
 
-    // set<int> categories;
-    // map<int, int>* medoids;
+    *g = create_graph_from_file(filename, 'f', R, dimensions);
+    Graph graph = *g;
+    if (graph == NULL) {
+        cerr << "Error while creating graph from file" << endl;
+        return -1;
+    }
 
-    // // Find medoid
-    // medoid_pos =  find_filtered_medoid(graph, categories, medoids);
+    // Find medoid
+    find_filtered_medoid(graph, graph->all_categories, &graph->medoid_mapping);
+
+    // Create random permutation of nodes, vectors is a copy of nodes (not the original)
+    vector<Node> vectors = graph->nodes;
+    random_device rd;
+    mt19937 generator(rd());
     
-    // Node medoid_node = graph->nodes[medoid_pos];
+    // Shuffle vector items according to Mersenne Twister engine
+    shuffle(vectors.begin(), vectors.end(), generator);
 
-    // // Create random permutation of nodes, vectors is a copy of nodes (not the original)
-    // vector<Node> vectors = graph->nodes;
-    // random_device rd;
-    // mt19937 generator(rd());
-    // // Shuffle vector items according to Mersenne Twister engine
-    // shuffle(vectors.begin(), vectors.end(), generator);
 
-    // // K for gready search
-    // int k = 1;
+    // K for gready search
+    int k = 1;
 
-    // for (int i = 0; i < vectors.size(); i++) {
-    //     // Create neighbours and visited sets
-    //     // cout << i << endl;
-    //     set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
-    //     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-    //     gready_search(graph, medoid_node, vectors[i], k, L, neighbours, visited);
+    for (int i = 0; i < vectors.size(); i++) {
 
-    //     robust_prunning(graph, vectors[i], visited, a, R);
-    //     for (const auto& j : vectors[i]->neighbours) {
-    //         // Create temp set
-    //         set<Candidate, CandidateComparator>* visited_set = new set<Candidate, CandidateComparator>();
-    //         for (const Link& link : j->to->neighbours) {
-    //             Candidate to_insert = create_candidate_copy((Link)link);
-    //             auto result = visited_set->insert(to_insert);
-    //             // If it wasn't inserted, free to manage memory leaks
-    //             if (!result.second) {
-    //                 free(to_insert);
-    //             }
+        int s_count = vectors[i]->categories.size();
+        Node* S = (Node *)malloc(sizeof(*S)*s_count);
 
-    //         }
+        int j = 0;
+        for (const int& val : vectors[i]->categories) {
+            S[j] = graph->nodes[graph->medoid_mapping[val]];
+            j++;
+        }
 
-    //         Candidate to_insert = create_candidate(graph, vectors[i], j->to);
-    //         auto result = visited_set->insert(to_insert);
-    //         // If it wasn't inserted, free to manage memory leaks
-    //         if (!result.second) {
-    //             free(to_insert);
-    //         }
+        // Create neighbours and visited sets
+        // cout << i << endl;
+        set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
+        set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
+        filtered_gready_search(graph, S, s_count, vectors[i], 0, L, vectors[i]->categories, neighbours, visited);
 
-    //         if (visited_set->size() > R) {
-    //             robust_prunning(graph, j->to, visited_set, a, R);
-    //         }
-    //         else {
-    //             Link for_insert = create_link(graph, j->to, vectors[i]);
-    //             auto result = j->to->neighbours.insert(for_insert);
-    //             if (!result.second) {
-    //                 free(for_insert);
-    //             }
-    //         }
+        filtered_robust_prunning(graph, vectors[i], visited, a, R);
+        for (const auto& j : vectors[i]->neighbours) {
+            Link to_insert = create_link(graph, j->to, vectors[i]);
+            auto result = j->to->neighbours.insert(to_insert);
+            // If it wasn't inserted, free to manage memory leaks
+            if (!result.second) {
+                free(to_insert);
+            }
             
-    //         for (const auto& r : *visited_set)
-    //             free(r);
+            if (j->to->neighbours.size() > R) {
+                set<Candidate, CandidateComparator>* temp_visited = new set<Candidate, CandidateComparator>();
+                for(const auto& neigh : j->to->neighbours)
+                {
+                    Candidate clone = create_candidate_copy((Candidate)neigh);
+                    auto result = temp_visited->insert(clone);
+                    // If it wasn't inserted, free to manage memory leaks
+                    if (!result.second) {
+                        free(to_insert);
+                    }   
+                }
 
-    //         delete visited_set;
-    //     }
-        
-    //     for (const auto& r : *neighbours)
-    //         free(r);
-        
-    //     delete neighbours;
-        
-    //     for (const auto& r : *visited)
-    //         free(r);
-        
-    //     delete visited;
+                filtered_robust_prunning(graph, j->to, temp_visited, a, R);
 
-    // }
+                for (const auto& r : *neighbours)
+                    free(r);
+                delete neighbours;
+            }
+            
+        }
+        
+        for (const auto& r : *neighbours)
+            free(r);
+        
+        delete neighbours;
+        
+        for (const auto& r : *visited)
+            free(r);
+        
+        delete visited;
+
+        free(S);
+
+    }
 
     return 0;
 }
