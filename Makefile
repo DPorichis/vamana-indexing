@@ -50,3 +50,26 @@ vamana_test: $(VAMOBJ)
 
 filtered_test: $(FILOBJ)
 	g++ $(CFLAGS) $(FILOBJ) -o $(BIN)/filtered_test
+
+clean:
+	rm -rf $(BUILD)/*.o $(BIN)/*
+
+run_tests: alltests
+	$(BIN)/gready_test
+	$(BIN)/graph_test
+#	$(BIN)/io_test
+	$(BIN)/prune_test
+	$(BIN)/filtered_test
+# $(BIN)/vamana_test
+
+run_valgrind_tests: alltests
+	cd tests
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/gready_test
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/graph_test
+#	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/io_test
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/prune_test
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/filtered_test
+#	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/vamana_test
+
+run: project
+	$(BIN)/project -config ./config.txt
