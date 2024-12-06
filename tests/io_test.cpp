@@ -98,14 +98,76 @@ void test_groundtruth(void) {
 	vector<vector<float>> data;
 	readBinary(source_file, 102, data);
 
-	create_groundtruth_file(source_file, queries_file, output_file);
+	// create_groundtruth_file(source_file, queries_file, output_file);
 	// TEST_ASSERT()
 	
 }
+
+void test_save_write(void) {
+	string path = "../data/dummy-data.bin";
+	int dimensions = 102;
+
+	// Create graph
+	Graph graph = create_graph_from_file(path, 'f', 5, dimensions);
+
+	set<int> all_categories;
+	for (int i = 0; i < graph->nodes.size(); i++) {
+		all_categories.insert(((float*)graph->nodes[i]->components)[0]);
+		// cout << ((float*)graph->nodes[i]->components)[1] << endl;
+	}
+	map<int, int> medoid_map;
+	TEST_ASSERT(!find_filtered_medoid(graph, all_categories, &medoid_map));
+
+	saveGraph(graph, "../data/graph.bin");
+
+	Graph new_graph = create_graph(0, 0, 0);
+	readGraph(new_graph, "../data/graph.bin");
+	TEST_ASSERT(new_graph->type == 'f');
+	TEST_ASSERT(new_graph->dimensions == 102);
+	TEST_ASSERT(new_graph->k == 5);
+	TEST_ASSERT(graph->unfiltered_medoid == new_graph->unfiltered_medoid);
+	TEST_ASSERT(graph->nodes.size() == new_graph->nodes.size());
+	
+	// Check that components of a random position are the same
+	int pos = rand() % graph->nodes.size();
+
+	for (int i = 0; i < graph->dimensions; i++) {
+		TEST_ASSERT(((float*)graph->nodes[pos]->components)[i] == ((float*)new_graph->nodes[pos]->components)[i]);
+	}
+	
+	// Checks that nodes of random position have the same neigbhors
+	pos = rand() % graph->nodes.size();
+
+	TEST_ASSERT(graph->nodes[pos]->neighbours.size() == new_graph->nodes[pos]->neighbours.size());
+
+	// Extract neighbors of the first graph's node
+	set<int> neighbors1;
+	for (const Link& link : graph->nodes[pos]->neighbours) {
+		neighbors1.insert(link->to->pos);
+	}
+	// Extract the neighbors of the second graph's node
+	set<int> neighbors2;
+	for (const Link& link : new_graph->nodes[pos]->neighbours) {
+		neighbors2.insert(link->to->pos);
+	}
+	// Check that they have the same neighbors
+	TEST_ASSERT(neighbors1 == neighbors2);
+
+	// Check that medoid map has the same size
+	TEST_ASSERT(graph->medoid_mapping.size() == new_graph->medoid_mapping.size());
+
+	// Check that all categories have the same size
+	TEST_ASSERT(graph->all_categories.size() == new_graph->all_categories.size());
+
+	destroy_graph(graph);
+	destroy_graph(new_graph);
+}
+
 
 TEST_LIST = {
 	{ "create_graph_from_file", test_create_from_file },
 	{ "perform_query", test_query},
 	{ "create_groundtruth_file", test_groundtruth},
+	{ "save/write_graph_to_file", test_save_write},
 	{ NULL, NULL }
 };

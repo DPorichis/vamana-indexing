@@ -113,6 +113,9 @@ void test_medoid(void) {
     
     TEST_ASSERT(medoid_map[0] == 0);
 
+    // Check that medoid map has succesfully copied to graph
+    TEST_ASSERT(medoid_map == graph->medoid_mapping);
+
     for(int i = 2; i < n; i++)
     {
         TEST_ASSERT(medoid_map[i] == i-1);

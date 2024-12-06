@@ -57,6 +57,161 @@ void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path) {
     file.close();
 }
 
+// Save graph to binary file
+void saveGraph(Graph graph, const string& output_file) {
+    ofstream file(output_file, ios::binary);
+    if (!file) {
+        cerr << "Error opening file: " << output_file << " for saving graph" << endl;
+        return;
+    }
+    
+
+    // Write type, k, dimensions and unfiltered_medoid of graph 
+    file.write(reinterpret_cast<const char*>(&graph->type), sizeof(graph->type));
+    file.write(reinterpret_cast<const char*>(&graph->k), sizeof(graph->k));
+    file.write(reinterpret_cast<const char*>(&graph->dimensions), sizeof(graph->dimensions));
+    file.write(reinterpret_cast<const char*>(&graph->unfiltered_medoid), sizeof(graph->unfiltered_medoid));
+
+    // Write the number of nodes
+    size_t node_count = graph->nodes.size();
+    file.write(reinterpret_cast<const char*>(&node_count), sizeof(node_count));
+
+    // Write each node
+    for (const auto& node : graph->nodes) {
+        // Write 'pos' and 'd_count'
+        file.write(reinterpret_cast<const char*>(&node->pos), sizeof(node->pos));
+        file.write(reinterpret_cast<const char*>(&node->d_count), sizeof(node->d_count));
+
+        // Write components
+        file.write(reinterpret_cast<const char*>(node->components), node->d_count * sizeof(float));
+
+        // Write neighbours set
+        size_t neighbour_count = node->neighbours.size();
+        file.write(reinterpret_cast<const char*>(&neighbour_count), sizeof(neighbour_count));
+        for (const Link& link : node->neighbours) {
+            file.write(reinterpret_cast<const char*>(&link->to->pos), sizeof(link->to->pos));
+        }
+
+        // Write categories set
+        size_t category_count = node->categories.size();
+        file.write(reinterpret_cast<const char*>(&category_count), sizeof(category_count));
+        for (const int category : node->categories) {
+            file.write(reinterpret_cast<const char*>(&category), sizeof(category));
+        }
+    }
+    // Write `all_categories`
+    int category_count = graph->all_categories.size();
+    file.write(reinterpret_cast<const char*>(&category_count), sizeof(category_count));
+    for (int category : graph->all_categories) {
+        file.write(reinterpret_cast<const char*>(&category), sizeof(category));
+    }
+
+    // Write 'medoid_mapping'
+    size_t medoids_size = graph->medoid_mapping.size();
+    file.write(reinterpret_cast<const char*>(&medoids_size), sizeof(medoids_size));
+
+    // Write each key-value pair in the medoids map
+    for (const auto& [key, value] : graph->medoid_mapping) {
+        file.write(reinterpret_cast<const char*>(&key), sizeof(key));
+        file.write(reinterpret_cast<const char*>(&value), sizeof(value));
+    }
+
+    file.close();
+}
+
+// Read graph from binary file
+void readGraph(Graph& graph, const string& input_file) {
+    ifstream file(input_file, ios::binary);
+    if (!file) {
+        cerr << "Error opening file: " << input_file << " for reading" << endl;
+        return;
+    }
+
+    // Read type, k, and dimensions
+    file.read(reinterpret_cast<char*>(&graph->type), sizeof(graph->type));
+    file.read(reinterpret_cast<char*>(&graph->k), sizeof(graph->k));
+    file.read(reinterpret_cast<char*>(&graph->dimensions), sizeof(graph->dimensions));
+    file.read(reinterpret_cast<char*>(&graph->unfiltered_medoid), sizeof(graph->unfiltered_medoid));
+
+    // Read the number of nodes
+    size_t node_count;
+    file.read(reinterpret_cast<char*>(&node_count), sizeof(node_count));
+    // Clear any existing nodes and reserve space
+    graph->nodes.clear();
+    graph->nodes.reserve(node_count);
+
+    vector<vector<int>> neighbors_positions(node_count);
+
+    // Read each node
+    for (size_t i = 0; i < node_count; ++i) {
+        Node node = new struct node;
+
+        file.read(reinterpret_cast<char*>(&node->pos), sizeof(node->pos));
+        file.read(reinterpret_cast<char*>(&node->d_count), sizeof(node->d_count));
+        
+        // Allocate and read components
+        node->components = malloc(node->d_count * sizeof(float)); // Adjust type if not float
+        if (!node->components) {
+            cerr << "Error allocating memory for node components" << endl;
+            return;
+        }
+        file.read(reinterpret_cast<char*>(node->components), node->d_count * sizeof(float));
+        
+        // Read neighbours set
+        size_t neighbor_count;
+        file.read(reinterpret_cast<char*>(&neighbor_count), sizeof(neighbor_count));
+        
+        neighbors_positions[i].resize(neighbor_count);
+        file.read(reinterpret_cast<char*>(neighbors_positions[i].data()), neighbor_count * sizeof(int));
+        
+        // Read categories set
+        size_t category_count;
+        file.read(reinterpret_cast<char*>(&category_count), sizeof(category_count));
+        for (size_t j = 0; j < category_count; ++j) {
+            int category;
+            file.read(reinterpret_cast<char*>(&category), sizeof(category));
+            node->categories.insert(category);
+        }
+
+        graph->nodes.push_back(node);
+    }
+    // Read `all_categories`
+    int category_count;
+    file.read(reinterpret_cast<char*>(&category_count), sizeof(category_count));
+    graph->all_categories.clear();
+    for (int i = 0; i < category_count; ++i) {
+        int category;
+        file.read(reinterpret_cast<char*>(&category), sizeof(category));
+        graph->all_categories.insert(category);
+    }
+
+    // Read the size of the medoids map
+    size_t medoids_size;
+    file.read(reinterpret_cast<char*>(&medoids_size), sizeof(medoids_size));
+
+    // Clear and read each key-value pair in the medoids map
+    graph->medoid_mapping.clear();
+    for (size_t i = 0; i < medoids_size; ++i) {
+        int key, value;
+        file.read(reinterpret_cast<char*>(&key), sizeof(key));
+        file.read(reinterpret_cast<char*>(&value), sizeof(value));
+        graph->medoid_mapping[key] = value;
+    }
+
+    // Second pass : Updating neighbors
+    for (int i = 0; i < node_count; ++i) {
+        Node node = graph->nodes[i];
+        node->neighbours.clear();
+        for (int neighbor_pos : neighbors_positions[i]) {
+            Link link = create_link(graph, graph->nodes[i], graph->nodes[neighbor_pos]);
+            node->neighbours.insert(link);
+        }
+    }
+
+    file.close();
+}
+
+
 
 vector<file_vector_float> read_float_vectors_from_file(const std::string& filename) {
     vector<file_vector_float> vectors;

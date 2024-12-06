@@ -3,6 +3,7 @@
 #include <string>
 #include "vamana.h"
 #include "graph.h"
+#include "filtered-vamana.h"
 #include <cstdint>
 
 using namespace std;
@@ -31,10 +32,15 @@ struct file_vector_char {
             data  query                         */
 void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data);
 
-
 /*  Export k nearest neighbours to a file in the following format:
        num_of_queries * vector with size k with the position of the nearest neighbours */
 void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path);
+
+// Save graph to binary file
+void saveGraph(Graph graph, const string& output_file);
+
+// Read graph from binary file
+void readGraph(Graph& graph, const string& input_file);
 
 struct options {
 
@@ -79,7 +85,6 @@ Graph create_graph_from_file(const string& filename, int type, int k, int dimens
 
 // Performs (and allocates) query. Returns the query as a node for success, NULL otherwise
 Node ask_query(const string& filename, int type, int graph_dimension, int& pos);
-
 
 // Creates file with KNN for recall calculation using sampling 
 void create_groundtruth_file(const string& source_file, const string& queries_file, const string& output_file);

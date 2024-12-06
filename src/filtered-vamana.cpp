@@ -392,5 +392,7 @@ int find_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoid
         if(medoid_position != -1)
             medoids->insert({category, medoid_position}); 
     }
+    // Insert medoids map to graph
+    graph->medoid_mapping = *medoids;
     return 0;
 }
