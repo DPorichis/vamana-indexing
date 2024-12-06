@@ -168,6 +168,18 @@ void test_pruning(void) {
 
 	cout << "Node neighbours before prunning: " << graph->nodes[3]->neighbours.size() << endl;
 
+    double max_dist = 0;
+
+    for (const auto& r : graph->nodes[3]->neighbours) {
+        cout << r->to << " with distance: " << r->distance << endl;
+        // Check that neighbours are of correct category or they pass the proximity test
+        if(r->distance > max_dist)
+            max_dist = r->distance;
+    }
+
+
+	set<Link, LinkComp> old = graph->nodes[3]->neighbours;
+
 	filtered_robust_prunning(graph, graph->nodes[3], visited, 3, 2);
 
 	// Good reason for termination
@@ -177,8 +189,12 @@ void test_pruning(void) {
 
 	for (const auto& r : graph->nodes[3]->neighbours) {
         cout << r->to << " with distance: " << r->distance << endl;
-    }
+        // Check that neighbours are of correct category or they pass the proximity test
 
+        TEST_ASSERT(r->to->categories.find(6) != r->to->categories.end() || r->to->categories.find(7) != r->to->categories.end() || max_dist >= r->distance);
+
+    }
+    
 	cout << "V had: " << visited->size() << endl;
 
 	for (const auto& r : *neighbours)

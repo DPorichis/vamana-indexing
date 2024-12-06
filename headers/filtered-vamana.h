@@ -24,7 +24,7 @@ set<Candidate, CandidateComparator>* neighbours, set<Candidate, CandidateCompara
 int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r);
 
 // Alg 3
-int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int& medoid_pos);
+int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions);
 
 // Finds the medoid node of a graph
 // int find_medoid(const vector<Node>& nodes);

@@ -20,9 +20,18 @@ void test_pruning(void) {
 
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-	int results = gready_search(graph, graph->nodes[find_medoid(graph)], graph->nodes[6], graph->k, 10, neighbours, visited);
+
+	int results = gready_search(graph, graph->nodes[find_medoid(graph)], graph->nodes[3], graph->k, 10, neighbours, visited);
 
 	cout << "Node neighbours before prunning: " << graph->nodes[3]->neighbours.size() << endl;
+
+	double max_distance = 0;
+
+	for (const auto& r : graph->nodes[3]->neighbours) {
+        cout << r->to << " with distance: " << r->distance << endl;
+		if (r->distance > max_distance)
+			max_distance = r->distance;
+    }
 
 	robust_prunning(graph, graph->nodes[3], visited, 3, 2);
 
@@ -33,6 +42,8 @@ void test_pruning(void) {
 
 	for (const auto& r : graph->nodes[3]->neighbours) {
         cout << r->to << " with distance: " << r->distance << endl;
+		// Check if we end up with closer neighbours than we started
+		TEST_ASSERT(max_distance >= r->distance);
     }
 
 	cout << "V had: " << visited->size() << endl;
