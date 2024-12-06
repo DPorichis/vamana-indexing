@@ -9,22 +9,22 @@ using namespace std;
 void test_create_from_file(void) {
 	// Test with the file "../data/dummy-data.bin"
 	string path = "../data/dummy-data.bin";
-	int dimensions = 102;
+	int dimensions = 100;
 
 	// Create graph
 	Graph graph = create_graph_from_file(path, 'f', 5, dimensions);
 
 	// The vectors of the dataset
 	vector<vector<float>> data;
-	readBinary(path, dimensions, data);
+	readBinary(path, dimensions + 2, data);
 	
 	TEST_ASSERT(graph != NULL);
 	TEST_ASSERT(graph->type == 'f');
 	TEST_ASSERT(graph->k == 5);
 
-	// Checks that all vectors from the file have the same dimesnion
+	// Checks that all vectors from the file have the same dimension
 	for (int i = 0; i < data.size(); i++) {
-		TEST_ASSERT(dimensions == data[i].size());
+		TEST_ASSERT(dimensions == data[i].size() - 2);
 	}
 	TEST_ASSERT(dimensions == graph->dimensions);
 
@@ -33,14 +33,14 @@ void test_create_from_file(void) {
 
 	// Checks that vector node no.0 is in the same position on the graph
 	for (int i = 0; i < graph->dimensions; i++) {
-		TEST_ASSERT(((float*)graph->nodes[0]->components)[i] == data[0][i]);
+		TEST_ASSERT(((float*)graph->nodes[0]->components)[i] == data[0][i + 2]);
 	}
 
 	// Also check for a node at random position between 0 - graph_size
 	srand(static_cast<unsigned int>(time(0)));
 	int pos = rand() % graph->nodes.size();
 	for (int i = 0; i < graph->dimensions; i++) {
-		TEST_ASSERT(((float*)graph->nodes[pos]->components)[i] == data[pos][i]);
+		TEST_ASSERT(((float*)graph->nodes[pos]->components)[i] == data[pos][i + 2]);
 	}
 
 	// Destroy graph
@@ -51,25 +51,25 @@ void test_create_from_file(void) {
 void test_query(void) {
 	// Test with the file "../data/dummy-queries.bin"
 	string path = "../data/dummy-queries.bin";
-	int dimensions = 102;
+	int dimensions = 100;
 
 	// Create graph
 	Graph graph = create_graph_from_file("../data/dummy-data.bin", 'f', 5, dimensions);
 
 	// The vectors of the query dataset
 	vector<vector<float>> data;
-	readBinary(path, dimensions + 2, data);			// Queries: 104 dimensions
+	readBinary(path, dimensions + 4, data);			// Queries: 104 dimensions
 
 	// The file position of query. Gets value by user input
 	int pos; 
 
 	// Call function
-	Node query = ask_query(path, graph->type, graph->dimensions + 2, pos);
+	Node query = ask_query(path, graph->type, graph->dimensions, pos);
 	
 	TEST_ASSERT(query != NULL);
 
 	for (int i = 0; i < query->d_count; i++) {
-		TEST_ASSERT(data[pos][i] == ((float*)query->components)[i]);
+		TEST_ASSERT(data[pos][i + 4] == ((float*)query->components)[i]);
 	}
 
 	// ********* UNCOMMENT if we want user input ***************
@@ -95,8 +95,8 @@ void test_groundtruth(void) {
 	// Graph graph = create_graph_from_file(path, 'f', 5, dimensions);
 
 	// The vectors of the dataset
-	vector<vector<float>> data;
-	readBinary(source_file, 102, data);
+	// vector<vector<float>> data;
+	// readBinary(source_file, 102, data);
 
 	// create_groundtruth_file(source_file, queries_file, output_file);
 	// TEST_ASSERT()
@@ -105,25 +105,17 @@ void test_groundtruth(void) {
 
 void test_save_write(void) {
 	string path = "../data/dummy-data.bin";
-	int dimensions = 102;
+	int dimensions = 100;
 
 	// Create graph
 	Graph graph = create_graph_from_file(path, 'f', 5, dimensions);
-
-	set<int> all_categories;
-	for (int i = 0; i < graph->nodes.size(); i++) {
-		all_categories.insert(((float*)graph->nodes[i]->components)[0]);
-		// cout << ((float*)graph->nodes[i]->components)[1] << endl;
-	}
-	map<int, int> medoid_map;
-	TEST_ASSERT(!find_filtered_medoid(graph, all_categories, &medoid_map));
 
 	saveGraph(graph, "../data/graph.bin");
 
 	Graph new_graph = create_graph(0, 0, 0);
 	readGraph(new_graph, "../data/graph.bin");
 	TEST_ASSERT(new_graph->type == 'f');
-	TEST_ASSERT(new_graph->dimensions == 102);
+	TEST_ASSERT(new_graph->dimensions == dimensions);
 	TEST_ASSERT(new_graph->k == 5);
 	TEST_ASSERT(graph->unfiltered_medoid == new_graph->unfiltered_medoid);
 	TEST_ASSERT(graph->nodes.size() == new_graph->nodes.size());

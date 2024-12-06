@@ -247,22 +247,25 @@ vector<file_vector_float> read_float_vectors_from_file(const std::string& filena
 Graph create_graph_from_file(const string& filename, int type, int k, int dimensions) {
     // Store file data to 2D vector
     vector<vector<float>> nodes;
-    readBinary(filename, dimensions, nodes);
+    readBinary(filename, dimensions + 2, nodes);
     //  Graph creation
     Graph graph = create_graph(type, k, dimensions);
 
     // Insert graph nodes
     for (int i = 0; i < nodes.size(); i++) {
-        // Allocate the required memory. We use max in order to secure that we have enough space to store the data
-        // For example, if a dataset has floats and chars, we want an array of floats that have enough space to store chars as well
+        // Allocate the required memory
         void* components = malloc(dimensions * sizeof(float));
         if (components == NULL) {
         cerr << "Error allocating memory for graph nodes from file" << endl;
         return NULL;
     }
         // Copy vector data to graph (Important)
-        memcpy(components, nodes[i].data(), dimensions * sizeof(float));
-        add_node_graph(graph, dimensions, components, i);
+        memcpy(components, nodes[i].data() + 2, dimensions * sizeof(float));
+
+        // Save the filter in the categories set
+        set<int> categories;
+        categories.insert(nodes[i][0]);
+        add_node_graph(graph, dimensions, components, i, categories);
     }
 
     // Connecting the nodes
@@ -276,7 +279,7 @@ Node ask_query(const std::string& filename, int type, int dimensions, int& pos) 
     // Store file data to vector
     // vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
     vector<vector<float>> queries;
-    readBinary(filename, dimensions, queries);
+    readBinary(filename, dimensions + 4, queries);
 
     // Random query
     pos = rand() % queries.size();
@@ -292,8 +295,9 @@ Node ask_query(const std::string& filename, int type, int dimensions, int& pos) 
     // Node initialization
     query->d_count = dimensions;
     query->components = malloc(query->d_count * sizeof(float));
-    memcpy(query->components, queries[pos].data(),query->d_count * sizeof(float));
+    memcpy(query->components, queries[pos].data() + 4, query->d_count * sizeof(float));
     query->pos = pos;
+    query->categories.insert(queries[pos][1]);
 
     return query;  
 }
