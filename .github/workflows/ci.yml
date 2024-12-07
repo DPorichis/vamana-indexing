@@ -23,7 +23,7 @@ jobs:
 
     - name: Build project
       run: |
-      make  all
+        make  all
     
     - name: Run tests
       run: |
