@@ -4,6 +4,8 @@
 #include <set>
 #include "graph.h"
 #include "vamana.h"
+#include "vamana-utils.h"
+
 #include "io.h"
 
 using namespace std;

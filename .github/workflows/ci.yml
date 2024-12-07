@@ -23,8 +23,7 @@ jobs:
 
     - name: Build project
       run: |
-        cd tests
-        make  alltests
+        make  all
     
     - name: Run tests
       run: |
