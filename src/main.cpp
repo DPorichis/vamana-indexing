@@ -44,9 +44,9 @@ int main(int argc, char* argv[]) {
             else   
                 cout << "Creating Vamana..." << endl;    
         }
-        if (opt->index_type == 'f') {
-            if (create)
-        }
+        // if (opt->index_type == 'f') {
+        //     if (create)
+        // }
     }
 
     // Create the Vamana Index
