@@ -24,24 +24,6 @@ struct file_vector_char {
     std::vector<char> components;  // Vector components
 };  
 
-/*Insert data from binary file to 2D vector "data"
-    2D vector contains:
-        vectors with the following formation:
-            ((2 or 4 values) + node_dimensions)
-              |    |                
-            data  query                         */
-void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data);
-
-/*  Export k nearest neighbours to a file in the following format:
-       num_of_queries * vector with size k with the position of the nearest neighbours */
-void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path);
-
-// Save graph to binary file
-void saveGraph(Graph graph, const string& output_file);
-
-// Read graph from binary file
-void readGraph(Graph& graph, const string& input_file);
-
 struct options {
 
     // Type of file
@@ -72,6 +54,27 @@ struct options {
 };
 
 typedef struct options* Options;
+
+/*Insert data from binary file to 2D vector "data"
+    2D vector contains:
+        vectors with the following formation:
+            ((2 or 4 values) + node_dimensions)
+              |    |                
+            data  query                         */
+void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data);
+
+// Grountruth data into 'data'
+void readKNN(const string& filename, const int dimensions, vector<vector<uint32_t>>& data);
+
+/*  Export k nearest neighbours to a file in the following format:
+       num_of_queries * vector with size k with the position of the nearest neighbours */
+void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path);
+
+// Save graph to binary file
+void saveGraph(Graph graph, const string& output_file);
+
+// Read graph from binary file
+void readGraph(Graph& graph, const string& input_file);
 
 // Inserting data in the library structure
 vector<file_vector_float> read_float_vectors_from_file(const string& filename);

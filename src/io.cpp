@@ -40,6 +40,35 @@ void readBinary(const string& filename, const int dimensions, vector<vector<floa
     file.close();
 }
 
+// Insert binary data into the 2D vector "data"
+void readKNN(const string& filename, const int dimensions, vector<vector<uint32_t>>& data) {
+    ifstream file;
+    file.open(filename, ios::binary);
+    
+    if (!file.is_open()) {
+        cout << "Error opening file: " << filename << endl;
+        return;
+    }
+
+    uint32_t vectors_count;     // Num of vectors in file
+    file.read((char *)&vectors_count, sizeof(uint32_t));
+
+    data.resize(vectors_count);
+
+    vector<uint32_t> buffer(dimensions);
+
+    int i = 0;
+    while (file.read((char*)buffer.data(), dimensions * sizeof(uint32_t))) {
+        vector<uint32_t> temp(dimensions);
+        for (int j = 0; j < dimensions; j++) {
+            temp[j] = static_cast<uint32_t>(buffer[j]);
+        }
+        data[i++] = move(temp);
+    }
+    // Close file
+    file.close();
+}
+
 // Export k nearest neighbours to a file
 void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path) {
     ofstream file(path, ios::out | ios::binary);
@@ -50,6 +79,8 @@ void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path) {
         printf("K and KNN not the same size..Error!\n");
         return;
     }
+    file.write(reinterpret_cast<const char*>(&q_count), sizeof(uint32_t));
+
     for (int i = 0; i < q_count; i++) {
         auto const& temp_n = neighbours[i];
         file.write(reinterpret_cast<char const *>(&temp_n[0]), K * sizeof(uint32_t)); 
@@ -378,6 +409,8 @@ void create_groundtruth_file(const string& source_file, const string& queries_fi
 
     // Find 100 Nearest Neighbours
     int k = 100;
+
+    cout << nodes.size() << endl;
 
     for (unsigned int i = 0; i < queries.size(); i++) {
         uint32_t query_type = queries[i][0];

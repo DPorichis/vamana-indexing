@@ -41,9 +41,9 @@ You can run this project by executing `./bin/project ...` from the base folder, 
 
 An example execusion is : 
 
-`./bin/project data=./data/siftsmall/siftsmall_base.fvecs
+`./bin/project data=./data/dummy-data.bin
 datatype=f k=20 R=40 L=50 a=1.4
-queries=./data/siftsmall/siftsmall_query.fvecs
+queries=./data/dummy-queries.bin
 queriescount=2`
 
 You can also set the attributes inside a config file and execute like this:
@@ -58,13 +58,13 @@ Sample of a config:
 
 ```
 # I am a config file
-data=./data/siftsmall/siftsmall_base.fvecs
+data=./data/dummy-data.bin
 datatype=f
 k=20
 R=40
 L=50
 a=1.4
-queries=./data/siftsmall/siftsmall_query.fvecs
+queries=./data/dummy-queries.bin
 queriescount=2
 printing=true
 savegraph=false

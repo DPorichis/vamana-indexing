@@ -85,21 +85,27 @@ void test_query(void) {
 	destroy_graph(graph);
 }
 
-void test_groundtruth(void) {
+void test_groundtruth(void) {		// pending...
 	
 	string source_file = "../data/dummy-data.bin";
 	string queries_file = "../data/dummy-queries.bin";
 	string output_file = "../data/groundtruth.bin";
-	// int dimensions = 102;
+	
 	// // Create graph
 	// Graph graph = create_graph_from_file(path, 'f', 5, dimensions);
 
 	// The vectors of the dataset
-	// vector<vector<float>> data;
-	// readBinary(source_file, 102, data);
+	vector<vector<float>> data;
+	readBinary(source_file, 102, data);
 
-	// create_groundtruth_file(source_file, queries_file, output_file);
-	// TEST_ASSERT()
+	vector<vector<float>> queries;
+	readBinary(queries_file, 104, queries);
+
+	create_groundtruth_file(source_file, queries_file, output_file);
+	vector<vector<uint32_t>> groundtruth;
+	readKNN(output_file, 100, groundtruth);
+	// TEST_ASSERT(groundtruth.size() == 100);
+	// cout << groundtruth.size() << endl;
 	
 }
 
