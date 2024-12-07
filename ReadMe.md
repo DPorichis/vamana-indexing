@@ -38,6 +38,7 @@ You can run this project by executing `./bin/project ...` from the base folder, 
 - `printing=[true/false]`: Enable or disable detailed printing (Defaults to true)
 - `savegraph=[true/false]`: Save the graph created to a file (Defaults to false)
 - `truthfile=[filename]`: File containing the ground truth. Accuracy will not be calculated when a value is not set
+- `index=[f/s/u]` : f for filtered vamana, s for stitched vamana and u for unfiltered
 
 An example execusion is : 
 

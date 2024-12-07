@@ -8,3 +8,5 @@ queries=./data/dummy-queries.bin
 queriescount=2
 printing=true
 savegraph=false
+truth=./data/groundtruth.bin
+index=f

@@ -410,8 +410,6 @@ void create_groundtruth_file(const string& source_file, const string& queries_fi
     // Find 100 Nearest Neighbours
     int k = 100;
 
-    cout << nodes.size() << endl;
-
     for (unsigned int i = 0; i < queries.size(); i++) {
         uint32_t query_type = queries[i][0];
         int v = queries[i][1];
@@ -590,6 +588,8 @@ void print_options(Options opt)
     else
         cout << "- Groundtruth file: " << opt->truth_filename << endl;
     cout << "----" << endl;
+    cout << "- Index type: " << opt->index_type << endl;
+    cout << "----" << endl;
     cout << "- a: " << opt->a << endl;
     cout << "- k: " << opt->k << endl;
     cout << "- L: " << opt->L << endl;
@@ -685,6 +685,12 @@ int update_option(string flag, string value, Options opt)
             cout << "Invalid a: a must be >= 1" << endl;
             return -1;
         }
+    }
+    else if(flag == "index") {
+        if(value[0] != 'f' && value[0] != 's' && value[0] != 'u') {
+            cout << "Invalid index: must be f/s/u" << endl;
+        }
+        opt->index_type = value[0];
     }
     return 0;
 }

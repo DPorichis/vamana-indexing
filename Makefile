@@ -66,7 +66,7 @@ run_valgrind_tests: alltests
 	cd tests
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/gready_test
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/graph_test
-#	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/io_test
+# valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/io_test
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/prune_test
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/filtered_test
 #	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(BIN)/vamana_test
