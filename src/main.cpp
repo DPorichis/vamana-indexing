@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
     if (opt->index_type == 'f' || opt->index_type == 'u') {
         Graph graph;
         if (opt->printing) {
-            if (opt>index_type == 'f')
+            if (opt->index_type == 'f')
                 cout << "Creating Filtered Vamana..." << endl;
             else   
                 cout << "Creating Vamana..." << endl;    
