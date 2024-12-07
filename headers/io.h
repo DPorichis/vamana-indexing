@@ -86,6 +86,8 @@ vector<file_vector_char> read_char_vectors_from_file(const string& filename);
 // Create graph from dataset. Returns graph for success, NULL otherwise
 Graph create_graph_from_file(const string& filename, int type, int k, int dimensions);
 
+map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type, int k, int dimensions);
+
 // Performs (and allocates) query. Returns the query as a node for success, NULL otherwise
 Node ask_query(const string& filename, int type, int graph_dimension, int& pos);
 

@@ -1,6 +1,8 @@
 #include "acutest.h"
 #include "graph.h"
 #include "vamana.h"
+#include "vamana-utils.h"
+
 #include "io.h"
 #include <iostream>
 #include <cmath>

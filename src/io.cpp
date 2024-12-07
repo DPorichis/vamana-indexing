@@ -4,6 +4,7 @@
 #include <fstream>
 #include <numeric>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -303,6 +304,41 @@ Graph create_graph_from_file(const string& filename, int type, int k, int dimens
     init_dummy_graph(graph);
 
     return graph;
+}
+
+// Create graph from dataset. Returns graph for success, NULL otherwise
+map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type, int k, int dimensions) {
+    // Store file data to 2D vector
+    vector<vector<float>> nodes;
+    readBinary(filename, dimensions + 2, nodes);
+    
+    map<int, Graph>* stiched_index = new map<int, Graph>();;
+    
+    // Insert graph nodes
+    for (int i = 0; i < nodes.size(); i++) {
+
+        // Allocate the required memory
+        void* components = malloc(dimensions * sizeof(float));
+        if (components == NULL) {
+            cerr << "Error allocating memory for graph nodes from file" << endl;
+            return NULL;
+        }
+
+        // Copy vector data to graph (Important)
+        memcpy(components, nodes[i].data() + 2, dimensions * sizeof(float));
+
+        int category = nodes[i][0];
+
+        if(stiched_index->find(category) != stiched_index->end())
+        {
+            // Graph creation
+            Graph graph = create_graph(type, k, dimensions);
+            (*stiched_index)[category] = graph;
+        }
+        add_node_graph((*stiched_index)[category], dimensions, components, i);
+    }
+
+    return stiched_index;
 }
 
 // Performs (and allocates) query. Returns the file position of query for success, -1 otherwise
