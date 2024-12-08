@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 	string groundtruth_file = "../data/groundtruth.bin";
 
     vector<vector<uint32_t>> groundtruth;
-
+    create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
     dimensions = 100;
     int medoid_pos;
     

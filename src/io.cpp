@@ -244,38 +244,6 @@ void readGraph(Graph& graph, const string& input_file) {
     file.close();
 }
 
-
-
-vector<file_vector_float> read_float_vectors_from_file(const std::string& filename) {
-    vector<file_vector_float> vectors;
-    ifstream infile(filename, ios::binary);
-
-    if (!infile) {
-        cerr << "Error opening file: " << filename << endl;
-        return vectors; // Return empty vector on error
-    }
-
-    while (infile.peek() != EOF) { // Check if end of file
-        file_vector_float vec;
-        
-        // Read the dimension
-        infile.read(reinterpret_cast<char*>(&vec.d), sizeof(vec.d));
-        if (infile.eof()) break; // Break if we reach EOF
-        
-        // Allocate the correct size for components
-        vec.components.resize(vec.d);
-        
-        // Read the components
-        infile.read(reinterpret_cast<char*>(vec.components.data()), vec.d * sizeof(float));
-        
-        vectors.push_back(vec); // Store the vector
-    }
-
-    infile.close(); // Close the file
-    return vectors; // Return the vector list
-}
-
-
 // Create graph from dataset. Returns graph for success, NULL otherwise
 Graph create_graph_from_file(const string& filename, int type, int k, int dimensions) {
     // Store file data to 2D vector
@@ -371,65 +339,6 @@ Node ask_query(const std::string& filename, int& type, int dimensions, int& pos)
 
     return query;  
 }
-
-vector<file_vector_int> read_int_vectors_from_file(const string& filename) {
-    vector<file_vector_int> vectors;
-    ifstream infile(filename, ios::binary);
-
-    if (!infile) {
-        cerr << "Error opening file: " << filename << endl;
-        return vectors; // Return empty vector on error
-    }
-
-    while (infile.peek() != EOF) { // Check if end of file
-        file_vector_int vec;
-        
-        // Read the dimension
-        infile.read(reinterpret_cast<char*>(&vec.d), sizeof(vec.d));
-        if (infile.eof()) break; // Break if we reach EOF
-        
-        // Allocate the correct size for components
-        vec.components.resize(vec.d);
-        
-        // Read the components
-        infile.read(reinterpret_cast<char*>(vec.components.data()), vec.d * sizeof(int));
-        
-        vectors.push_back(vec); // Store the vector
-    }
-
-    infile.close(); // Close the file
-    return vectors; // Return the vector list
-}
-
-vector<file_vector_char> read_char_vectors_from_file(const string& filename) {
-    vector<file_vector_char> vectors;
-    ifstream infile(filename, ios::binary);
-
-    if (!infile) {
-        cerr << "Error opening file: " << filename << endl;
-        return vectors; // Return empty vector on error
-    }
-
-    while (infile.peek() != EOF) { // Check if end of file
-        file_vector_char vec;
-        
-        // Read the dimension
-        infile.read(reinterpret_cast<char*>(&vec.d), sizeof(vec.d));
-        if (infile.eof()) break; // Break if we reach EOF
-        
-        // Allocate the correct size for components
-        vec.components.resize(vec.d);
-        
-        // Read the components
-        infile.read(reinterpret_cast<char*>(vec.components.data()), vec.d * sizeof(char));
-        
-        vectors.push_back(vec); // Store the vector
-    }
-
-    infile.close(); // Close the file
-    return vectors; // Return the vector list
-}
-
 
 // Creates file with KNN for recall calculation using sampling 
 void create_groundtruth_file(const string& source_file, const string& queries_file, const string& output_file) {
@@ -528,6 +437,96 @@ void create_groundtruth_file(const string& source_file, const string& queries_fi
     return;
 
 }
+
+
+vector<file_vector_int> read_int_vectors_from_file(const string& filename) {
+    vector<file_vector_int> vectors;
+    ifstream infile(filename, ios::binary);
+
+    if (!infile) {
+        cerr << "Error opening file: " << filename << endl;
+        return vectors; // Return empty vector on error
+    }
+
+    while (infile.peek() != EOF) { // Check if end of file
+        file_vector_int vec;
+        
+        // Read the dimension
+        infile.read(reinterpret_cast<char*>(&vec.d), sizeof(vec.d));
+        if (infile.eof()) break; // Break if we reach EOF
+        
+        // Allocate the correct size for components
+        vec.components.resize(vec.d);
+        
+        // Read the components
+        infile.read(reinterpret_cast<char*>(vec.components.data()), vec.d * sizeof(int));
+        
+        vectors.push_back(vec); // Store the vector
+    }
+
+    infile.close(); // Close the file
+    return vectors; // Return the vector list
+}
+
+vector<file_vector_float> read_float_vectors_from_file(const std::string& filename) {
+    vector<file_vector_float> vectors;
+    ifstream infile(filename, ios::binary);
+
+    if (!infile) {
+        cerr << "Error opening file: " << filename << endl;
+        return vectors; // Return empty vector on error
+    }
+
+    while (infile.peek() != EOF) { // Check if end of file
+        file_vector_float vec;
+        
+        // Read the dimension
+        infile.read(reinterpret_cast<char*>(&vec.d), sizeof(vec.d));
+        if (infile.eof()) break; // Break if we reach EOF
+        
+        // Allocate the correct size for components
+        vec.components.resize(vec.d);
+        
+        // Read the components
+        infile.read(reinterpret_cast<char*>(vec.components.data()), vec.d * sizeof(float));
+        
+        vectors.push_back(vec); // Store the vector
+    }
+
+    infile.close(); // Close the file
+    return vectors; // Return the vector list
+}
+
+vector<file_vector_char> read_char_vectors_from_file(const string& filename) {
+    vector<file_vector_char> vectors;
+    ifstream infile(filename, ios::binary);
+
+    if (!infile) {
+        cerr << "Error opening file: " << filename << endl;
+        return vectors; // Return empty vector on error
+    }
+
+    while (infile.peek() != EOF) { // Check if end of file
+        file_vector_char vec;
+        
+        // Read the dimension
+        infile.read(reinterpret_cast<char*>(&vec.d), sizeof(vec.d));
+        if (infile.eof()) break; // Break if we reach EOF
+        
+        // Allocate the correct size for components
+        vec.components.resize(vec.d);
+        
+        // Read the components
+        infile.read(reinterpret_cast<char*>(vec.components.data()), vec.d * sizeof(char));
+        
+        vectors.push_back(vec); // Store the vector
+    }
+
+    infile.close(); // Close the file
+    return vectors; // Return the vector list
+}
+
+
 
 float compare_with_id(const std::vector<float>& a, const std::vector<float>& b) {
     float sum = 0.0;

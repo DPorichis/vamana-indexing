@@ -17,7 +17,7 @@ COMOBJ = $(BUILD)/io.o $(BUILD)/graph.o $(BUILD)/io_test.o $(BUILD)/filtered-vam
 
 PROBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/prune_test.o $(BUILD)/graph.o
 
-VAMOBJ = $(BUILD)/vamana.o $(BUILD)/vamana_test.o $(BUILD)/graph.o $(BUILD)/io.o
+VAMOBJ = $(BUILD)/vamana.o $(BUILD)/vamana_test.o $(BUILD)/graph.o $(BUILD)/io.o $(BUILD)/vamana-utils.o
 
 FILOBJ = $(BUILD)/filtered-vamana.o $(BUILD)/io.o $(BUILD)/filtered_test.o $(BUILD)/graph.o
 
