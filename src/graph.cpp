@@ -55,7 +55,10 @@ void destroy_graph(Graph g)
     for (int i = 0; i < g->nodes.size(); ++i) {
         destroy_node(g->nodes[i]);
     }
+
     g->nodes.clear();
+    g->all_categories.clear();
+    g->medoid_mapping.clear();
 
     // And yourself
     delete g;
@@ -116,7 +119,8 @@ void destroy_node(Node n)
         free(l);
     }
     n->neighbours.clear();
-    
+    n->categories.clear();
+
     // Destroy self
     delete n;
 }

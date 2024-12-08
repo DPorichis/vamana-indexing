@@ -43,7 +43,6 @@ int filtered_gready_search(Graph g, Node *S, int s_count, Node query, int k, int
         );
         if(!intersection.empty())
         {
-            cout << "candidate inserted" << endl;
             neighbours->insert(create_candidate(g, S[i], query));
         }
     }
@@ -245,14 +244,10 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
         set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
         set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
         
-        cout << "filtered gready " << i << " starting" << endl;
-
         filtered_gready_search(graph, S, s_count, vectors[i], 0, L, vectors[i]->categories, neighbours, visited);
-        cout << "filtered gready " << i << " done" << endl;
-
+        
         filtered_robust_prunning(graph, vectors[i], visited, a, R);
 
-        cout << "filtered robust " << i << " done" << endl;
         for (const auto& j : vectors[i]->neighbours) {
             Link to_insert = create_link(graph, j->to, vectors[i]);
             auto result = j->to->neighbours.insert(to_insert);
