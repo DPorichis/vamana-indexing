@@ -43,7 +43,6 @@ int filtered_gready_search(Graph g, Node *S, int s_count, Node query, int k, int
         );
         if(!intersection.empty())
         {
-            cout << "candidate inserted" << endl;
             neighbours->insert(create_candidate(g, S[i], query));
         }
     }
@@ -226,7 +225,6 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
     // Shuffle vector items according to Mersenne Twister engine
     shuffle(vectors.begin(), vectors.end(), generator);
 
-
     // K for gready search
     int k = 1;
 
@@ -245,10 +243,11 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
         // cout << i << endl;
         set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
         set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
+        
         filtered_gready_search(graph, S, s_count, vectors[i], 0, L, vectors[i]->categories, neighbours, visited);
-        cout << i <<  endl;
-
+        
         filtered_robust_prunning(graph, vectors[i], visited, a, R);
+
         for (const auto& j : vectors[i]->neighbours) {
             Link to_insert = create_link(graph, j->to, vectors[i]);
             auto result = j->to->neighbours.insert(to_insert);
@@ -265,15 +264,15 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
                     auto result = temp_visited->insert(clone);
                     // If it wasn't inserted, free to manage memory leaks
                     if (!result.second) {
-                        free(to_insert);
+                        free(clone);
                     }   
                 }
 
                 filtered_robust_prunning(graph, j->to, temp_visited, a, R);
 
-                for (const auto& r : *neighbours)
+                for (const auto& r : *temp_visited)
                     free(r);
-                delete neighbours;
+                delete temp_visited;
             }
             
         }

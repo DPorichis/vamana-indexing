@@ -251,7 +251,6 @@ Graph create_graph_from_file(const string& filename, int type, int k, int dimens
     readBinary(filename, dimensions + 2, nodes);
     //  Graph creation
     Graph graph = create_graph(type, k, dimensions);
-
     // Insert graph nodes
     for (int i = 0; i < nodes.size(); i++) {
         // Allocate the required memory
@@ -280,8 +279,7 @@ map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type
     // Store file data to 2D vector
     vector<vector<float>> nodes;
     readBinary(filename, dimensions + 2, nodes);
-    
-    map<int, Graph>* stiched_index = new map<int, Graph>();;
+    map<int, Graph>* stiched_index = new map<int, Graph>();
     
     // Insert graph nodes
     for (int i = 0; i < nodes.size(); i++) {
@@ -298,7 +296,7 @@ map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type
 
         int category = nodes[i][0];
 
-        if(stiched_index->find(category) != stiched_index->end())
+        if(stiched_index->find(category) == stiched_index->end())
         {
             // Graph creation
             Graph graph = create_graph(type, k, dimensions);

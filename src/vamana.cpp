@@ -180,6 +180,8 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,
 
     // Find medoid
     medoid_pos =  find_medoid(graph);
+
+    graph->unfiltered_medoid = medoid_pos;
     
     Node medoid_node = graph->nodes[medoid_pos];
 

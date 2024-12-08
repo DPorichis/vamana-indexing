@@ -20,27 +20,31 @@ using namespace std;
 
 /*-------------- Gready search and prunning need error return values --------------*/
 // Vamana index implementation
-int create_stiched_vamana_index(Graph* g, const string& filename, int L_small, int R_small, int R_stiched, float a, int& medoid_pos, int dimensions) {
+map<int, Graph>* create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions) {
     // Graph creation and initialization
-    map<int, Graph>* stiched_mapping = create_stiched_graph_from_file(filename, 'f', R_small, dimensions);            
-    Graph graph = *g;
-    
+    map<int, Graph>* stiched_mapping = create_stiched_graph_from_file(filename, type, R_small, dimensions);            
+    int id = -1;
     for (auto it = stiched_mapping->begin(); it != stiched_mapping->end(); ++it) {
+        id++;
+        cout << "Graph " << id << "/" << stiched_mapping->size() << endl;
+        
         Graph graph = it->second;
         if (graph == NULL) {
             cerr << "Error while creating graph from file" << endl;
-            return -1;
+            return NULL;
         }
+
+        // cout << "Initializing dummy graph of elements : " << graph->nodes.size() << endl;
         if (init_dummy_graph(graph)) {
             cerr << "Error in graph initialization";
-            return -2;
+            return NULL;
         }
 
         // Find medoid
-        medoid_pos =  find_medoid(graph);
+        graph->unfiltered_medoid = find_medoid(graph);
+        Node medoid_node = graph->nodes[graph->unfiltered_medoid];
+        // cout << "Medoid Found" << endl;
         
-        Node medoid_node = graph->nodes[medoid_pos];
-
         // Create random permutation of nodes, vectors is a copy of nodes (not the original)
         vector<Node> vectors = graph->nodes;
         random_device rd;
@@ -53,11 +57,10 @@ int create_stiched_vamana_index(Graph* g, const string& filename, int L_small, i
 
         for (int i = 0; i < vectors.size(); i++) {
             // Create neighbours and visited sets
-            // cout << i << endl;
+            // cout << "Loop " << i << "/" << vectors.size() << endl;
             set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
             set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
             gready_search(graph, medoid_node, vectors[i], k, L_small, neighbours, visited);
-
             robust_prunning(graph, vectors[i], visited, a, R_small);
             for (const auto& j : vectors[i]->neighbours) {
                 // Create temp set
@@ -134,6 +137,6 @@ int create_stiched_vamana_index(Graph* g, const string& filename, int L_small, i
         }
     }
 
-    return 0;
+    return stiched_mapping;
 }
 
