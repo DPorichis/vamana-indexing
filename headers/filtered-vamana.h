@@ -24,3 +24,6 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
 // Finds the medoid node of a graph
 // int find_medoid(const vector<Node>& nodes);
 int find_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoids);
+
+// Alg 5
+int create_stiched_vamana_index(Graph* g, const string& filename, int L_small, int R_small, int R_stiched, float a, int& medoid_pos, int dimensions);

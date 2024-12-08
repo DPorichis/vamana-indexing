@@ -55,10 +55,10 @@ int filtered_gready_search(Graph g, Node *S, int s_count, Node query, int k, int
     while(!difference.empty())
     {
         // // Debugging printing
-        cout << "== Iteration "<< iter << " =="<< endl;
-        cout << "#dif: " << difference.size() << endl;
-        cout << "#vis: " << visited->size() << endl;
-        cout << "#nei: " << neighbours->size() << endl;
+        // cout << "== Iteration "<< iter << " =="<< endl;
+        // cout << "#dif: " << difference.size() << endl;
+        // cout << "#vis: " << visited->size() << endl;
+        // cout << "#nei: " << neighbours->size() << endl;
 
         // Get the min, which in our set is the first element
         Candidate selected_cand = *difference.begin();
@@ -216,6 +216,7 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
 
     // Find medoid
     find_filtered_medoid(graph, graph->all_categories, &graph->medoid_mapping);
+    cout << "medoid" <<  endl;
 
     // Create random permutation of nodes, vectors is a copy of nodes (not the original)
     vector<Node> vectors = graph->nodes;
@@ -245,6 +246,7 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
         set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
         set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
         filtered_gready_search(graph, S, s_count, vectors[i], 0, L, vectors[i]->categories, neighbours, visited);
+        cout << i <<  endl;
 
         filtered_robust_prunning(graph, vectors[i], visited, a, R);
         for (const auto& j : vectors[i]->neighbours) {

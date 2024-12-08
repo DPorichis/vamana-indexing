@@ -64,7 +64,8 @@ void test_query(void) {
 	int pos; 
 
 	// Call function
-	Node query = ask_query(path, graph->type, graph->dimensions, pos);
+	int query_type;
+	Node query = ask_query(path, query_type, graph->dimensions, pos);
 	
 	TEST_ASSERT(query != NULL);
 

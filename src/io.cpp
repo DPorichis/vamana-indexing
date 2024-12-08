@@ -343,7 +343,7 @@ map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type
 }
 
 // Performs (and allocates) query. Returns the file position of query for success, -1 otherwise
-Node ask_query(const std::string& filename, int type, int dimensions, int& pos) {
+Node ask_query(const std::string& filename, int& type, int dimensions, int& pos) {
     // Store file data to vector
     // vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
     vector<vector<float>> queries;
@@ -366,6 +366,8 @@ Node ask_query(const std::string& filename, int type, int dimensions, int& pos) 
     memcpy(query->components, queries[pos].data() + 4, query->d_count * sizeof(float));
     query->pos = pos;
     query->categories.insert(queries[pos][1]);
+
+    type = queries[pos][0];
 
     return query;  
 }

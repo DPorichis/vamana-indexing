@@ -10,7 +10,7 @@ BIN = ./bin
 
 CFLAGS = -g -I$(HEAD)
 
-PROJOBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/graph.o $(BUILD)/main.o $(BUILD)/vamana-utils.o
+PROJOBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/graph.o $(BUILD)/main.o $(BUILD)/vamana-utils.o $(BUILD)/filtered-vamana.o
 
 GRPOBJ = $(BUILD)/graph_test.o $(BUILD)/graph.o $(BUILD)/vamana-utils.o
 

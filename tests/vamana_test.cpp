@@ -36,8 +36,8 @@ void test_create_vamana_index(void) {
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
 
     string queries = "../data/siftsmall/siftsmall_query.fvecs";
-    int pos; 
-	Node query = ask_query(queries, graph->type, graph->dimensions, pos);
+    int pos, query_type; 
+	Node query = ask_query(queries, query_type, graph->dimensions, pos);
     gready_search(graph, graph->nodes[medoid_pos], query, K, L, neighbours, visited);
     int i = 0;
     // Print the nodes

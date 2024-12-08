@@ -1,7 +1,9 @@
+#pragma once
 #include "graph.h"
 #include "io.h"
 #include <string>
-#pragma once
+#include <cstdint>
+
 
 using namespace std;
 

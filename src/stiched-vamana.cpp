@@ -1,6 +1,7 @@
 #include "vamana.h"
 #include "vamana-utils.h"
 #include "graph.h"
+#include "filtered-vamana.h"
 #include "io.h"
 
 #include <algorithm>

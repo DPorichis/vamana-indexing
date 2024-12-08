@@ -91,7 +91,8 @@ Graph create_graph_from_file(const string& filename, int type, int k, int dimens
 map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type, int k, int dimensions);
 
 // Performs (and allocates) query. Returns the query as a node for success, NULL otherwise
-Node ask_query(const string& filename, int type, int graph_dimension, int& pos);
+// type: 0 -> vector-only query, 1 -> query with categorical value , 2 -> query with timestamp, 3 -> categorical and timestamp
+Node ask_query(const string& filename, int& type, int graph_dimension, int& pos);
 
 // Creates file with KNN for recall calculation using sampling 
 void create_groundtruth_file(const string& source_file, const string& queries_file, const string& output_file);
