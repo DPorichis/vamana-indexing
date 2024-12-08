@@ -215,7 +215,7 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
 
     // Find medoid
     find_filtered_medoid(graph, graph->all_categories, &graph->medoid_mapping);
-    cout << "medoid" <<  endl;
+    // cout << "medoid" <<  endl;
 
     // Create random permutation of nodes, vectors is a copy of nodes (not the original)
     vector<Node> vectors = graph->nodes;

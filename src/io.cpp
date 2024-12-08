@@ -375,26 +375,26 @@ void create_groundtruth_file(const string& source_file, const string& queries_fi
 
         // Different handling according to query type
         if (query_type == 0) {
-            for (uint32_t j = 0; j < nodes[i].size(); j++) {
+            for (uint32_t j = 0; j < nodes.size(); j++) {
                 knn_candidate.push_back(j);
             }
         }
         else if (query_type == 1) {
-            for (uint32_t j = 0; j < nodes[i].size(); j++) {
+            for (uint32_t j = 0; j < nodes.size(); j++) {
                 if (nodes[j][0] == v) {
                     knn_candidate.push_back(j);
                 }
             }
         }
         else if (query_type == 2) {
-            for (uint32_t j = 0; j < nodes[i].size(); j++) {
+            for (uint32_t j = 0; j < nodes.size(); j++) {
                 if (nodes[j][1] >= l && nodes[j][1] <= r) {
                     knn_candidate.push_back(j);
                 }
             }
         }
         else if (query_type == 3) {
-            for (uint32_t j = 0; j < nodes[i].size(); j++) {
+            for (uint32_t j = 0; j < nodes.size(); j++) {
                 if (nodes[j][0] == v && nodes[j][1] >= l && nodes[j][1] <= r) {
                     knn_candidate.push_back(j);
                 }

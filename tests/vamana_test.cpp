@@ -46,7 +46,7 @@ void test_create_vamana_index(void) {
     }
 
 	// Node query = ask_query(queries, query_type, graph->dimensions, pos);
-    gready_search(graph, graph->nodes[medoid_pos], query, K, L, neighbors, visited);
+    gready_search(graph, graph->nodes[graph->unfiltered_medoid], query, K, L, neighbors, visited);
     int i = 0;
     // Print the nodes
     // for (const auto& r : *neighbours) {
@@ -63,7 +63,10 @@ void test_create_vamana_index(void) {
         algorithm_results.insert(r->to->pos);
         i++;
     }
-    set<int> true_results(groundtruth[pos].begin(), groundtruth[pos].begin() + K);
+    set<int> true_results;
+
+    for(int i = 0; i < 100; i++)
+        true_results.insert(groundtruth[pos][i]); 
     
     set<int> intersection;
     set_intersection(algorithm_results.begin(), algorithm_results.end(),
@@ -85,6 +88,10 @@ void test_create_vamana_index(void) {
 
     double recall = static_cast<double>(intersection.size()) / true_results.size();
     cout << "Recall: " << recall * 100 << "%" << endl;
+
+    cout << "Query with position: " << pos << endl;
+    cout << "##########################" << endl << endl;    
+
 
     for (const auto& r : *neighbors)
         free(r);
