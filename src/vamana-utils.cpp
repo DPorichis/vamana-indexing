@@ -35,7 +35,8 @@ int init_dummy_graph(Graph g)
 {
     std::srand(static_cast<unsigned int>(std::time(0)));
     int min_neigh = ceil(log2(g->nodes.size()) + 1);
-
+    if(min_neigh == g->nodes.size())
+        min_neigh--;
     for(int i=0; i < g->nodes.size(); i++)
     {
         Node from = g->nodes[i];

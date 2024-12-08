@@ -135,13 +135,106 @@ int main(int argc, char* argv[]) {
             }
             
         }
-
-
-
         destroy_graph(graph);
     }
     else if (opt->index_type == 's') {
+        map<int,Graph>* index_mapping = create_stiched_vamana_index(opt->data_filename, opt->data_type, opt->L, opt->R, opt->R, opt->a, dimensions);
+        if (index_mapping == NULL)
+        {
+            cout << "Error creating stiched vamana" << endl;
+            delete opt;
+            return -1;
+        }
 
+        cout << "Index is ready" << endl;
+
+        // IF NOT CREATED -> Create groundtruth file
+        create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
+        readKNN(opt->truth_filename, dimensions, groundtruth);     // Read groundtruth file
+
+        cout << "Ground truth is ready" << endl;
+
+        srand(static_cast<unsigned int>(time(0)));
+
+        for (int i = 0; i < opt->query_count; i++) {
+            int query_pos, query_type;
+            Node query = ask_query(opt->queries_filename, query_type, 100, query_pos);
+            set<Candidate, CandidateComparator>* total_neighbors = new set<Candidate, CandidateComparator>();
+            cout << "Performing Query #" << query_pos << " of type " << query_type << endl;
+
+            if(query_type == 0)
+            {
+                for (const auto& pair : *index_mapping)
+                    query->categories.insert(pair.first);
+            }
+
+            int s_count = query->categories.size();
+            for (const int& val : query->categories) {
+                Graph category_graph = (*index_mapping)[val];
+            
+                set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
+                set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
+            
+                gready_search(category_graph, category_graph->nodes[category_graph->unfiltered_medoid], query, opt->k, opt->L, neighbors, visited);
+                
+                for (auto it = neighbors->begin(); it != neighbors->end(); ++it) {
+                    Candidate to_insert = create_candidate_copy(*it);
+                    
+                    auto result = total_neighbors->insert(to_insert);
+                    if (!result.second) {
+                        free(to_insert);
+                    }
+                }
+
+                for (const auto& r : *neighbors)
+                    free(r);
+                delete neighbors;
+                
+                for (const auto& r : *visited)
+                    free(r);
+                delete visited;
+            }
+            // Results
+            set<int> algorithm_results;
+            int j = 0;
+            for (const auto& r : *total_neighbors) {
+                if (opt->k == j)
+                    break;
+                algorithm_results.insert(r->to->pos);
+                j++;
+            }
+            set<int> true_results(groundtruth[query_pos].begin(), groundtruth[query_pos].begin() + opt->k);
+
+            set<int> intersection;
+            set_intersection(algorithm_results.begin(), algorithm_results.end(),
+                            true_results.begin(), true_results.end(),
+                            inserter(intersection, intersection.begin()));
+
+            double recall = static_cast<double>(intersection.size()) / true_results.size();
+            j = 0;
+
+            for (const auto& r : *total_neighbors) {
+                cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
+                j++;
+            }
+            cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
+            cout << "##########################" << endl << endl;    
+            
+            
+            for (const auto& r : *total_neighbors)
+                free(r);
+            
+            delete total_neighbors;
+            
+            destroy_node(query);
+
+        }
+
+        for (const auto& pair : *index_mapping) {
+            destroy_graph(pair.second);
+        }
+        delete index_mapping;
+        
     }
 
     // Create the Vamana Index
