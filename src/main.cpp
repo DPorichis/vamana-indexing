@@ -4,6 +4,7 @@
 #include "vamana.h"
 #include "filtered-vamana.h"
 #include "vamana-utils.h"
+#include <filesystem>
 
 using namespace std;
 
@@ -84,7 +85,7 @@ int main(int argc, char* argv[]) {
                     delete opt;
                     return -1;
                 }
-                if (opt->saveGraph) {
+                if (opt->savegraph) {
                     saveGraph(graph, "./data/filtered-graph.bin");
                 }
             }
