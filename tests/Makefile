@@ -19,7 +19,7 @@ PROBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/prune_test.o $(BUILD)/graph.o $
 
 VAMOBJ = $(BUILD)/vamana.o $(BUILD)/vamana_test.o $(BUILD)/graph.o $(BUILD)/io.o $(BUILD)/vamana-utils.o
 
-FILOBJ = $(BUILD)/filtered-vamana.o $(BUILD)/io.o $(BUILD)/filtered_test.o $(BUILD)/graph.o $(BUILD)/vamana-utils.o
+FILOBJ = $(BUILD)/filtered-vamana.o $(BUILD)/io.o $(BUILD)/filtered_test.o $(BUILD)/graph.o $(BUILD)/vamana-utils.o	$(BUILD)/vamana.o
 
 $(BUILD)/%.o: $(SOURCE)/%.cpp | $(BUILD)
 	g++ $(CFLAGS) -c $< -o $@

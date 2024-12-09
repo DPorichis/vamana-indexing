@@ -133,10 +133,32 @@ void test_save_write(void) {
 	// Create graph
 	Graph graph = create_graph_from_file(path, 'f', 5, dimensions);
 
-	saveGraph(graph, "./data/test-graph.bin");
+	// Open graph file
+	string graph_file = "./data/test-graph.bin";
+	ofstream file(graph_file , ios::binary);
+	if (!file) {
+		cerr << "Error opening file: " << graph_file << " for reading" << endl;
+		return;
+	}
+
+	// Save graph
+	saveGraph(graph, file);
+	// Close file
+	file.close();
 
 	Graph new_graph = create_graph(0, 0, 0);
-	readGraph(new_graph, "./data/test-graph.bin");
+
+	// Open graph file
+	ifstream infile(graph_file, ios::binary);
+	if (!infile) {
+		cerr << "Error opening file: " << graph_file << " for reading" << endl;
+		return;
+	}
+	// Read graph
+	readGraph(new_graph, infile);
+	// Close file
+	infile.close();	
+	
 	TEST_ASSERT(new_graph->type == 'f');
 	TEST_ASSERT(new_graph->dimensions == dimensions);
 	TEST_ASSERT(new_graph->k == 5);
@@ -208,3 +230,4 @@ TEST_LIST = {
 	{ "config", test_config_options },
 	{ NULL, NULL }
 };
+

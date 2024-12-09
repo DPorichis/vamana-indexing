@@ -148,12 +148,12 @@ void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path) {
 }
 
 // Save graph to binary file
-void saveGraph(Graph graph, const string& output_file) {
-    ofstream file(output_file, ios::binary);
-    if (!file) {
-        cerr << "Error opening file: " << output_file << " for saving graph" << endl;
-        return;
-    }
+void saveGraph(Graph graph, ofstream& file) {
+    // ofstream file(output_file, ios::binary);
+    // if (!file) {
+    //     cerr << "Error opening file: " << output_file << " for saving graph" << endl;
+    //     return;
+    // }
     
 
     // Write type, k, dimensions and unfiltered_medoid of graph 
@@ -206,16 +206,39 @@ void saveGraph(Graph graph, const string& output_file) {
         file.write(reinterpret_cast<const char*>(&value), sizeof(value));
     }
 
+    // file.close();
+}
+
+void saveGraphMap(const map<int, Graph>& graph_map, const string& output_file) {
+    ofstream file(output_file, ios::binary);
+    if (!file) {
+        cerr << "Error opening file: " << output_file << " for saving graph map" << endl;
+        return;
+    }
+
+    // Write the size of the map
+    size_t map_size = graph_map.size();
+    file.write(reinterpret_cast<const char*>(&map_size), sizeof(map_size));
+
+    // Write each key and graph
+    for (const auto& [key, graph] : graph_map) {
+        // Write the key
+        file.write(reinterpret_cast<const char*>(&key), sizeof(key));
+
+        // Write the graph
+        saveGraph(graph, file);
+    }
+
     file.close();
 }
 
 // Read graph from binary file
-void readGraph(Graph& graph, const string& input_file) {
-    ifstream file(input_file, ios::binary);
-    if (!file) {
-        cerr << "Error opening file: " << input_file << " for reading" << endl;
-        return;
-    }
+void readGraph(Graph& graph, ifstream& file) {
+    // ifstream file(input_file, ios::binary);
+    // if (!file) {
+    //     cerr << "Error opening file: " << input_file << " for reading" << endl;
+    //     return;
+    // }
     
     // Read type, k, and dimensions
     file.read(reinterpret_cast<char*>(&graph->type), sizeof(graph->type));
@@ -297,8 +320,38 @@ void readGraph(Graph& graph, const string& input_file) {
         }
     }
 
+    // file.close();
+}
+
+void readGraphMap(map<int, Graph>& graph_map, const string& input_file) {
+    ifstream file(input_file, ios::binary);
+    if (!file) {
+        cerr << "Error opening file: " << input_file << " for reading graph map" << endl;
+        return;
+    }
+
+    // Read the size of the map
+    size_t map_size;
+    file.read(reinterpret_cast<char*>(&map_size), sizeof(map_size));
+
+    graph_map.clear();
+
+    // Read each key and graph
+    for (size_t i = 0; i < map_size; ++i) {
+        int key;
+        file.read(reinterpret_cast<char*>(&key), sizeof(key));
+
+        // Graph graph = new struct graph;
+        Graph graph = create_graph('f', 0, 0);
+        readGraph(graph, file);
+
+        graph_map[key] = graph;
+    }
+
     file.close();
 }
+
+
 
 // Create graph from dataset. Returns graph for success, NULL otherwise
 Graph create_graph_from_file(const string& filename, int type, int k, int dimensions) {

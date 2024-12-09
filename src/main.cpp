@@ -58,7 +58,15 @@ int main(int argc, char* argv[]) {
             // If the file is GRAPH
             if (opt->file_type) {
                 graph = create_graph('f', 0, 0);
-                readGraph(graph, opt->data_filename);
+                // Open graph file
+                ifstream file(opt->data_filename, ios::binary);
+                if (!file) {
+                    cerr << "Error opening file: " << opt->data_filename << " for reading" << endl;
+                    return -1;
+                }
+                readGraph(graph, file);
+                // CLose file
+                file.close();
             }
             // If the file is data
             else {
@@ -68,14 +76,32 @@ int main(int argc, char* argv[]) {
                     return -1;
                 }
                 if (opt->savegraph) {
-                    saveGraph(graph, "./data/filtered-graph.bin");
+                    // Open graph file
+                    string graph_file = "./data/filtered-graph.bin";
+                    ofstream file(graph_file , ios::binary);
+                    if (!file) {
+                        cerr << "Error opening file: " << graph_file << " for reading" << endl;
+                        return -1;
+                    }
+                    // Save graph
+                    saveGraph(graph, file);
+                    // Close file
+                    file.close();
                 }
             }
         }
         else {
             if (opt->file_type) {
                 graph = create_graph('f', 0, 0);
-                readGraph(graph, opt->data_filename);
+                // Open graph file
+                ifstream file(opt->data_filename, ios::binary);
+                if (!file) {
+                    cerr << "Error opening file: " << opt->data_filename << " for reading" << endl;
+                    return -1;
+                }
+                readGraph(graph, file);
+                // Close file
+                file.close();
             }
             // If the file is data
             else {
@@ -85,7 +111,17 @@ int main(int argc, char* argv[]) {
                     return -1;
                 }
                 if (opt->savegraph) {
-                    saveGraph(graph, "./data/unfiltered-graph.bin");
+                    // Open graph file
+                    string graph_file = "./data/unfiltered-graph.bin";
+                    ofstream file(graph_file , ios::binary);
+                    if (!file) {
+                        cerr << "Error opening file: " << graph_file << " for reading" << endl;
+                        return -1;
+                    }
+                    // Save graph
+                    saveGraph(graph, file);
+                    // Close file
+                    file.close();
                 }
             }
 

@@ -5,6 +5,7 @@
 #include "graph.h"
 #include "filtered-vamana.h"
 #include <cstdint>
+#include <fstream>
 
 using namespace std;
 
@@ -76,11 +77,21 @@ void readKNN(const string& filename, const int dimensions, vector<vector<uint32_
        num_of_queries * vector with size k with the position of the nearest neighbours */
 void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path);
 
-// Save graph to binary file
-void saveGraph(Graph graph, const string& output_file);
+// Save graph to already opened binary file
+// void saveGraph(Graph graph, const string& output_file);
+void saveGraph(Graph graph, ofstream& file);
 
-// Read graph from binary file
-void readGraph(Graph& graph, const string& input_file);
+// Create file to save Stitched Vamana
+void saveGraphMap(const map<int, Graph>& graph_map, const string& output_file);
+
+
+// Read graph from already opened binary file
+// void readGraph(Graph& graph, const string& input_file);
+void readGraph(Graph& graph, ifstream& file);
+
+// Open file to read Stitced Vamana
+void readGraphMap(map<int, Graph>& graph_map, const string& input_file);
+
 
 // Inserting data in the library structure
 vector<file_vector_float> read_float_vectors_from_file(const string& filename);
