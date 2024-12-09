@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
             if (!fileExists(opt->truth_filename)) {
                 // Graph case
                 if (opt->file_type) {
-                    cout << "Groundtruth can be only created with dataset, not with graph file.." << endl;      // TODO: Check options 
+                    cerr << "Groundtruth can be only created with dataset, not with graph file.." << endl;      // TODO: Check options 
                     return -1;
                 }
                 create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
@@ -205,14 +205,18 @@ int main(int argc, char* argv[]) {
                 
                 double recall = static_cast<double>(intersection.size()) / true_results.size();
                 j = 0;
-                for (const auto& r : *neighbors) {
-                    // cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
-                    j++;
+                
+                if(opt->printing){
+                    for (const auto& r : *neighbors) {
+                        cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
+                        j++;
+                    }
                 }
                 cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
-                cout << "Query type : " << query_type << endl;
-                cout << "##########################" << endl << endl;    
-                
+                if(opt->printing){
+                    cout << "Query type : " << query_type << endl;
+                    cout << "##########################" << endl << endl;    
+                }
                 
                 for (const auto& r : *neighbors)
                     free(r);
@@ -290,12 +294,11 @@ int main(int argc, char* argv[]) {
                     cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
                     j++;
                 }
-
+                
                 cout << "Query with position: " << query_pos << endl;
                 cout << "Query type : " << query_type << endl;
                 cout << "##########################" << endl << endl;    
-                
-                
+            
                 for (const auto& r : *neighbors)
                     free(r);
                 
@@ -338,14 +341,15 @@ int main(int argc, char* argv[]) {
         //     delete opt;
         //     return -1;
         // }
-        cout << "Index is ready" << endl;
+        if(opt->printing)
+            cout << "Index is ready" << endl;
 
         if (opt->truth_filename.compare("") != 0) {
             // IF NOT CREATED -> Create groundtruth file
             if (!fileExists(opt->truth_filename)) {
                 // Graph case
                 if (opt->file_type) {
-                    cout << "Groundtruth can be only created with dataset, not with graph file.." << endl;      // TODO: Check options 
+                    cerr << "Groundtruth can be only created with dataset, not with graph file.." << endl;      // TODO: Check options 
                     return -1;
                 }
                 create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
@@ -354,7 +358,8 @@ int main(int argc, char* argv[]) {
             readKNN(opt->truth_filename, dimensions, groundtruth);     // Read groundtruth file
         }
 
-        cout << "Ground truth is ready" << endl;
+        if(opt->printing)
+            cout << "Ground truth is ready" << endl;
 
         srand(static_cast<unsigned int>(time(0)));
 
@@ -424,15 +429,20 @@ int main(int argc, char* argv[]) {
 
                 double recall = static_cast<double>(intersection.size()) / true_results.size();
                 j = 0;
-                for (const auto& r : *total_neighbors) {
-                    if(opt->k == j)
-                        break;
-                    cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
-                    j++;
+                if(opt->printing){
+                    for (const auto& r : *total_neighbors) {
+                        if(opt->k == j)
+                            break;
+                        cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
+                        j++;
+                    }
                 }
+
                 cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
-                cout << "Query type : " << query_type << endl;
-                cout << "##########################" << endl << endl;    
+                if(opt->printing){
+                    cout << "Query type : " << query_type << endl;
+                    cout << "##########################" << endl << endl;    
+                }
             }
             else
             {
