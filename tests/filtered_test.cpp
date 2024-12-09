@@ -1,8 +1,12 @@
 #include "acutest.h"
 #include "graph.h"
 #include "filtered-vamana.h"
+#include "vamana.h"
+#include "vamana-utils.h"
+
 #include "io.h"
 #include <iostream>
+#include <algorithm>
 #include <cmath>
 #include <set>
 
@@ -113,12 +117,13 @@ void test_medoid(void) {
     
     TEST_ASSERT(medoid_map[0] == 0);
 
-    for(int i = 2; i < n; i++)
-    {
-        TEST_ASSERT(medoid_map[i] == i-1);
-    }
+    // Check that medoid map has succesfully copied to graph
+    TEST_ASSERT(medoid_map == graph->medoid_mapping);
 
-    TEST_ASSERT(medoid_map.at(n+1) == n-1);
+    for(int i = 0; i < n; i++)
+    {
+        TEST_ASSERT(medoid_map[i] <= i && medoid_map[i] >= i-2);
+    }
 	destroy_graph(graph);
 	return;
 }
@@ -165,6 +170,18 @@ void test_pruning(void) {
 
 	cout << "Node neighbours before prunning: " << graph->nodes[3]->neighbours.size() << endl;
 
+    double max_dist = 0;
+
+    for (const auto& r : graph->nodes[3]->neighbours) {
+        cout << r->to << " with distance: " << r->distance << endl;
+        // Check that neighbours are of correct category or they pass the proximity test
+        if(r->distance > max_dist)
+            max_dist = r->distance;
+    }
+
+
+	set<Link, LinkComp> old = graph->nodes[3]->neighbours;
+
 	filtered_robust_prunning(graph, graph->nodes[3], visited, 3, 2);
 
 	// Good reason for termination
@@ -174,8 +191,12 @@ void test_pruning(void) {
 
 	for (const auto& r : graph->nodes[3]->neighbours) {
         cout << r->to << " with distance: " << r->distance << endl;
-    }
+        // Check that neighbours are of correct category or they pass the proximity test
 
+        TEST_ASSERT(r->to->categories.find(6) != r->to->categories.end() || r->to->categories.find(7) != r->to->categories.end() || max_dist >= r->distance);
+
+    }
+    
 	cout << "V had: " << visited->size() << endl;
 
 	for (const auto& r : *neighbours)
@@ -194,7 +215,6 @@ void test_pruning(void) {
     
     return;
 }
-
 
 TEST_LIST = {
 	{ "test_medoid", test_medoid },

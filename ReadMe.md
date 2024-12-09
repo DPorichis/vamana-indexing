@@ -3,17 +3,26 @@
 - Gerasimos Bekos (sdi2100113)
 - Dimitrios Stefanos Porichis (sdi2100159)
 
-### Work Distribution (Part 1)
+### Work Distribution
 
 #### Gerasimos Mpekos
-- I/O of the program
-- Dataset Management
-- Vamana Index
-
+- Part 1
+	- I/O of the program
+	- Dataset Management
+	- Vamana Index
+- Part 2
+	- Storing and loading graph representation
+	- Groundtruth structure
+	- File managment
 #### Dimitrios Stefanos Porichis 
-- Graph Representation and relevant functions
-- Greedy Search
-- Robust Pruning
+- Part 1
+	- Graph Representation and relevant functions
+	- Greedy Search
+	- Robust Pruning
+- Part 2
+	- Filtered Vamana implementations
+	- Stiched Vamana implementations
+	- Configuration file and arguments reading
 
 Each person was responsible for creating tests on their part.
 
@@ -28,7 +37,7 @@ This project can be compiled by using the make all command in the base folder.
 You can run this project by executing `./bin/project ...` from the base folder, followed by the arguments as shown below:
 - `data=[filename]`: file containing the data points / graph representation
 - `datatype=[f/c/i]`: type of data in file (Defaults to f)
-- `filetype=[0/1]`: 0 for raw-data, 1 for graph representation (Defaults to 0)
+- `filetype=[d/g]`: d for raw-data, g for graph representation (Defaults to d)
 - `k=[int >= 1]`: (Defaults to 1)
 - `R=[int >= 1]`: (Defaults to 1)
 - `L=[int >= 1]`: (Defaults to 1)
@@ -38,12 +47,13 @@ You can run this project by executing `./bin/project ...` from the base folder, 
 - `printing=[true/false]`: Enable or disable detailed printing (Defaults to true)
 - `savegraph=[true/false]`: Save the graph created to a file (Defaults to false)
 - `truthfile=[filename]`: File containing the ground truth. Accuracy will not be calculated when a value is not set
+- `index=[f/s/u]` : f for filtered vamana, s for stitched vamana and u for unfiltered
 
 An example execusion is : 
 
-`./bin/project data=./data/siftsmall/siftsmall_base.fvecs
+`./bin/project data=./data/dummy-data.bin
 datatype=f k=20 R=40 L=50 a=1.4
-queries=./data/siftsmall/siftsmall_query.fvecs
+queries=./data/dummy-queries.bin
 queriescount=2`
 
 You can also set the attributes inside a config file and execute like this:
@@ -58,13 +68,13 @@ Sample of a config:
 
 ```
 # I am a config file
-data=./data/siftsmall/siftsmall_base.fvecs
+data=./data/dummy-data.bin
 datatype=f
 k=20
 R=40
 L=50
 a=1.4
-queries=./data/siftsmall/siftsmall_query.fvecs
+queries=./data/dummy-queries.bin
 queriescount=2
 printing=true
 savegraph=false
@@ -88,12 +98,17 @@ For the most part, all algorithms were trivial in their implementation given the
 - an int dimensions parameter
 - a distance function pointer that is selected specifically for the type used
 - a Vector for storing all nodes
+- an int pointing to the medoid if the graph is unfiltered (or -1 otherwise)
+- a set with all possible categories found in the graph (ignore for unfiltered)
+- a medoid mapping category -> starting point (ignore for unfiltered)
 
 #### Nodes
 - an int dimensions parameter
 - a void pointer to the array containing the point information
 - an int containing the position of the node in the graph's vector
 - a Set containing all node's neighbors (represented as Links), sorted by the memory address they point to (no duplicates allowed)
+- a Set containing all categories a node belongs to.
+
 
 #### Links or Candidates 
 - a double containing the distance between the nodes;
@@ -115,4 +130,4 @@ For the data insertion we use a struct that contains two elements. The first one
 
 In our computers, all tests pass without errors and memory leaks. Same applies for the project execution
 
-For algorithms where the results are dependent on the initial random graph (Vamana, greedy, prune) our test doesn't use hard values for evaluation but rather soft metrics and printing to understand if it's working.
+`vamana_test` and `io_test` are mainly written for memory leak debugging.

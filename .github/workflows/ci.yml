@@ -23,15 +23,13 @@ jobs:
 
     - name: Build project
       run: |
-        cd tests
-        make  alltests
+        make  all
     
     - name: Run tests
       run: |
-        cd tests
-        ../bin/graph_test
-        ../bin/io_test
-        ../bin/gready_test
-        ../bin/prune_test
-        ../bin/filtered_test
-        # ../bin/vamana_test
+        ./bin/graph_test
+        ./bin/io_test
+        ./bin/gready_test
+        ./bin/prune_test
+        ./bin/filtered_test
+        ./bin/vamana_test

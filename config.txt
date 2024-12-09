@@ -1,10 +1,13 @@
-data=./data/siftsmall/siftsmall_base.fvecs
+data=./data/stitched-graph.bin
+filetype=g
 datatype=f
 k=20
 R=40
 L=50
 a=1.4
-queries=./data/siftsmall/siftsmall_query.fvecs
-queriescount=2
+queries=./data/dummy-queries.bin
+queriescount=5
 printing=true
-savegraph=false
+savegraph=true
+truth=./data/groundtruth.bin
+index=s

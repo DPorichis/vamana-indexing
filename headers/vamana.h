@@ -1,14 +1,11 @@
+#pragma once
 #include "graph.h"
 #include "io.h"
 #include <string>
-#pragma once
+#include <cstdint>
+
 
 using namespace std;
-
-// Given a graph with unconnected n nodes, it creates log(n) random connections
-// from each node to anothers in order to produce a connected graph.
-// Returns 0 when no errors occur or -1 in error state
-int init_dummy_graph(Graph g);
 
 // Alg 1 from the given paper. Performs gready search on a graph g from starting point s, looking for neighbours of node query
 // Returns its results in the neighbours and visited sets pointers that must be passed by the user.

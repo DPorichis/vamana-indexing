@@ -7,11 +7,6 @@
 
 using namespace std;
 
-// Given a graph with unconnected n nodes, it creates log(n) random connections
-// from each node to anothers in order to produce a connected graph.
-// Returns 0 when no errors occur or -1 in error state
-int init_dummy_graph(Graph g);
-
 // Alg 1 from the given paper. Performs gready search on a graph g from starting point s, looking for neighbours of node query
 // Returns its results in the neighbours and visited sets pointers that must be passed by the user.
 // Returns 0 on correct execution
@@ -24,8 +19,11 @@ set<Candidate, CandidateComparator>* neighbours, set<Candidate, CandidateCompara
 int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r);
 
 // Alg 3
-int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int& medoid_pos);
+int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions);
 
 // Finds the medoid node of a graph
 // int find_medoid(const vector<Node>& nodes);
 int find_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoids);
+
+// Alg 5
+map<int, Graph>* create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions);

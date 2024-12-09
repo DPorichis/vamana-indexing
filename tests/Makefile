@@ -9,17 +9,17 @@ BIN = ../bin
 
 CFLAGS = -g -I$(HEAD)
 
-GRPOBJ = $(BUILD)/graph_test.o $(BUILD)/graph.o
+GRPOBJ = $(BUILD)/graph_test.o $(BUILD)/graph.o	$(BUILD)/vamana-utils.o $(BUILD)/vamana.o $(BUILD)/io.o
 
-GROBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/gready_test.o $(BUILD)/graph.o
+GROBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/gready_test.o $(BUILD)/graph.o $(BUILD)/vamana-utils.o
 
-COMOBJ = $(BUILD)/io.o $(BUILD)/graph.o $(BUILD)/vamana.o $(BUILD)/io_test.o
+COMOBJ = $(BUILD)/io.o $(BUILD)/graph.o $(BUILD)/io_test.o $(BUILD)/filtered-vamana.o $(BUILD)/vamana-utils.o $(BUILD)/vamana.o
 
-PROBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/prune_test.o $(BUILD)/graph.o
+PROBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/prune_test.o $(BUILD)/graph.o $(BUILD)/vamana-utils.o
 
-VAMOBJ = $(BUILD)/vamana.o $(BUILD)/vamana_test.o $(BUILD)/graph.o $(BUILD)/io.o
+VAMOBJ = $(BUILD)/vamana.o $(BUILD)/vamana_test.o $(BUILD)/graph.o $(BUILD)/io.o $(BUILD)/vamana-utils.o
 
-FILOBJ = $(BUILD)/filtered-vamana.o $(BUILD)/io.o $(BUILD)/filtered_test.o $(BUILD)/graph.o
+FILOBJ = $(BUILD)/filtered-vamana.o $(BUILD)/io.o $(BUILD)/filtered_test.o $(BUILD)/graph.o $(BUILD)/vamana-utils.o	$(BUILD)/vamana.o
 
 $(BUILD)/%.o: $(SOURCE)/%.cpp | $(BUILD)
 	g++ $(CFLAGS) -c $< -o $@
