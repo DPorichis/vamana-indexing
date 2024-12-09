@@ -58,6 +58,8 @@ struct options {
 
 typedef struct options* Options;
 
+/*============== Binary functions =============*/
+
 /*Insert data from binary file to 2D vector "data"
     2D vector contains:
         vectors with the following formation:
@@ -66,9 +68,15 @@ typedef struct options* Options;
             data  query                         */
 void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data);
 
+// Insert 'nodes_count' data to vector 'data'. Mostly used for tests 
 void readSmallBinary(const string& filename, const int dimensions, vector<vector<float>>& data, int nodes_count);
 
+// Save 2D vector to file
 void writeBinary(const string& filename, const int dimensions, vector<vector<float>>& data);
+
+
+
+/* ========= Groundtruth functions =========== */
 
 // Grountruth data into 'data'
 void readKNN(const string& filename, const int dimensions, vector<vector<uint32_t>>& data);
@@ -77,26 +85,25 @@ void readKNN(const string& filename, const int dimensions, vector<vector<uint32_
        num_of_queries * vector with size k with the position of the nearest neighbours */
 void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path);
 
+
+
+/* ========== Graph functions =============== */
+
 // Save graph to already opened binary file
-// void saveGraph(Graph graph, const string& output_file);
 void saveGraph(Graph graph, ofstream& file);
 
 // Create file to save Stitched Vamana
 void saveGraphMap(const map<int, Graph>& graph_map, const string& output_file);
 
-
 // Read graph from already opened binary file
-// void readGraph(Graph& graph, const string& input_file);
 void readGraph(Graph& graph, ifstream& file);
 
 // Open file to read Stitced Vamana
 void readGraphMap(map<int, Graph>& graph_map, const string& input_file);
 
 
-// Inserting data in the library structure
-vector<file_vector_float> read_float_vectors_from_file(const string& filename);
-
 // Not used //
+vector<file_vector_float> read_float_vectors_from_file(const string& filename);
 vector<file_vector_int> read_int_vectors_from_file(const string& filename);
 vector<file_vector_char> read_char_vectors_from_file(const string& filename);
 

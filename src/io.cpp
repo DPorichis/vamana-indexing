@@ -42,33 +42,6 @@ void readBinary(const string& filename, const int dimensions, vector<vector<floa
     file.close();
 }
 
-void writeBinary(const string& filename, const int dimensions, vector<vector<float>>& data) {
-    ofstream file;
-    file.open(filename, ios::binary);
-
-    if (!file.is_open()) {
-        cout << "Error opening file for writing: " << filename << endl;
-        return;
-    }
-
-    // Write the number of vectors (uint32_t)
-    uint32_t vectors_count = static_cast<uint32_t>(data.size());
-    file.write(reinterpret_cast<const char*>(&vectors_count), sizeof(uint32_t));
-
-    // Write the vector data
-    for (const auto& vector : data) {
-        if (vector.size() != dimensions) {
-            cout << "Error: vector size does not match the specified dimensions." << endl;
-            file.close();
-            return;
-        }
-        file.write(reinterpret_cast<const char*>(vector.data()), dimensions * sizeof(float));
-    }
-
-    // Close the file
-    file.close();
-}
-
 void readSmallBinary(const string& filename, const int dimensions, vector<vector<float>>& data, int nodes_count) {
     ifstream file;
     file.open(filename, ios::binary);
@@ -99,7 +72,36 @@ void readSmallBinary(const string& filename, const int dimensions, vector<vector
     file.close();
 }
 
-// Insert binary data into the 2D vector "data"
+// Save 2D vector to file
+void writeBinary(const string& filename, const int dimensions, vector<vector<float>>& data) {
+    ofstream file;
+    file.open(filename, ios::binary);
+
+    if (!file.is_open()) {
+        cout << "Error opening file for writing: " << filename << endl;
+        return;
+    }
+
+    // Write the number of vectors (uint32_t)
+    uint32_t vectors_count = static_cast<uint32_t>(data.size());
+    file.write(reinterpret_cast<const char*>(&vectors_count), sizeof(uint32_t));
+
+    // Write the vector data
+    for (const auto& vector : data) {
+        if (vector.size() != dimensions) {
+            cout << "Error: vector size does not match the specified dimensions." << endl;
+            file.close();
+            return;
+        }
+        file.write(reinterpret_cast<const char*>(vector.data()), dimensions * sizeof(float));
+    }
+
+    // Close the file
+    file.close();
+}
+
+
+// Grountruth data into 'data'
 void readKNN(const string& filename, const int dimensions, vector<vector<uint32_t>>& data) {
     ifstream file;
     file.open(filename, ios::binary);
@@ -128,7 +130,8 @@ void readKNN(const string& filename, const int dimensions, vector<vector<uint32_
     file.close();
 }
 
-// Export k nearest neighbours to a file
+/*  Export k nearest neighbours to a file in the following format:
+       num_of_queries * vector with size k with the position of the nearest neighbours */
 void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path) {
     ofstream file(path, ios::out | ios::binary);
     int K = 100;
@@ -147,14 +150,9 @@ void saveKNN(vector<vector<uint32_t>>& neighbours, const string& path) {
     file.close();
 }
 
-// Save graph to binary file
+
+// Save graph to already opened binary file
 void saveGraph(Graph graph, ofstream& file) {
-    // ofstream file(output_file, ios::binary);
-    // if (!file) {
-    //     cerr << "Error opening file: " << output_file << " for saving graph" << endl;
-    //     return;
-    // }
-    
 
     // Write type, k, dimensions and unfiltered_medoid of graph 
     file.write(reinterpret_cast<const char*>(&graph->type), sizeof(graph->type));
@@ -205,10 +203,9 @@ void saveGraph(Graph graph, ofstream& file) {
         file.write(reinterpret_cast<const char*>(&key), sizeof(key));
         file.write(reinterpret_cast<const char*>(&value), sizeof(value));
     }
-
-    // file.close();
 }
 
+// Create file to save Stitched Vamana
 void saveGraphMap(const map<int, Graph>& graph_map, const string& output_file) {
     ofstream file(output_file, ios::binary);
     if (!file) {
@@ -287,13 +284,8 @@ void saveGraphMap(const map<int, Graph>& graph_map, const string& output_file) {
     file.close();
 }
 
-// Read graph from binary file
+// Read graph from already opened binary file
 void readGraph(Graph& graph, ifstream& file) {
-    // ifstream file(input_file, ios::binary);
-    // if (!file) {
-    //     cerr << "Error opening file: " << input_file << " for reading" << endl;
-    //     return;
-    // }
     
     // Read type, k, and dimensions
     file.read(reinterpret_cast<char*>(&graph->type), sizeof(graph->type));
@@ -374,9 +366,9 @@ void readGraph(Graph& graph, ifstream& file) {
             node->neighbours.insert(link);
         }
     }
-    // file.close();
 }
 
+// Open file to read Stitced Vamana
 void readGraphMap(map<int, Graph>& graph_map, const string& input_file) {
     ifstream file(input_file, ios::binary);
     if (!file) {
@@ -402,7 +394,6 @@ void readGraphMap(map<int, Graph>& graph_map, const string& input_file) {
 
     file.close();
 }
-
 
 
 // Create graph from dataset. Returns graph for success, NULL otherwise
@@ -473,8 +464,8 @@ map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type
 
 // Performs (and allocates) query. Returns the file position of query for success, -1 otherwise
 Node ask_query(const std::string& filename, int& type, int dimensions, int& pos) {
+    
     // Store file data to vector
-    // vector<file_vector_float> vectors = read_float_vectors_from_file(filename);
     vector<vector<float>> queries;
     readBinary(filename, dimensions + 4, queries);
 

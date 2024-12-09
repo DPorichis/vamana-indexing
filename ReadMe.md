@@ -5,7 +5,7 @@
 
 ### Work Distribution
 
-#### Gerasimos Mpekos
+#### Gerasimos Bekos
 - Part 1
 	- I/O of the program
 	- Dataset Management
@@ -87,6 +87,7 @@ savegraph=false
 ```
 
 An already populated configuration file exists in the main directory, and can be used by running `make run`
+Additionally, using `make run-timed` you can also see the project's execution time  
 
 #### Unit Testing
 
@@ -156,8 +157,11 @@ Stitched Vamana is just a map of simple Vamana Indexes, keyed by their category.
 
 
 #### I/O
-For the data insertion, we use a struct that contains two elements. The first one called "d" contains the node dimension. The other one is a vector that contains the components of the node. 
+For the data insertion, we use a 2D vector that each row contains the node's or the query's information. Each node has 102 values (1 * category + 1 * timestamp + 100 * dimensions), and each query contains 104 values (1 * query_type + 1 * category + 1 * start_timestamp + 1 * end_timestamp + 100 * dimensions).
 
+In order to evaluate the recall of the results, we need a groundtruth file. We calculate the nearest neighbors for each query with bruteforce, based on its type, and then store the results in the file `./data/groundtruth.bin`
+
+ 
 ### Test Report
 
 In our computers, all tests pass without errors and memory leaks. The same applies to the project execution
