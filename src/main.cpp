@@ -4,15 +4,15 @@
 #include "vamana.h"
 #include "filtered-vamana.h"
 #include "vamana-utils.h"
-#include <filesystem>
+#include <fstream>
 
 using namespace std;
 
-namespace fs = std::filesystem;
-
-bool fileExists(const string& filename) {
-    return fs::exists(filename);
+bool fileExists(const std::string& filename) {
+    std::ifstream file(filename);
+    return file.good();
 }
+
 
 int main(int argc, char* argv[]) {
 
@@ -42,9 +42,9 @@ int main(int argc, char* argv[]) {
         print_options(opt);
 
     // Files that will be used
-    string dataset_file = "../data/dummy-data.bin";
-	string queries_file = "../data/dummy-queries.bin";
-	string groundtruth_file = "../data/groundtruth.bin";
+    string dataset_file = "./data/dummy-data.bin";
+	string queries_file = "./data/dummy-queries.bin";
+	string groundtruth_file = "./data/groundtruth.bin";
 
     vector<vector<uint32_t>> groundtruth;
     dimensions = 100;
@@ -60,19 +60,6 @@ int main(int argc, char* argv[]) {
                 cout << "Creating Vamana..." << endl;    
         }
         if (opt->index_type == 'f') {
-            // if (fileExists("./data/filtered-graph.bin")) {
-            //     graph = create_graph('f', 0, 0);
-            //     readGraph(graph, "./data/filtered-graph.bin");
-            // }
-            // else {
-            //     if (create_filtered_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, dimensions)) {
-            //         cout << "Error creating filtered vamana" << endl;
-            //         delete opt;
-            //         return -1;
-            //     }
-            //     saveGraph(graph, "./data/filtered-graph.bin");
-            // }
-
             // If the file is GRAPH
             if (opt->file_type) {
                 graph = create_graph('f', 0, 0);
