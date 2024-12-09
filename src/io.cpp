@@ -854,5 +854,15 @@ int check_options(Options opt)
         cout << "Error: No queries file provided. Use queries=[yourfile] " << endl;
         ret = -1;
     }
+    if(opt->file_type == 1 && opt->truth_filename != "")
+    {
+        std::ifstream file(opt->truth_filename);
+        if(!file.good())
+        {
+            cout << "Error: Ground truth file doesn't exist, and cannot be calculated from graph file" << endl;
+            cout << "       Use a pure data file for it bo calculated" << endl;
+            ret = -1;
+        }
+    }
     return ret;
 }
