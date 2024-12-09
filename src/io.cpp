@@ -219,11 +219,13 @@ void saveGraphMap(const map<int, Graph>& graph_map, const string& output_file) {
     // Write the size of the map
     size_t map_size = graph_map.size();
     file.write(reinterpret_cast<const char*>(&map_size), sizeof(map_size));
+    cout << map_size << endl;
 
     // Write each key and graph
     for (const auto& [key, graph] : graph_map) {
         // Write the key
         file.write(reinterpret_cast<const char*>(&key), sizeof(key));
+        cout << key << endl;
 
         // Write the graph
         saveGraph(graph, file);
@@ -309,7 +311,7 @@ void readGraph(Graph& graph, ifstream& file) {
         file.read(reinterpret_cast<char*>(&value), sizeof(value));
         graph->medoid_mapping[key] = value;
     }
-
+    
     // Second pass : Updating neighbors
     for (int i = 0; i < node_count; ++i) {
         Node node = graph->nodes[i];
@@ -319,6 +321,7 @@ void readGraph(Graph& graph, ifstream& file) {
             node->neighbours.insert(link);
         }
     }
+    cout << 12321 << endl;
 
     // file.close();
 }
@@ -333,14 +336,14 @@ void readGraphMap(map<int, Graph>& graph_map, const string& input_file) {
     // Read the size of the map
     size_t map_size;
     file.read(reinterpret_cast<char*>(&map_size), sizeof(map_size));
-
+    cout << map_size << endl;
     graph_map.clear();
 
     // Read each key and graph
     for (size_t i = 0; i < map_size; ++i) {
         int key;
         file.read(reinterpret_cast<char*>(&key), sizeof(key));
-
+        cout << key << endl;
         // Graph graph = new struct graph;
         Graph graph = create_graph('f', 0, 0);
         readGraph(graph, file);

@@ -1,4 +1,4 @@
-data=./data/filtered-graph.bin
+data=./data/stitched-graph.bin
 filetype=g
 datatype=f
 k=20
@@ -10,4 +10,4 @@ queriescount=5
 printing=true
 savegraph=true
 truth=./data/groundtruth.bin
-index=f
+index=s

@@ -309,14 +309,31 @@ int main(int argc, char* argv[]) {
         destroy_graph(graph);
     }
     else if (opt->index_type == 's') {
-        map<int,Graph>* index_mapping = create_stiched_vamana_index(opt->data_filename, opt->data_type, opt->L, opt->R, opt->R, opt->a, dimensions);
-        if (index_mapping == NULL)
-        {
-            cout << "Error creating stiched vamana" << endl;
-            delete opt;
-            return -1;
+        // File is stitched vamana
+        map<int, Graph>* index_mapping;
+        if (opt->file_type) {
+            index_mapping = new map<int, Graph>();
+            readGraphMap(*index_mapping, opt->data_filename);
+        }
+        else {
+            index_mapping = create_stiched_vamana_index(opt->data_filename, opt->data_type, opt->L, opt->R, opt->R, opt->a, dimensions);
+            if (index_mapping == NULL)
+            {
+                cout << "Error creating stiched vamana" << endl;
+                delete opt;
+                return -1;
+            }
+            if (opt->savegraph) {
+                saveGraphMap(*index_mapping, "./data/stitched-graph.bin");
+            }
         }
 
+        // if (index_mapping == NULL)
+        // {
+        //     cout << "Error creating stiched vamana" << endl;
+        //     delete opt;
+        //     return -1;
+        // }
         cout << "Index is ready" << endl;
 
         if (opt->truth_filename.compare("") != 0) {
