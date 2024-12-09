@@ -16,7 +16,7 @@ GRPOBJ = $(BUILD)/graph_test.o $(BUILD)/graph.o $(BUILD)/vamana-utils.o
 
 GROBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/gready_test.o $(BUILD)/graph.o $(BUILD)/vamana-utils.o
 
-COMOBJ = $(BUILD)/io.o $(BUILD)/graph.o $(BUILD)/vamana.o $(BUILD)/io_test.o $(BUILD)/vamana-utils.o
+COMOBJ = $(BUILD)/io.o $(BUILD)/graph.o $(BUILD)/vamana.o $(BUILD)/io_test.o $(BUILD)/vamana-utils.o $(BUILD)/filtered-vamana.o
 
 PROBJ = $(BUILD)/vamana.o $(BUILD)/filtered-vamana.o $(BUILD)/stiched-vamana.o $(BUILD)/io.o $(BUILD)/prune_test.o $(BUILD)/graph.o $(BUILD)/vamana-utils.o
 

@@ -159,13 +159,13 @@ void readGraph(Graph& graph, const string& input_file) {
         cerr << "Error opening file: " << input_file << " for reading" << endl;
         return;
     }
-
+    
     // Read type, k, and dimensions
     file.read(reinterpret_cast<char*>(&graph->type), sizeof(graph->type));
     file.read(reinterpret_cast<char*>(&graph->k), sizeof(graph->k));
     file.read(reinterpret_cast<char*>(&graph->dimensions), sizeof(graph->dimensions));
     file.read(reinterpret_cast<char*>(&graph->unfiltered_medoid), sizeof(graph->unfiltered_medoid));
-
+    
     // Read the number of nodes
     size_t node_count;
     file.read(reinterpret_cast<char*>(&node_count), sizeof(node_count));
@@ -178,7 +178,6 @@ void readGraph(Graph& graph, const string& input_file) {
     // Read each node
     for (size_t i = 0; i < node_count; ++i) {
         Node node = new struct node;
-
         file.read(reinterpret_cast<char*>(&node->pos), sizeof(node->pos));
         file.read(reinterpret_cast<char*>(&node->d_count), sizeof(node->d_count));
         
@@ -217,7 +216,7 @@ void readGraph(Graph& graph, const string& input_file) {
         file.read(reinterpret_cast<char*>(&category), sizeof(category));
         graph->all_categories.insert(category);
     }
-
+    
     // Read the size of the medoids map
     size_t medoids_size;
     file.read(reinterpret_cast<char*>(&medoids_size), sizeof(medoids_size));

@@ -3,6 +3,7 @@
 #include "graph.h"
 #include "io.h"
 #include <iomanip>
+#include "filtered-vamana.h"
 
 using namespace std;
 
@@ -105,7 +106,7 @@ void test_groundtruth(void) {		// pending...
 	create_groundtruth_file(source_file, queries_file, output_file);
 	vector<vector<uint32_t>> groundtruth;
 	readKNN(output_file, 100, groundtruth);
-	// TEST_ASSERT(groundtruth.size() == 100);
+	TEST_ASSERT(groundtruth[0].size() == 100);
 	// cout << groundtruth.size() << endl;
 	
 }

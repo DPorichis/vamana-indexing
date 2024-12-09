@@ -1,4 +1,5 @@
 data=./data/dummy-data.bin
+filetype=g
 datatype=f
 k=20
 R=40
