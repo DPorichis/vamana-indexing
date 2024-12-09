@@ -219,16 +219,69 @@ void saveGraphMap(const map<int, Graph>& graph_map, const string& output_file) {
     // Write the size of the map
     size_t map_size = graph_map.size();
     file.write(reinterpret_cast<const char*>(&map_size), sizeof(map_size));
-    cout << map_size << endl;
 
     // Write each key and graph
     for (const auto& [key, graph] : graph_map) {
         // Write the key
         file.write(reinterpret_cast<const char*>(&key), sizeof(key));
-        cout << key << endl;
 
-        // Write the graph
-        saveGraph(graph, file);
+        // Write type, k, dimensions and unfiltered_medoid of graph 
+        file.write(reinterpret_cast<const char*>(&graph->type), sizeof(graph->type));
+        file.write(reinterpret_cast<const char*>(&graph->k), sizeof(graph->k));
+        file.write(reinterpret_cast<const char*>(&graph->dimensions), sizeof(graph->dimensions));
+        file.write(reinterpret_cast<const char*>(&graph->unfiltered_medoid), sizeof(graph->unfiltered_medoid));
+
+        // Write the number of nodes
+        size_t node_count = graph->nodes.size();
+        file.write(reinterpret_cast<const char*>(&node_count), sizeof(node_count));
+
+        // Create pos mapping
+        map<int, int> pos_mapping;
+        int i = 0;
+        for (const auto& node : graph->nodes) {
+            pos_mapping[node->pos] = i;
+            i++;
+        }
+
+        // Write each node
+        for (const auto& node : graph->nodes) {
+            // Write 'pos' and 'd_count'
+            file.write(reinterpret_cast<const char*>(&node->pos), sizeof(node->pos));
+            file.write(reinterpret_cast<const char*>(&node->d_count), sizeof(node->d_count));
+
+            // Write components
+            file.write(reinterpret_cast<const char*>(node->components), node->d_count * sizeof(float));
+
+            // Write neighbours set
+            size_t neighbour_count = node->neighbours.size();
+            file.write(reinterpret_cast<const char*>(&neighbour_count), sizeof(neighbour_count));
+            for (const Link& link : node->neighbours) {
+                file.write(reinterpret_cast<const char*>(&pos_mapping[link->to->pos]), sizeof(link->to->pos));
+            }
+
+            // Write categories set
+            size_t category_count = node->categories.size();
+            file.write(reinterpret_cast<const char*>(&category_count), sizeof(category_count));
+            for (const int category : node->categories) {
+                file.write(reinterpret_cast<const char*>(&category), sizeof(category));
+            }
+        }
+        // Write `all_categories`
+        int category_count = graph->all_categories.size();
+        file.write(reinterpret_cast<const char*>(&category_count), sizeof(category_count));
+        for (int category : graph->all_categories) {
+            file.write(reinterpret_cast<const char*>(&category), sizeof(category));
+        }
+
+        // Write 'medoid_mapping'
+        size_t medoids_size = graph->medoid_mapping.size();
+        file.write(reinterpret_cast<const char*>(&medoids_size), sizeof(medoids_size));
+
+        // Write each key-value pair in the medoids map
+        for (const auto& [key, value] : graph->medoid_mapping) {
+            file.write(reinterpret_cast<const char*>(&key), sizeof(key));
+            file.write(reinterpret_cast<const char*>(&value), sizeof(value));
+        }
     }
 
     file.close();
@@ -321,8 +374,6 @@ void readGraph(Graph& graph, ifstream& file) {
             node->neighbours.insert(link);
         }
     }
-    cout << 12321 << endl;
-
     // file.close();
 }
 
@@ -336,14 +387,12 @@ void readGraphMap(map<int, Graph>& graph_map, const string& input_file) {
     // Read the size of the map
     size_t map_size;
     file.read(reinterpret_cast<char*>(&map_size), sizeof(map_size));
-    cout << map_size << endl;
     graph_map.clear();
 
     // Read each key and graph
     for (size_t i = 0; i < map_size; ++i) {
         int key;
         file.read(reinterpret_cast<char*>(&key), sizeof(key));
-        cout << key << endl;
         // Graph graph = new struct graph;
         Graph graph = create_graph('f', 0, 0);
         readGraph(graph, file);

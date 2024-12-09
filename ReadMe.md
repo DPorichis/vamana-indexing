@@ -3,17 +3,26 @@
 - Gerasimos Bekos (sdi2100113)
 - Dimitrios Stefanos Porichis (sdi2100159)
 
-### Work Distribution (Part 1)
+### Work Distribution
 
 #### Gerasimos Mpekos
-- I/O of the program
-- Dataset Management
-- Vamana Index
-
+- Part 1
+	- I/O of the program
+	- Dataset Management
+	- Vamana Index
+- Part 2
+	- Storing and loading graph representation
+	- Groundtruth structure
+	- File managment
 #### Dimitrios Stefanos Porichis 
-- Graph Representation and relevant functions
-- Greedy Search
-- Robust Pruning
+- Part 1
+	- Graph Representation and relevant functions
+	- Greedy Search
+	- Robust Pruning
+- Part 2
+	- Filtered Vamana implementations
+	- Stiched Vamana implementations
+	- Configuration file and arguments reading
 
 Each person was responsible for creating tests on their part.
 
@@ -89,12 +98,17 @@ For the most part, all algorithms were trivial in their implementation given the
 - an int dimensions parameter
 - a distance function pointer that is selected specifically for the type used
 - a Vector for storing all nodes
+- an int pointing to the medoid if the graph is unfiltered (or -1 otherwise)
+- a set with all possible categories found in the graph (ignore for unfiltered)
+- a medoid mapping category -> starting point (ignore for unfiltered)
 
 #### Nodes
 - an int dimensions parameter
 - a void pointer to the array containing the point information
 - an int containing the position of the node in the graph's vector
 - a Set containing all node's neighbors (represented as Links), sorted by the memory address they point to (no duplicates allowed)
+- a Set containing all categories a node belongs to.
+
 
 #### Links or Candidates 
 - a double containing the distance between the nodes;
@@ -116,4 +130,4 @@ For the data insertion we use a struct that contains two elements. The first one
 
 In our computers, all tests pass without errors and memory leaks. Same applies for the project execution
 
-For algorithms where the results are dependent on the initial random graph (Vamana, greedy, prune) our test doesn't use hard values for evaluation but rather soft metrics and printing to understand if it's working.
+`vamana_test` and `io_test` are mainly written for memory leak debugging.
