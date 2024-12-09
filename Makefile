@@ -57,10 +57,10 @@ clean:
 run_tests: alltests
 	$(BIN)/gready_test
 	$(BIN)/graph_test
-#	$(BIN)/io_test
+	$(BIN)/io_test
 	$(BIN)/prune_test
 	$(BIN)/filtered_test
-# $(BIN)/vamana_test
+	$(BIN)/vamana_test
 
 run_valgrind_tests: alltests
 	cd tests

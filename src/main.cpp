@@ -173,6 +173,7 @@ int main(int argc, char* argv[]) {
                         j++;
                     }
                     filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+                    free(S);
                 }
                 //=== Clasic vamana search ===//
                 else
@@ -259,6 +260,7 @@ int main(int argc, char* argv[]) {
                         j++;
                     }
                     filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+                    free(S);
                 }
                 //=== Clasic vamana search ===//
                 else
