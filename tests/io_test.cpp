@@ -163,11 +163,33 @@ void test_save_write(void) {
 	destroy_graph(new_graph);
 }
 
+void test_config_options(void) {
+	string path = "../tests/config-test.txt";
+
+	Options opt = new options();
+
+    int dimensions;
+    int error = 0;
+
+    error = read_config_file(path, opt);
+
+	TEST_ASSERT(opt->a == 1.4f);
+	TEST_ASSERT(opt->data_filename == "./tsekare/ligo");
+	TEST_ASSERT(opt->data_type == 'f');
+	TEST_ASSERT(opt->index_type == 'f');
+	TEST_ASSERT(opt->k == 20);
+	TEST_ASSERT(opt->L == 50);
+	TEST_ASSERT(opt->R == 40);
+	TEST_ASSERT(opt->queries_filename == "./data/dummy-queries.bin");
+
+	delete opt;
+}
 
 TEST_LIST = {
 	{ "create_graph_from_file", test_create_from_file },
 	{ "perform_query", test_query},
 	{ "create_groundtruth_file", test_groundtruth},
 	{ "save/write_graph_to_file", test_save_write},
+	{ "config", test_config_options },
 	{ NULL, NULL }
 };

@@ -6,6 +6,7 @@
 
 #include "io.h"
 #include <iostream>
+#include <algorithm>
 #include <cmath>
 #include <set>
 
@@ -216,7 +217,6 @@ void test_pruning(void) {
     
     return;
 }
-
 
 TEST_LIST = {
 	{ "test_medoid", test_medoid },
