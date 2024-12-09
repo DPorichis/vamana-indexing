@@ -90,9 +90,17 @@ int main(int argc, char* argv[]) {
         // Calculate Recall rates when provided with a groundtruth //
         if (opt->truth_filename.compare("") != 0) {
             // IF NOT CREATED -> Create groundtruth file
-            create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
-            readKNN(opt->truth_filename, dimensions, groundtruth);     // Read groundtruth file
+            if (!fileExists(opt->truth_filename)) {
+                // Graph case
+                if (opt->file_type) {
+                    cout << "Groundtruth can be only created with dataset, not with graph file.." << endl;      // TODO: Check options 
+                    return -1;
+                }
+                create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
+            }
 
+            readKNN(opt->truth_filename, dimensions, groundtruth);     // Read groundtruth file
+            
             srand(static_cast<unsigned int>(time(0)));
 
             for (int i = 0; i < opt->query_count; i++) {
@@ -109,7 +117,6 @@ int main(int argc, char* argv[]) {
                         destroy_node(query);
                         query = ask_query(opt->queries_filename, query_type, 100, query_pos);
                     }
-        
                     if(query_type == 0)
                     {
                         query->categories.clear();
@@ -136,7 +143,6 @@ int main(int argc, char* argv[]) {
                     gready_search(graph, graph->nodes[graph->unfiltered_medoid], query, opt->k, opt->L, neighbors, visited);
 
                 }
-
                 //=== Results Printing ===//
                 set<int> algorithm_results;
                 int j = 0;
@@ -147,15 +153,16 @@ int main(int argc, char* argv[]) {
                     j++;
                 }
                 set<int> true_results(groundtruth[query_pos].begin(), groundtruth[query_pos].begin() + opt->k);
+                
                 set<int> intersection;
                 set_intersection(algorithm_results.begin(), algorithm_results.end(),
                                 true_results.begin(), true_results.end(),
                                 inserter(intersection, intersection.begin()));
-
+                
                 double recall = static_cast<double>(intersection.size()) / true_results.size();
                 j = 0;
                 for (const auto& r : *neighbors) {
-                    cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
+                    // cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
                     j++;
                 }
                 cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
