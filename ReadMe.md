@@ -28,7 +28,7 @@ This project can be compiled by using the make all command in the base folder.
 You can run this project by executing `./bin/project ...` from the base folder, followed by the arguments as shown below:
 - `data=[filename]`: file containing the data points / graph representation
 - `datatype=[f/c/i]`: type of data in file (Defaults to f)
-- `filetype=[0/1]`: 0 for raw-data, 1 for graph representation (Defaults to 0)
+- `filetype=[d/g]`: d for raw-data, g for graph representation (Defaults to d)
 - `k=[int >= 1]`: (Defaults to 1)
 - `R=[int >= 1]`: (Defaults to 1)
 - `L=[int >= 1]`: (Defaults to 1)
