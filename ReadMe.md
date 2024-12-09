@@ -13,7 +13,7 @@
 - Part 2
 	- Storing and loading graph representation
 	- Groundtruth structure
-	- File managment
+	- File management
 #### Dimitrios Stefanos Porichis 
 - Part 1
 	- Graph Representation and relevant functions
@@ -21,7 +21,7 @@
 	- Robust Pruning
 - Part 2
 	- Filtered Vamana implementations
-	- Stiched Vamana implementations
+	- Stitched Vamana implementations
 	- Configuration file and arguments reading
 
 Each person was responsible for creating tests on their part.
@@ -36,7 +36,7 @@ This project supports 3 Vamana indexing implementations:
 
 #### Compilation
 
-This project can be compiled by using the make all command in the base folder. 
+This project can be compiled by using the `make all` command in the base folder. 
 
 #### Execution
 
@@ -48,14 +48,14 @@ You can run this project by executing `./bin/project ...` from the base folder, 
 - `R=[int >= 1]`: (Defaults to 1)
 - `L=[int >= 1]`: (Defaults to 1)
 - `a=[float >= 1]`: (Defaults to 1)
-- `queries=[filename]`: file containing the queries (empty supported only when queriescount is set to 0)
-- `queriescount=[int >= 0]`: number of quieries to be performed from file (Defaults to 1)
+- `queries=[filename]`: file containing the queries (empty supported only when queries count is set to 0)
+- `queriescount=[int >= 0]`: number of queries to be performed from file (Defaults to 1)
 - `printing=[true/false]`: Enable or disable detailed printing (Defaults to true)
 - `savegraph=[true/false]`: Save the graph created to a file (Defaults to false)
 - `truthfile=[filename]`: File containing the ground truth. Accuracy will not be calculated when a value is not set
-- `index=[f/s/u]`: f for filtered vamana, s for stitched vamana and u for unfiltered
+- `index=[f/s/u]`: f for filtered Vamana, s for stitched Vamana, and u for unfiltered
 
-An example execusion is : 
+An example of execution is : 
 
 `./bin/project data=./data/dummy-data.bin
 datatype=f k=20 R=40 L=50 a=1.4
@@ -126,7 +126,7 @@ For the most part, all algorithms were trivial in their implementation given the
 - a Node pointer to the destination node
 	The node of origin contains the Link in its neighbor set.
 
-Candidates are an **alias of Links** and are used for creating "candidates" of Links (ex. in GreadySearch, Prunning, ...). It doesn't have a difference under the hood.
+Candidates are an **alias of Links** and are used to create "candidates" of Links (e.g., in GreadySearch, Prunning, etc.). There is no difference under the hood.
 
 #### On the other hand, Candidate sets differ from Link sets in the way they sort data. 
 
@@ -150,16 +150,16 @@ Node add_node_graph(Graph g, int d_count, void* components, int pos, set<int> ca
 
 Here the node structure remains the same, but specific fields of it will be nulled.
 
-This really helped in levaraging the old code we had developed at part 1.
+This helped in leveraging the old code we had developed in part 1.
 
 Stitched Vamana is just a map of simple Vamana Indexes, keyed by their category.
 
 
 #### I/O
-For the data insertion we use a struct that contains two elements. The first one called "d" contains the node dimension. The other one is a vector that contains the components of the node. 
+For the data insertion, we use a struct that contains two elements. The first one called "d" contains the node dimension. The other one is a vector that contains the components of the node. 
 
 ### Test Report
 
-In our computers, all tests pass without errors and memory leaks. Same applies for the project execution
+In our computers, all tests pass without errors and memory leaks. The same applies to the project execution
 
 `vamana_test` and `io_test` are mainly written for memory leak debugging.
