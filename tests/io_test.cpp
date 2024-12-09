@@ -9,7 +9,7 @@ using namespace std;
 
 void test_create_from_file(void) {
 	// Test with the file "../data/dummy-data.bin"
-	string path = "../data/dummy-data.bin";
+	string path = "./data/dummy-data.bin";
 	int dimensions = 100;
 
 	// Create graph
@@ -51,11 +51,11 @@ void test_create_from_file(void) {
 
 void test_query(void) {
 	// Test with the file "../data/dummy-queries.bin"
-	string path = "../data/dummy-queries.bin";
+	string path = "./data/dummy-queries.bin";
 	int dimensions = 100;
 
 	// Create graph
-	Graph graph = create_graph_from_file("../data/dummy-data.bin", 'f', 5, dimensions);
+	Graph graph = create_graph_from_file("./data/dummy-data.bin", 'f', 5, dimensions);
 
 	// The vectors of the query dataset
 	vector<vector<float>> data;
@@ -89,12 +89,12 @@ void test_query(void) {
 
 void test_groundtruth(void) {		// pending...
 	
-	string data_file = "../data/dummy-data.bin";
-	string queries_file = "../data/dummy-queries.bin";
+	string data_file = "./data/dummy-data.bin";
+	string queries_file = "./data/dummy-queries.bin";
 
-	string test_data = "../data/test-data.bin";
-	string test_queries = "../data/test-queries.bin";
-	string test_groundtruth = "../data/test-groundtruth.bin";
+	string test_data = "./data/test-data.bin";
+	string test_queries = "./data/test-queries.bin";
+	string test_groundtruth = "./data/test-groundtruth.bin";
 
 	int dimensions = 100;
 	int nodes_count = 1000;
@@ -127,16 +127,16 @@ void test_groundtruth(void) {		// pending...
 }
 
 void test_save_write(void) {
-	string path = "../data/dummy-data.bin";
+	string path = "./data/dummy-data.bin";
 	int dimensions = 100;
 
 	// Create graph
 	Graph graph = create_graph_from_file(path, 'f', 5, dimensions);
 
-	saveGraph(graph, "../data/test-graph.bin");
+	saveGraph(graph, "./data/test-graph.bin");
 
 	Graph new_graph = create_graph(0, 0, 0);
-	readGraph(new_graph, "../data/test-graph.bin");
+	readGraph(new_graph, "./data/test-graph.bin");
 	TEST_ASSERT(new_graph->type == 'f');
 	TEST_ASSERT(new_graph->dimensions == dimensions);
 	TEST_ASSERT(new_graph->k == 5);
@@ -179,7 +179,7 @@ void test_save_write(void) {
 }
 
 void test_config_options(void) {
-	string path = "../tests/config-test.txt";
+	string path = "./tests/config-test.txt";
 
 	Options opt = new options();
 

@@ -17,11 +17,11 @@ void test_create_vamana_index(void) {
     int dimensions = 100;
 
     // Dataset
-    string path = "../data/dummy-data.bin";
-    string queries = "../data/dummy-queries.bin";
+    string path = "./data/test-data.bin";
+    string queries = "./data/test-queries.bin";
 
     // Groundtruth data
-    string groundtruth_file = "../data/groundtruth.bin";
+    string groundtruth_file = "./data/test-groundtruth.bin";
     vector<vector<uint32_t>> groundtruth;
     readKNN(groundtruth_file, dimensions, groundtruth);
 
@@ -38,8 +38,9 @@ void test_create_vamana_index(void) {
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
     
     int pos, query_type = 1;
-    Node query;
+    Node query = ask_query(queries, query_type, graph->dimensions, pos);
     while (query_type != 0) {
+        destroy_node(query);
         query = ask_query(queries, query_type, graph->dimensions, pos);
     }
 
@@ -104,11 +105,11 @@ void test_create_filtered_vamana_index(void) {
     int dimensions = 100;
 
     // Dataset
-    string path = "../data/dummy-data.bin";
-    string queries = "../data/dummy-queries.bin";
+    string path = "./data/test-data.bin";
+    string queries = "./data/test-queries.bin";
 
     // Groundtruth data
-    string groundtruth_file = "../data/groundtruth.bin";
+    string groundtruth_file = "./data/test-groundtruth.bin";    
     vector<vector<uint32_t>> groundtruth;
     readKNN(groundtruth_file, dimensions, groundtruth);
 
@@ -204,7 +205,9 @@ void test_create_filtered_vamana_index(void) {
         free(r);
 	
 	delete visited;
-        
+
+    free(S);
+
     destroy_node(query);
     destroy_graph(graph);
 }
@@ -214,11 +217,11 @@ void test_create_stiched_vamana_index(void) {
     int dimensions = 100;
 
     // Dataset
-    string path = "../data/dummy-data.bin";
-    string queries = "../data/dummy-queries.bin";
+    string path = "./data/test-data.bin";
+    string queries = "./data/test-queries.bin";
 
     // Groundtruth data
-    string groundtruth_file = "../data/groundtruth.bin";
+    string groundtruth_file = "./data/test-groundtruth.bin";
     vector<vector<uint32_t>> groundtruth;
     readKNN(groundtruth_file, dimensions, groundtruth);
 
@@ -229,9 +232,6 @@ void test_create_stiched_vamana_index(void) {
 
     int medoid_pos;
     
-    set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
-    set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-
     map<int,Graph>* index_mapping = create_stiched_vamana_index(path, 'f', L, R, R, a, dimensions);
     
     TEST_ASSERT(index_mapping != NULL);
@@ -320,6 +320,7 @@ void test_create_stiched_vamana_index(void) {
     for (const auto& pair : *index_mapping) {
         destroy_graph(pair.second);
     }
+
     delete index_mapping;
 
 }
