@@ -42,6 +42,63 @@ void readBinary(const string& filename, const int dimensions, vector<vector<floa
     file.close();
 }
 
+void writeBinary(const string& filename, const int dimensions, vector<vector<float>>& data) {
+    ofstream file;
+    file.open(filename, ios::binary);
+
+    if (!file.is_open()) {
+        cout << "Error opening file for writing: " << filename << endl;
+        return;
+    }
+
+    // Write the number of vectors (uint32_t)
+    uint32_t vectors_count = static_cast<uint32_t>(data.size());
+    file.write(reinterpret_cast<const char*>(&vectors_count), sizeof(uint32_t));
+
+    // Write the vector data
+    for (const auto& vector : data) {
+        if (vector.size() != dimensions) {
+            cout << "Error: vector size does not match the specified dimensions." << endl;
+            file.close();
+            return;
+        }
+        file.write(reinterpret_cast<const char*>(vector.data()), dimensions * sizeof(float));
+    }
+
+    // Close the file
+    file.close();
+}
+
+void readSmallBinary(const string& filename, const int dimensions, vector<vector<float>>& data, int nodes_count) {
+    ifstream file;
+    file.open(filename, ios::binary);
+    
+    if (!file.is_open()) {
+        cout << "Error opening file: " << filename << endl;
+        return;
+    }
+
+    uint32_t vectors_count;     // Num of vectors in file
+    file.read((char *)&vectors_count, sizeof(uint32_t));
+
+    data.resize(nodes_count);
+
+    vector<float> buffer(dimensions);
+
+    int i = 0;
+    while (file.read((char*)buffer.data(), dimensions * sizeof(float))) {
+        vector<float> temp(dimensions);
+        for (int j = 0; j < dimensions; j++) {
+            temp[j] = static_cast<float>(buffer[j]);
+        }
+        data[i++] = move(temp);
+        if (i == nodes_count)
+            break;
+    }
+    // Close file
+    file.close();
+}
+
 // Insert binary data into the 2D vector "data"
 void readKNN(const string& filename, const int dimensions, vector<vector<uint32_t>>& data) {
     ifstream file;
