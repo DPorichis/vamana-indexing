@@ -89,26 +89,41 @@ void test_query(void) {
 
 void test_groundtruth(void) {		// pending...
 	
-	string source_file = "../data/dummy-data.bin";
+	string data_file = "../data/dummy-data.bin";
 	string queries_file = "../data/dummy-queries.bin";
-	string output_file = "../data/groundtruth.bin";
-	
-	// // Create graph
-	// Graph graph = create_graph_from_file(path, 'f', 5, dimensions);
 
-	// The vectors of the dataset
+	string test_data = "../data/test-data.bin";
+	string test_queries = "../data/test-queries.bin";
+	string test_groundtruth = "../data/test-groundtruth.bin";
+
+	int dimensions = 100;
+	int nodes_count = 1000;
+	int queries_count = 100;
+
+	// Data
 	vector<vector<float>> data;
-	readBinary(source_file, 102, data);
 
+	readSmallBinary(data_file, dimensions + 2, data, nodes_count);		// Comment if already created
+	writeBinary(test_data, dimensions + 2, data);						// Comment if already created
+
+	readBinary(test_data, dimensions + 2, data);
+	TEST_ASSERT(data.size() == nodes_count);
+
+	// Queries
 	vector<vector<float>> queries;
-	readBinary(queries_file, 104, queries);
 
-	create_groundtruth_file(source_file, queries_file, output_file);
-	vector<vector<uint32_t>> groundtruth;
-	readKNN(output_file, 100, groundtruth);
-	TEST_ASSERT(groundtruth[0].size() == 100);
-	// cout << groundtruth.size() << endl;
+	readSmallBinary(queries_file, dimensions + 4, queries, queries_count);	// Comment if already created
+	writeBinary(test_queries, dimensions + 4, queries);						// Comment if already created
+
+	readBinary(test_queries, dimensions + 4, queries);
+	TEST_ASSERT(queries.size() == queries_count);
 	
+	create_groundtruth_file(test_data, test_queries, test_groundtruth);
+	vector<vector<uint32_t>> groundtruth;
+	readKNN(test_groundtruth, 100, groundtruth);
+	TEST_ASSERT(groundtruth.size() == 100);
+	TEST_ASSERT(groundtruth[0].size() == 100);
+
 }
 
 void test_save_write(void) {
@@ -118,10 +133,10 @@ void test_save_write(void) {
 	// Create graph
 	Graph graph = create_graph_from_file(path, 'f', 5, dimensions);
 
-	saveGraph(graph, "../data/graph.bin");
+	saveGraph(graph, "../data/test-graph.bin");
 
 	Graph new_graph = create_graph(0, 0, 0);
-	readGraph(new_graph, "../data/graph.bin");
+	readGraph(new_graph, "../data/test-graph.bin");
 	TEST_ASSERT(new_graph->type == 'f');
 	TEST_ASSERT(new_graph->dimensions == dimensions);
 	TEST_ASSERT(new_graph->k == 5);

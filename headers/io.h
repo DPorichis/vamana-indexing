@@ -65,6 +65,10 @@ typedef struct options* Options;
             data  query                         */
 void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data);
 
+void readSmallBinary(const string& filename, const int dimensions, vector<vector<float>>& data, int nodes_count);
+
+void writeBinary(const string& filename, const int dimensions, vector<vector<float>>& data);
+
 // Grountruth data into 'data'
 void readKNN(const string& filename, const int dimensions, vector<vector<uint32_t>>& data);
 
