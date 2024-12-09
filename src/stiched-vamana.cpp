@@ -27,7 +27,7 @@ map<int, Graph>* create_stiched_vamana_index(const string& filename, int type, i
     // Perform Vamana initialazation for every sub-graph
     for (auto it = stiched_mapping->begin(); it != stiched_mapping->end(); ++it) {
         id++;
-        cout << "Graph " << id << "/" << stiched_mapping->size() << endl;
+        // cout << "Graph " << id << "/" << stiched_mapping->size() << endl;
         
         Graph graph = it->second;
         if (graph == NULL) {

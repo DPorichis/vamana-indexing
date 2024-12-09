@@ -430,7 +430,7 @@ Graph create_graph_from_file(const string& filename, int type, int k, int dimens
     }
 
     // Connecting the nodes
-    init_dummy_graph(graph);
+    // init_dummy_graph(graph);
 
     return graph;
 }

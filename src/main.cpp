@@ -210,6 +210,7 @@ int main(int argc, char* argv[]) {
                     j++;
                 }
                 cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
+                cout << "Query type : " << query_type << endl;
                 cout << "##########################" << endl << endl;    
                 
                 
@@ -291,6 +292,7 @@ int main(int argc, char* argv[]) {
                 }
 
                 cout << "Query with position: " << query_pos << endl;
+                cout << "Query type : " << query_type << endl;
                 cout << "##########################" << endl << endl;    
                 
                 
@@ -429,6 +431,7 @@ int main(int argc, char* argv[]) {
                     j++;
                 }
                 cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
+                cout << "Query type : " << query_type << endl;
                 cout << "##########################" << endl << endl;    
             }
             else
@@ -441,6 +444,7 @@ int main(int argc, char* argv[]) {
                     j++;
                 }
                 cout << "Query with position: " << query_pos << endl;
+                cout << "Query type : " << query_type << endl;
                 cout << "##########################" << endl << endl;    
             }
             
