@@ -1,12 +1,12 @@
 #include <iostream>
 #include <algorithm>
 #include <set>
-#include <filesystem>
 #include "vamana.h"
 #include "filtered-vamana.h"
 #include "vamana-utils.h"
 
 using namespace std;
+
 namespace fs = std::filesystem;
 
 bool fileExists(const string& filename) {
@@ -41,9 +41,9 @@ int main(int argc, char* argv[]) {
         print_options(opt);
 
     // Files that will be used
-    string dataset_file = "./data/dummy-data.bin";
-	string queries_file = "./data/dummy-queries.bin";
-	string groundtruth_file = "./data/groundtruth.bin";
+    string dataset_file = "../data/dummy-data.bin";
+	string queries_file = "../data/dummy-queries.bin";
+	string groundtruth_file = "../data/groundtruth.bin";
 
     vector<vector<uint32_t>> groundtruth;
     dimensions = 100;
@@ -88,7 +88,6 @@ int main(int argc, char* argv[]) {
                     saveGraph(graph, "./data/filtered-graph.bin");
                 }
             }
-        
         }
         else {
             if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, dimensions)) {
@@ -103,9 +102,7 @@ int main(int argc, char* argv[]) {
         // Calculate Recall rates when provided with a groundtruth //
         if (opt->truth_filename.compare("") != 0) {
             // IF NOT CREATED -> Create groundtruth file
-            if (!fileExists(groundtruth_file)) {
-                create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
-            }
+            create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
             readKNN(opt->truth_filename, dimensions, groundtruth);     // Read groundtruth file
 
             srand(static_cast<unsigned int>(time(0)));
