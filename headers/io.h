@@ -96,13 +96,14 @@ void readGraphMap(map<int, Graph>& graph_map, const string& input_file);
 // Inserting data in the library structure
 vector<file_vector_float> read_float_vectors_from_file(const string& filename);
 
+// Not used //
 vector<file_vector_int> read_int_vectors_from_file(const string& filename);
-
 vector<file_vector_char> read_char_vectors_from_file(const string& filename);
 
 // Create graph from dataset. Returns graph for success, NULL otherwise
 Graph create_graph_from_file(const string& filename, int type, int k, int dimensions);
 
+// Create stitched vamana graph from dataset. Returns a map of simple vamana graphs
 map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type, int k, int dimensions);
 
 // Performs (and allocates) query. Returns the query as a node for success, NULL otherwise
@@ -122,7 +123,6 @@ int read_config_file(string filename, Options opt);
 
 // Prints out the options for debugging and reporting purposes
 void print_options(Options opt);
-
 
 // Release all memory for exiting.....I dont think we need this...
 int destroy_data(void);

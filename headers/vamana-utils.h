@@ -9,4 +9,6 @@
 // Returns 0 when no errors occur or -1 in error state
 int init_dummy_graph(Graph g);
 
+
+// Finds the difference between two candidate sets
 void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, CandidateComparator>* B, set<Candidate, CandidateComparator>* dif);

@@ -18,12 +18,13 @@
 
 using namespace std;
 
-/*-------------- Gready search and prunning need error return values --------------*/
-// Vamana index implementation
+// Creates a Stitched vamana index, by creating sub Vamana graphs for each category.
+// Returns a map containing these graphs.
 map<int, Graph>* create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions) {
     // Graph creation and initialization
     map<int, Graph>* stiched_mapping = create_stiched_graph_from_file(filename, type, R_small, dimensions);            
     int id = -1;
+    // Perform Vamana initialazation for every sub-graph
     for (auto it = stiched_mapping->begin(); it != stiched_mapping->end(); ++it) {
         id++;
         cout << "Graph " << id << "/" << stiched_mapping->size() << endl;
@@ -110,6 +111,7 @@ map<int, Graph>* create_stiched_vamana_index(const string& filename, int type, i
             delete visited;
         }
     }
+    // Second for-loop of the pseudocode (Maybe useless)
     for (auto it = stiched_mapping->begin(); it != stiched_mapping->end(); ++it) {
         Graph graph = it->second;
         for(int i = 0; i < graph->nodes.size(); i++)

@@ -20,7 +20,7 @@ void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, Candidate
 bool isSubset(set<int> A, set<int> B);
 
 
-// Alg 1 from the given paper. Performs gready search on a graph g from starting point s, looking for neighbours of node query
+// Performs gready search on a graph g from starting the s_count points inside S, looking for neighbours of node query
 // Returns its results in the neighbours and visited sets pointers that must be passed by the user.
 // Returns 0 on correct execution
 int filtered_gready_search(Graph g, Node *S, int s_count, Node query, int k, int L, 
@@ -32,6 +32,7 @@ int filtered_gready_search(Graph g, Node *S, int s_count, Node query, int k, int
     if(k > L)
         L = k;
 
+    // Input all the correct starting points
     for(int i = 0; i < s_count; i++)
     {
         set<int> intersection;
@@ -104,7 +105,7 @@ int filtered_gready_search(Graph g, Node *S, int s_count, Node query, int k, int
     return 0;
 }
 
-// Alg 2 from the given paper. Performs robust prunning on a node p of graph g based on the v set passed by the user and the arguments
+// Performs robust prunning on a node p of graph g based on the v set passed by the user and the arguments
 // a, r. The node's p neighbours will be updated accordingly with the prunning.
 // Returns 0 on correct execution
 int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r)
@@ -177,7 +178,7 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
                 inserter(intersection, intersection.begin())
             );
             
-
+            // Continue close
             if(!isSubset(intersection, target->to->categories))
             {
                 ++it;
@@ -201,8 +202,7 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
     return 0;
 }
 
-/*-------- Gready search and prunning need error return values--------------*/
-// Vamana index implementation
+// Creates a filtered vamana index as described by the paper provided
 int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions){
     // Graph creation and initialization
 
@@ -213,10 +213,9 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
         return -1;
     }
 
-    // Find medoid
+    // Find medoids
     find_filtered_medoid(graph, graph->all_categories, &graph->medoid_mapping);
-    // cout << "medoid" <<  endl;
-
+    
     // Create random permutation of nodes, vectors is a copy of nodes (not the original)
     vector<Node> vectors = graph->nodes;
     random_device rd;
@@ -311,12 +310,11 @@ bool isSubset(set<int> A, set<int> B)
     return true;
 }
 
-
+// Picks medoids for each category node of a graph as described by the papaer
 int find_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoids) {
     
     set<int>::iterator itr;
    
-    // Displaying set elements
     for (itr = categories.begin(); itr != categories.end(); itr++)
     {
         int category = *itr;
@@ -348,12 +346,11 @@ int find_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoid
     return 0;
 }
 
-
+// === Bruteforce calculation of medoids - [Not used] === //
 int find_accurate_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoids) {
     
     set<int>::iterator itr;
    
-    // Displaying set elements
     for (itr = categories.begin(); itr != categories.end(); itr++)
     {
         int category = *itr;

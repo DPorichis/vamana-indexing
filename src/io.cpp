@@ -435,7 +435,7 @@ Graph create_graph_from_file(const string& filename, int type, int k, int dimens
     return graph;
 }
 
-// Create graph from dataset. Returns graph for success, NULL otherwise
+// Create stiched graph from dataset. Returns graph for success, NULL otherwise
 map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type, int k, int dimensions) {
     // Store file data to 2D vector
     vector<vector<float>> nodes;
@@ -457,12 +457,14 @@ map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type
 
         int category = nodes[i][0];
 
+        // If the category doesn't yet have a graph
         if(stiched_index->find(category) == stiched_index->end())
         {
-            // Graph creation
+            // Make one
             Graph graph = create_graph(type, k, dimensions);
             (*stiched_index)[category] = graph;
         }
+        // Add it to the desired graph
         add_node_graph((*stiched_index)[category], dimensions, components, i);
     }
 
@@ -696,7 +698,9 @@ float compare_with_id(const std::vector<float>& a, const std::vector<float>& b) 
     }
     return sum;
 }
-    
+
+
+// Sets options from the configuration file provided   
 int read_config_file(string filename, Options opt)
 {
     std::ifstream inputFile(filename);
@@ -741,6 +745,7 @@ int read_config_file(string filename, Options opt)
     return 0;
 }
 
+// Sets up options from command line arguments
 int read_command_line_args(int argc, char* argv[], Options opt)
 {
     // Read the file line by line
@@ -766,7 +771,7 @@ int read_command_line_args(int argc, char* argv[], Options opt)
     return 0;
 }
 
-
+// Prints the options selected
 void print_options(Options opt)
 {
     cout << "--- Options overview ---" << endl;
@@ -892,6 +897,8 @@ int update_option(string flag, string value, Options opt)
     return 0;
 }
 
+
+// Verifies that the options provided are legal
 int check_options(Options opt)
 {
     int ret = 0;

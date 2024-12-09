@@ -28,6 +28,12 @@ Each person was responsible for creating tests on their part.
 
 ### Quick start guide
 
+This project supports 3 Vamana indexing implementations:
+- Original Vamana
+- Filtered Vamana
+- Stitched Vamana
+
+
 #### Compilation
 
 This project can be compiled by using the make all command in the base folder. 
@@ -35,7 +41,7 @@ This project can be compiled by using the make all command in the base folder.
 #### Execution
 
 You can run this project by executing `./bin/project ...` from the base folder, followed by the arguments as shown below:
-- `data=[filename]`: file containing the data points / graph representation
+- `data=[filename]`: file containing the data points/graph representation
 - `datatype=[f/c/i]`: type of data in file (Defaults to f)
 - `filetype=[d/g]`: d for raw-data, g for graph representation (Defaults to d)
 - `k=[int >= 1]`: (Defaults to 1)
@@ -47,14 +53,14 @@ You can run this project by executing `./bin/project ...` from the base folder, 
 - `printing=[true/false]`: Enable or disable detailed printing (Defaults to true)
 - `savegraph=[true/false]`: Save the graph created to a file (Defaults to false)
 - `truthfile=[filename]`: File containing the ground truth. Accuracy will not be calculated when a value is not set
-- `index=[f/s/u]` : f for filtered vamana, s for stitched vamana and u for unfiltered
+- `index=[f/s/u]`: f for filtered vamana, s for stitched vamana and u for unfiltered
 
 An example execusion is : 
 
 `./bin/project data=./data/dummy-data.bin
 datatype=f k=20 R=40 L=50 a=1.4
 queries=./data/dummy-queries.bin
-queriescount=2`
+queriescount=2 index=u`
 
 You can also set the attributes inside a config file and execute like this:
 
@@ -80,14 +86,19 @@ printing=true
 savegraph=false
 ```
 
+An already populated configuration file exists in the main directory, and can be used by running `make run`
 
 #### Unit Testing
 
+You can run all unit tests available with `make run_tests`, or with the bash script located in `/tests/tests.bash` or one at a time using the executables in the `/bin` folder 
 
-You can run all unit tests available with the bash script located in `/tests/tests.bash` or one at a time using the executables in the `/bin` folder 
 *(Note: Due to ENV variables, some tests may not run if your terminal is not in the `/tests` folder `running ../bin/[testname]`)*
 
+You can check for memory leaks using `make run_valgrind_tests`.
+
 Sample data from the provided website have been included to make running easier and can be found in `./data`.
+
+A smaller dataset for testing was developed containing only 1000 points and 100 queries, you can also find it at `./data`, or populate it using the `./test_io`
 
 ### Design choices
 
@@ -123,7 +134,28 @@ Candidate sets use the stored distance to order themselves (from closest to fart
 
 This sorting makes finding the min in our algorithm faster while maintaining the sort comes at a price of logn for each entry, which we believe is a fair trade.
 
-#### I/0
+#### Multiple index support
+
+To make things easier we use the same graph representation for all Indexes, by overloading functions with more fields where relevant.
+
+For example:
+
+````
+// Used for unfiltered Vamana
+Node add_node_graph(Graph g, int d_count, void* components, int pos);
+
+// Used for filtered Vamana
+Node add_node_graph(Graph g, int d_count, void* components, int pos, set<int> categories);
+````
+
+Here the node structure remains the same, but specific fields of it will be nulled.
+
+This really helped in levaraging the old code we had developed at part 1.
+
+Stitched Vamana is just a map of simple Vamana Indexes, keyed by their category.
+
+
+#### I/O
 For the data insertion we use a struct that contains two elements. The first one called "d" contains the node dimension. The other one is a vector that contains the components of the node. 
 
 ### Test Report
