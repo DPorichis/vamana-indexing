@@ -41,11 +41,6 @@ int main(int argc, char* argv[]) {
     if(opt->printing)
         print_options(opt);
 
-    // Files that will be used
-    string dataset_file = "./data/dummy-data.bin";
-	string queries_file = "./data/dummy-queries.bin";
-	string groundtruth_file = "./data/groundtruth.bin";
-
     vector<vector<uint32_t>> groundtruth;
     dimensions = 100;
     int medoid_pos;
@@ -78,11 +73,23 @@ int main(int argc, char* argv[]) {
             }
         }
         else {
-            if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, dimensions)) {
-                cout << "Error creating filtered vamana" << endl;
-                delete opt;
-                return -1;
+            if (opt->file_type) {
+                graph = create_graph('f', 0, 0);
+                readGraph(graph, opt->data_filename);
             }
+            // If the file is data
+            else {
+                if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, dimensions)) {
+                    cout << "Error creating filtered vamana" << endl;
+                    delete opt;
+                    return -1;
+                }
+                if (opt->savegraph) {
+                    saveGraph(graph, "./data/unfiltered-graph.bin");
+                }
+            }
+
+            
         }
         if(opt->printing)
             cout << "Graph completed!" << endl;
@@ -276,9 +283,19 @@ int main(int argc, char* argv[]) {
 
         cout << "Index is ready" << endl;
 
-        // IF NOT CREATED -> Create groundtruth file
-        create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
-        readKNN(opt->truth_filename, dimensions, groundtruth);     // Read groundtruth file
+        if (opt->truth_filename.compare("") != 0) {
+            // IF NOT CREATED -> Create groundtruth file
+            if (!fileExists(opt->truth_filename)) {
+                // Graph case
+                if (opt->file_type) {
+                    cout << "Groundtruth can be only created with dataset, not with graph file.." << endl;      // TODO: Check options 
+                    return -1;
+                }
+                create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
+            }
+
+            readKNN(opt->truth_filename, dimensions, groundtruth);     // Read groundtruth file
+        }
 
         cout << "Ground truth is ready" << endl;
 
@@ -331,32 +348,46 @@ int main(int argc, char* argv[]) {
                 delete visited;
             }
             // Results
-            set<int> algorithm_results;
-            int j = 0;
-            for (const auto& r : *total_neighbors) {
-                if (opt->k == j)
-                    break;
-                algorithm_results.insert(r->to->pos);
-                j++;
-            }
-            set<int> true_results(groundtruth[query_pos].begin(), groundtruth[query_pos].begin() + opt->k);
+            if (opt->truth_filename.compare("") != 0) {
 
-            set<int> intersection;
-            set_intersection(algorithm_results.begin(), algorithm_results.end(),
-                            true_results.begin(), true_results.end(),
-                            inserter(intersection, intersection.begin()));
+                set<int> algorithm_results;
+                int j = 0;
+                for (const auto& r : *total_neighbors) {
+                    if (opt->k == j)
+                        break;
+                    algorithm_results.insert(r->to->pos);
+                    j++;
+                }
+                set<int> true_results(groundtruth[query_pos].begin(), groundtruth[query_pos].begin() + opt->k);
 
-            double recall = static_cast<double>(intersection.size()) / true_results.size();
-            j = 0;
-            for (const auto& r : *total_neighbors) {
-                if(opt->k == j)
-                    break;
-                cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
-                j++;
+                set<int> intersection;
+                set_intersection(algorithm_results.begin(), algorithm_results.end(),
+                                true_results.begin(), true_results.end(),
+                                inserter(intersection, intersection.begin()));
+
+                double recall = static_cast<double>(intersection.size()) / true_results.size();
+                j = 0;
+                for (const auto& r : *total_neighbors) {
+                    if(opt->k == j)
+                        break;
+                    cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
+                    j++;
+                }
+                cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
+                cout << "##########################" << endl << endl;    
             }
-            cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
-            cout << "##########################" << endl << endl;    
-            
+            else
+            {
+                int j = 0;
+                for (const auto& r : *total_neighbors) {
+                    if(opt->k == j)
+                        break;
+                    cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
+                    j++;
+                }
+                cout << "Query with position: " << query_pos << endl;
+                cout << "##########################" << endl << endl;    
+            }
             
             for (const auto& r : *total_neighbors)
                 free(r);

@@ -1,5 +1,5 @@
-data=./data/filtered-graph.bin
-filetype=g
+data=./data/dummy-data.bin
+filetype=d
 datatype=f
 k=20
 R=40

@@ -330,6 +330,43 @@ int find_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoid
         Node medoid = NULL;
         int medoid_position = -1;
         float min_distance = numeric_limits<float>::max();
+        
+        // Select a random node of correct type
+        vector<int> indexes;
+        for (int i = 0; i < n; i++) {
+            if(graph->nodes[i]->categories.find(category) != 
+            graph->nodes[i]->categories.end())
+            {
+                indexes.push_back(i);
+            }
+        }
+        medoid_position = indexes[rand() % indexes.size()];
+        medoids->insert({category, medoid_position}); 
+    }
+    // Insert medoids map to graph
+    graph->medoid_mapping = *medoids;
+    return 0;
+}
+
+
+int find_accurate_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoids) {
+    
+    set<int>::iterator itr;
+   
+    // Displaying set elements
+    for (itr = categories.begin(); itr != categories.end(); itr++)
+    {
+        int category = *itr;
+        int n = graph->nodes.size();
+        if (n == 0) {
+            cerr << "Empty nodes vector" << endl;
+            // return NULL;
+            return -1;
+        }
+        int dimensions = graph->nodes[0]->d_count;
+        Node medoid = NULL;
+        int medoid_position = -1;
+        float min_distance = numeric_limits<float>::max();
         // Calculate distance of each node to all other nodes
         for (int i = 0; i < n; i++) {
             if(graph->nodes[i]->categories.find(category) != 
