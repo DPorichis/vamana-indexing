@@ -73,3 +73,6 @@ run_valgrind_tests: alltests
 
 run: project
 	$(BIN)/project -config ./config.txt
+
+run_timed: project
+	time $(BIN)/project -config ./config.txt
