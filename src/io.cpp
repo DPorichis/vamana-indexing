@@ -805,10 +805,8 @@ int update_option(string flag, string value, Options opt)
     }
     else if(flag == "printing")
     {
-        if(value[0] == 't')
-            opt->printing = true;
-        else
-            opt->printing = false;
+        if(value[0] == 'm' || value[0] == 'f' || value[0] == 'n')
+            opt->printing = value[0];
     }
     else if(flag == "savegraph")
     {
@@ -837,9 +835,9 @@ int update_option(string flag, string value, Options opt)
     else if(flag == "queriescount")
     {
         opt->query_count = std::stoi(value);
-        if(opt->query_count < 1)
+        if(opt->query_count <= 0)
         {
-            cout << "Invalid querieCount: querieCount must be >= 1" << endl;
+            cout << "Invalid querieCount: querieCount must be >= 0" << endl;
             return -1;
         }
     }
@@ -899,7 +897,7 @@ int check_options(Options opt)
         cout << "Error: No datafile provided. Use data=[yourfile]" << endl;
         ret = -1;
     }
-    if(opt->queries_filename.compare("") == 0)
+    if(opt->queries_filename.compare("") == 0 && opt->query_count != 0)
     {
         cout << "Error: No queries file provided. Use queries=[yourfile] " << endl;
         ret = -1;

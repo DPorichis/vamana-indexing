@@ -17,7 +17,6 @@ bool fileExists(const std::string& filename) {
 int main(int argc, char* argv[]) {
 
     Options opt = new options();
-
     int dimensions;
     int error = 0;
 
@@ -38,16 +37,22 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    if(opt->printing)
+    if(opt->printing == 'f')
         print_options(opt);
 
     vector<vector<uint32_t>> groundtruth;
     dimensions = 100;
     int medoid_pos;
+
+    double filt_avg = 0;
+    double unfilt_avg = 0;
+    double all_avg = 0;
+    int filt_count = 0;
+    int unfilt_count = 0;
     
     // Create Filtered/Unfiltered Vamana
     Graph graph;
-    if (opt->printing) {
+    if (opt->printing == 'f') {
         if (opt->index_type == 'f')
             cout << "Creating Filtered Vamana..." << endl;
         else if (opt->index_type == 's')
@@ -155,7 +160,7 @@ int main(int argc, char* argv[]) {
 
         
     }
-    if(opt->printing)
+    if(opt->printing == 'f')
         cout << "Graph completed!" << endl;
 
     // Calculate Recall rates when provided with a groundtruth //
@@ -234,18 +239,31 @@ int main(int argc, char* argv[]) {
             double recall = static_cast<double>(intersection.size()) / true_results.size();
             j = 0;
             
-            if(opt->printing){
+            if(opt->printing != 'n'){
                 for (const auto& r : *neighbors) {
                     cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
                     j++;
                 }
             }
-            cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
-            if(opt->printing){
+            if(opt->printing != 'n'){
+                cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
                 cout << "Query type : " << query_type << endl;
                 cout << "##########################" << endl << endl;    
             }
             
+            if(query_type == 1)
+            {
+                filt_avg += recall * 100;
+                filt_count++;
+            }
+            else
+            {
+                unfilt_avg += recall * 100;
+                unfilt_count++;
+            }
+
+            all_avg += recall* 100;
+
             for (const auto& r : *neighbors)
                 free(r);
             
@@ -259,6 +277,17 @@ int main(int argc, char* argv[]) {
             destroy_node(query);
 
         }
+
+        if(opt->query_count != 0)
+        {
+            cout << "Queries performed: " << opt->query_count << endl;
+            cout << "Average overall recall: " << all_avg/opt->query_count << "%" << endl;
+            if(unfilt_count != 0)
+                cout << "Average type 0 recall: " << unfilt_avg/unfilt_count << "%" << " (from " << unfilt_count << ")" << endl;
+            if(filt_count != 0)
+                cout << "Average type 1 recall: " << filt_avg/filt_count << "%" << " (from " << filt_count << ")" << endl;
+        }
+
     }
     // Execute without recall calculation when not provided with a groundtruth //
     else
@@ -317,16 +346,22 @@ int main(int argc, char* argv[]) {
                 j++;
             }
 
-            j = 0;
-            for (const auto& r : *neighbors) {
-                cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
-                j++;
+            if(opt->printing == 'f')
+            {
+                j = 0;
+                for (const auto& r : *neighbors) {
+                    cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
+                    j++;
+                }
             }
             
-            cout << "Query with position: " << query_pos << endl;
-            cout << "Query type : " << query_type << endl;
-            cout << "##########################" << endl << endl;    
-        
+            if(opt->printing != 'n')
+            {
+                cout << "Query with position: " << query_pos << endl;
+                cout << "Query type : " << query_type << endl;
+                cout << "##########################" << endl << endl;    
+            }
+            
             for (const auto& r : *neighbors)
                 free(r);
             

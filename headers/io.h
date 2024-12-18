@@ -45,7 +45,7 @@ struct options {
     int L;
     int R;
 
-    bool printing;
+    char printing;
     bool savegraph;
 
     char index_type;
@@ -53,7 +53,7 @@ struct options {
     // Basic Constractor
     options()
         : file_type(0), data_filename(""), data_type('f'), queries_filename(""), query_count(1), truth_filename(""),
-        a(1), k(1), L(1), R(1), printing(true), savegraph(false), index_type('f') {}
+        a(1), k(1), L(1), R(1), printing('f'), savegraph(false), index_type('f') {}
 };
 
 typedef struct options* Options;
