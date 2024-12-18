@@ -20,34 +20,37 @@ using namespace std;
 
 // Creates a Stitched vamana index, by creating sub Vamana graphs for each category.
 // Returns a map containing these graphs.
-map<int, Graph>* create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions) {
+Graph create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions) {
     // Graph creation and initialization
-    map<int, Graph>* stiched_mapping = create_stiched_graph_from_file(filename, type, R_small, dimensions);            
-    int id = -1;
+    Graph g = create_graph_from_file(filename, type, R_stiched, dimensions);
     // Perform Vamana initialazation for every sub-graph
-    for (auto it = stiched_mapping->begin(); it != stiched_mapping->end(); ++it) {
-        id++;
-        // cout << "Graph " << id << "/" << stiched_mapping->size() << endl;
-        
-        Graph graph = it->second;
-        if (graph == NULL) {
-            cerr << "Error while creating graph from file" << endl;
-            return NULL;
+    for (auto it = g->all_categories.begin(); it != g->all_categories.end(); ++it) {
+        cout << "Category " << *it << endl;
+        Graph subgraph = new graph('f', R_small, dimensions);
+        for(int i = 0; i < g->nodes.size(); i++)
+        {
+            if(g->nodes[i]->categories.find(*it) != g->nodes[i]->categories.end())
+                subgraph->nodes.push_back(g->nodes[i]);
         }
-
+        cout << "Subcategory Found with " << subgraph->nodes.size() << " elements" << endl;
+        
         // cout << "Initializing dummy graph of elements : " << graph->nodes.size() << endl;
-        if (init_dummy_graph(graph)) {
+        if (init_dummy_graph(subgraph)) {
             cerr << "Error in graph initialization";
             return NULL;
         }
 
+        cout << "Dummy Done" << endl;
+
         // Find medoid
-        graph->unfiltered_medoid = find_medoid(graph);
-        Node medoid_node = graph->nodes[graph->unfiltered_medoid];
-        // cout << "Medoid Found" << endl;
+        int category = *it;
+        int medoid_pos = find_medoid(subgraph);
+        Node medoid_node = subgraph->nodes[medoid_pos];
+        g->medoid_mapping[category] = subgraph->nodes[medoid_pos]->pos;
+        cout << "Medoid Found" << endl;
         
         // Create random permutation of nodes, vectors is a copy of nodes (not the original)
-        vector<Node> vectors = graph->nodes;
+        vector<Node> vectors = subgraph->nodes;
         random_device rd;
         mt19937 generator(rd());
         // Shuffle vector items according to Mersenne Twister engine
@@ -61,8 +64,8 @@ map<int, Graph>* create_stiched_vamana_index(const string& filename, int type, i
             // cout << "Loop " << i << "/" << vectors.size() << endl;
             set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
             set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-            gready_search(graph, medoid_node, vectors[i], k, L_small, neighbours, visited);
-            robust_prunning(graph, vectors[i], visited, a, R_small);
+            gready_search(subgraph, medoid_node, vectors[i], k, L_small, neighbours, visited);
+            robust_prunning(subgraph, vectors[i], visited, a, R_small);
             for (const auto& j : vectors[i]->neighbours) {
                 // Create temp set
                 set<Candidate, CandidateComparator>* visited_set = new set<Candidate, CandidateComparator>();
@@ -76,7 +79,7 @@ map<int, Graph>* create_stiched_vamana_index(const string& filename, int type, i
 
                 }
 
-                Candidate to_insert = create_candidate(graph, vectors[i], j->to);
+                Candidate to_insert = create_candidate(subgraph, vectors[i], j->to);
                 auto result = visited_set->insert(to_insert);
                 // If it wasn't inserted, free to manage memory leaks
                 if (!result.second) {
@@ -84,10 +87,10 @@ map<int, Graph>* create_stiched_vamana_index(const string& filename, int type, i
                 }
 
                 if (visited_set->size() > L_small) {
-                    robust_prunning(graph, j->to, visited_set, a, R_small);
+                    robust_prunning(subgraph, j->to, visited_set, a, R_small);
                 }
                 else {
-                    Link for_insert = create_link(graph, j->to, vectors[i]);
+                    Link for_insert = create_link(subgraph, j->to, vectors[i]);
                     auto result = j->to->neighbours.insert(for_insert);
                     if (!result.second) {
                         free(for_insert);
@@ -110,35 +113,38 @@ map<int, Graph>* create_stiched_vamana_index(const string& filename, int type, i
             
             delete visited;
         }
+        
+        subgraph->nodes.clear();
+        subgraph->all_categories.clear();
+        subgraph->medoid_mapping.clear();
+
+        delete subgraph;
     }
     // Second for-loop of the pseudocode (Maybe useless)
-    for (auto it = stiched_mapping->begin(); it != stiched_mapping->end(); ++it) {
-        Graph graph = it->second;
-        for(int i = 0; i < graph->nodes.size(); i++)
-        {
-            Node v = graph->nodes[i];
+    for(int i = 0; i < g->nodes.size(); i++)
+    {
+        Node v = g->nodes[i];
 
-            // Create temp set
-            set<Candidate, CandidateComparator>* visited_set = new set<Candidate, CandidateComparator>();
-            for (const Link& link : v->neighbours) {
-                Candidate to_insert = create_candidate_copy((Link)link);
-                auto result = visited_set->insert(to_insert);
-                // If it wasn't inserted, free to manage memory leaks
-                if (!result.second) {
-                    free(to_insert);
-                }
+        // Create temp set
+        set<Candidate, CandidateComparator>* visited_set = new set<Candidate, CandidateComparator>();
+        for (const Link& link : v->neighbours) {
+            Candidate to_insert = create_candidate_copy((Link)link);
+            auto result = visited_set->insert(to_insert);
+            // If it wasn't inserted, free to manage memory leaks
+            if (!result.second) {
+                free(to_insert);
             }
-
-            robust_prunning(graph, v, visited_set, a, R_stiched);
-        
-            for (const auto& r : *visited_set)
-                free(r);
-
-            delete visited_set;
-
         }
+
+        robust_prunning(g, v, visited_set, a, R_stiched);
+    
+        for (const auto& r : *visited_set)
+            free(r);
+
+        delete visited_set;
+
     }
 
-    return stiched_mapping;
+    return g;
 }
 

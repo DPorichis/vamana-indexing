@@ -232,11 +232,9 @@ void test_create_stiched_vamana_index(void) {
 
     int medoid_pos;
     
-    map<int,Graph>* index_mapping = create_stiched_vamana_index(path, 'f', L, R, R, a, dimensions);
+    Graph index_mapping = create_stiched_vamana_index(path, 'f', L, R, R, a, dimensions);
     
     TEST_ASSERT(index_mapping != NULL);
-    TEST_ASSERT(index_mapping->size() > 1);
-
 
     cout << "Index is ready" << endl;
     cout << "Ground truth is ready" << endl;
@@ -259,18 +257,16 @@ void test_create_stiched_vamana_index(void) {
     if(query_type == 0)
     {
         query->categories.clear();
-        for (const auto& pair : *index_mapping)
-            query->categories.insert(pair.first);
+        for (const auto& val : index_mapping->all_categories)
+            query->categories.insert(val);
     }
 
     for (const int& val : query->categories) {
-        // cout << "Performing gready search on category graph #" << val << endl;
-        Graph category_graph = (*index_mapping)[val];
-    
+        
         set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
         set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
     
-        gready_search(category_graph, category_graph->nodes[category_graph->unfiltered_medoid], query, K, L, neighbors, visited);
+        gready_search(index_mapping, index_mapping->nodes[index_mapping->unfiltered_medoid], query, K, L, neighbors, visited);
         
         for (auto it = neighbors->begin(); it != neighbors->end(); ++it) {
             Candidate to_insert = create_candidate_copy(*it);
@@ -317,11 +313,8 @@ void test_create_stiched_vamana_index(void) {
     destroy_node(query);
 
 
-    for (const auto& pair : *index_mapping) {
-        destroy_graph(pair.second);
-    }
+    destroy_graph(index_mapping);
 
-    delete index_mapping;
 
 }
 
