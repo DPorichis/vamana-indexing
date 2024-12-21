@@ -44,6 +44,7 @@ You can run this project by executing `./bin/project ...` from the base folder, 
 - `data=[filename]`: file containing the data points/graph representation
 - `datatype=[f/c/i]`: type of data in file (Defaults to f)
 - `filetype=[d/g]`: d for raw-data, g for graph representation (Defaults to d)
+- `index=[f/s/u]`: f for filtered Vamana, s for stitched Vamana, and u for unfiltered
 - `k=[int >= 1]`: (Defaults to 1)
 - `R=[int >= 1]`: (Defaults to 1)
 - `L=[int >= 1]`: (Defaults to 1)
@@ -53,7 +54,12 @@ You can run this project by executing `./bin/project ...` from the base folder, 
 - `printing=[true/false]`: Enable or disable detailed printing (Defaults to true)
 - `savegraph=[true/false]`: Save the graph created to a file (Defaults to false)
 - `truthfile=[filename]`: File containing the ground truth. Accuracy will not be calculated when a value is not set
-- `index=[f/s/u]`: f for filtered Vamana, s for stitched Vamana, and u for unfiltered
+- `optimized=[true/false]`: Selects the implementation to be used, optimized uses parallelism for the calculations (Defaults to false)
+- `randinit=[true/false]`: Selects if random neighbours should be added when initializing filtered and stitched vamana (Defaults to false)
+- `randmedoid=[no/semi/yes]`: Selects the way to calculate medoid ONLY in original vamana implementation. 
+	- `no`: Performs a brute force search
+	- `semi`: Performs a brute force search in a 10% random subpart of the dataset
+	- `yes`: Picks a medoid at random.
 
 An example of execution is : 
 
