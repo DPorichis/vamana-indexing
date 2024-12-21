@@ -165,7 +165,7 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 
 /*-------- Gready search and prunning need error return values--------------*/
 // Vamana index implementation
-int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,int& medoid_pos, int dimensions) {
+int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,int& medoid_pos, int dimensions, char random_medoid) {
     // Graph creation and initialization
     *g = create_graph_from_file(filename, 'f', R, dimensions);            
     Graph graph = *g;
@@ -179,7 +179,16 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,
     }
 
     // Find medoid
-    medoid_pos =  find_medoid(graph);
+    if(random_medoid == 'n')
+        medoid_pos =  find_medoid(graph);
+    else if(random_medoid == 's')
+        medoid_pos =  find_random_medoid(graph);
+    else
+    {
+        srand(time(0));
+        medoid_pos = rand() % graph->nodes.size();
+
+    }
 
     graph->unfiltered_medoid = medoid_pos;
     
@@ -271,6 +280,44 @@ int find_medoid(Graph graph) {
     for (int i = 0; i < n; i++) {
         float total_distance = 0.0f;
         for (int j = 0; j < n; j++) {
+            if (i != j) {
+                total_distance += calculate_distance(graph, graph->nodes[i], graph->nodes[j]);
+            }
+        }
+        // Update medoid if we find node with smaller total distance
+        if (total_distance < min_distance) {
+            min_distance = total_distance;
+            medoid = graph->nodes[i];
+            medoid_position = i;
+        }
+    }
+    return medoid_position;
+}
+
+int find_random_medoid(Graph graph) {
+    int n = graph->nodes.size();
+    if (n == 0) {
+        cerr << "Empty nodes vector" << endl;
+        // return NULL;
+        return -1;
+    }
+
+    srand(time(0));
+    set<int> indexes;
+
+    for (int i = 0; i < n*0.1; ++i) {
+        int random_item = rand() % n;
+        indexes.insert(random_item);
+    }
+
+    int dimensions = graph->nodes[0]->d_count;
+    Node medoid = NULL;
+    int medoid_position = -1;
+    float min_distance = numeric_limits<float>::max();
+    // Calculate distance of each node to all other nodes
+    for (int i : indexes) {
+        float total_distance = 0.0f;
+        for (int j : indexes) {
             if (i != j) {
                 total_distance += calculate_distance(graph, graph->nodes[i], graph->nodes[j]);
             }

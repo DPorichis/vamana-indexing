@@ -32,7 +32,7 @@ void test_create_vamana_index(void) {
     int a = 1.2;
 
     int medoid_pos;
-    TEST_ASSERT(!create_vamana_index(&graph, path, L, R, a, medoid_pos, dimensions));
+    TEST_ASSERT(!create_vamana_index(&graph, path, L, R, a, medoid_pos, dimensions, 'n'));
     
     set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();

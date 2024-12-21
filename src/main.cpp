@@ -138,7 +138,7 @@ int main(int argc, char* argv[]) {
         }
         // If the file is data
         else {
-            if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, dimensions)) {
+            if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, dimensions, opt->rand_medoid)) {
                 cout << "Error creating filtered vamana" << endl;
                 delete opt;
                 return -1;
