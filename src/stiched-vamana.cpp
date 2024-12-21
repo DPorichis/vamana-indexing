@@ -20,9 +20,13 @@ using namespace std;
 
 // Creates a Stitched vamana index, by creating sub Vamana graphs for each category.
 // Returns a map containing these graphs.
-Graph create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions) {
+Graph create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, bool random_init) {
     // Graph creation and initialization
     Graph g = create_graph_from_file(filename, type, R_stiched, dimensions);
+
+    if(random_init)
+        init_dummy_graph(g);
+
     // Perform Vamana initialazation for every sub-graph
     for (auto it = g->all_categories.begin(); it != g->all_categories.end(); ++it) {
         cout << "Category " << *it << endl;

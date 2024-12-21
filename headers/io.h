@@ -44,6 +44,12 @@ struct options {
     int k;
     int L;
     int R;
+    int R_s;
+
+    bool opt;
+    bool rand_init;
+    char rand_medoid;
+
 
     char printing;
     bool savegraph;
@@ -53,7 +59,8 @@ struct options {
     // Basic Constractor
     options()
         : file_type(0), data_filename(""), data_type('f'), queries_filename(""), query_count(1), truth_filename(""),
-        a(1), k(1), L(1), R(1), printing('f'), savegraph(false), index_type('f') {}
+        a(1), k(1), L(1), R(1), R_s(1), printing('f'), savegraph(false), index_type('f'), rand_init(false), rand_medoid('n'),
+        opt(false) {}
 };
 
 typedef struct options* Options;

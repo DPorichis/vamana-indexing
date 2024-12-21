@@ -1,4 +1,5 @@
 #include "filtered-vamana.h"
+#include "vamana-utils.h"
 #include "graph.h"
 #include "io.h"
 
@@ -203,7 +204,7 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
 }
 
 // Creates a filtered vamana index as described by the paper provided
-int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions){
+int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions, bool random_init){
     // Graph creation and initialization
 
     *g = create_graph_from_file(filename, 'f', R, dimensions);
@@ -212,6 +213,11 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
         cerr << "Error while creating graph from file" << endl;
         return -1;
     }
+
+    // Connecting the nodes if requested
+    if(random_init)
+        init_dummy_graph(graph);
+
 
     // Find medoids
     find_filtered_medoid(graph, graph->all_categories, &graph->medoid_mapping);
