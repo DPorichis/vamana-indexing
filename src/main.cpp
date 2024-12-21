@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
         else {
             if(opt->file_type == 'f')
             {
-                if (create_filtered_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, dimensions)) {
+                if (create_filtered_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, dimensions, opt->rand_init)) {
                     cout << "Error creating filtered vamana" << endl;
                     delete opt;
                     return -1;
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
             }
             else
             {
-                graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, dimensions);
+                graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, dimensions, opt->rand_init);
                 if(graph == NULL)
                 {
                     cout << "Error creating filtered vamana" << endl;
@@ -138,7 +138,7 @@ int main(int argc, char* argv[]) {
         }
         // If the file is data
         else {
-            if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, dimensions)) {
+            if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, dimensions, opt->rand_medoid)) {
                 cout << "Error creating filtered vamana" << endl;
                 delete opt;
                 return -1;

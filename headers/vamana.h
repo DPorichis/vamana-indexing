@@ -18,8 +18,10 @@ int gready_search(Graph g, Node s, Node query, int k, int L, set<Candidate, Cand
 int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r);
 
 // Alg 3
-int create_vamana_index(Graph* g, const string& filename, int L, int R, float a, int& medoid_pos, int dimensions);
+int create_vamana_index(Graph* g, const string& filename, int L, int R, float a, int& medoid_pos, int dimensions, char random_medoid);
 
 // Finds the medoid node of a graph
 // int find_medoid(const vector<Node>& nodes);
 int find_medoid(Graph graph);
+
+int find_random_medoid(Graph graph);
