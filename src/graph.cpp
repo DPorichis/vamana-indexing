@@ -189,7 +189,8 @@ double calculate_int(void* a, void* b, int dim)
         sum += diff * diff;
     }
 
-    return sqrt(sum);
+    // return sqrt(sum);
+    return sum;
 }
 
 // Distance calculation for char vectors
@@ -205,7 +206,8 @@ double calculate_char(void* a, void* b, int dim)
         sum += diff * diff;
     }
 
-    return sqrt(sum);
+    // return sqrt(sum);
+    return sum;
 }
 
 // Distance calculation for float vectors
@@ -221,5 +223,6 @@ double calculate_float(void* a, void* b, int dim)
         sum += diff * diff;
     }
 
-    return sqrt(sum);
+    // return sqrt(sum);
+    return sum;
 }
