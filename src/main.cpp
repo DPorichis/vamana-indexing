@@ -17,7 +17,6 @@ bool fileExists(const std::string& filename) {
 int main(int argc, char* argv[]) {
 
     Options opt = new options();
-
     int dimensions;
     int error = 0;
 
@@ -38,39 +37,48 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    if(opt->printing)
+    if(opt->printing == 'f')
         print_options(opt);
 
     vector<vector<uint32_t>> groundtruth;
     dimensions = 100;
     int medoid_pos;
+
+    double filt_avg = 0;
+    double unfilt_avg = 0;
+    double all_avg = 0;
+    int filt_count = 0;
+    int unfilt_count = 0;
     
     // Create Filtered/Unfiltered Vamana
-    if (opt->index_type == 'f' || opt->index_type == 'u') {
-        Graph graph;
-        if (opt->printing) {
-            if (opt->index_type == 'f')
-                cout << "Creating Filtered Vamana..." << endl;
-            else   
-                cout << "Creating Vamana..." << endl;    
-        }
-        if (opt->index_type == 'f') {
-            // If the file is GRAPH
-            if (opt->file_type) {
-                graph = create_graph('f', 0, 0);
-                // Open graph file
-                ifstream file(opt->data_filename, ios::binary);
-                if (!file) {
-                    cerr << "Error opening file: " << opt->data_filename << " for reading" << endl;
-                    return -1;
-                }
-                readGraph(graph, file);
-                // CLose file
-                file.close();
+    Graph graph;
+    if (opt->printing == 'f') {
+        if (opt->index_type == 'f')
+            cout << "Creating Filtered Vamana..." << endl;
+        else if (opt->index_type == 's')
+            cout << "Creating Stitched Vamana..." << endl;
+        else  
+            cout << "Creating Vamana..." << endl;    
+    }
+    if (opt->index_type == 'f' || opt->index_type == 's') {
+        // If the file is GRAPH
+        if (opt->file_type) {
+            graph = create_graph('f', 0, 0);
+            // Open graph file
+            ifstream file(opt->data_filename, ios::binary);
+            if (!file) {
+                cerr << "Error opening file: " << opt->data_filename << " for reading" << endl;
+                return -1;
             }
-            // If the file is data
-            else {
-                if (create_filtered_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, dimensions)) {
+            readGraph(graph, file);
+            // CLose file
+            file.close();
+        }
+        // If the file is data
+        else {
+            if(opt->file_type == 'f')
+            {
+                if (create_filtered_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, dimensions, opt->rand_init)) {
                     cout << "Error creating filtered vamana" << endl;
                     delete opt;
                     return -1;
@@ -89,30 +97,18 @@ int main(int argc, char* argv[]) {
                     file.close();
                 }
             }
-        }
-        else {
-            if (opt->file_type) {
-                graph = create_graph('f', 0, 0);
-                // Open graph file
-                ifstream file(opt->data_filename, ios::binary);
-                if (!file) {
-                    cerr << "Error opening file: " << opt->data_filename << " for reading" << endl;
-                    return -1;
-                }
-                readGraph(graph, file);
-                // Close file
-                file.close();
-            }
-            // If the file is data
-            else {
-                if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, dimensions)) {
+            else
+            {
+                graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, dimensions, opt->rand_init);
+                if(graph == NULL)
+                {
                     cout << "Error creating filtered vamana" << endl;
                     delete opt;
                     return -1;
                 }
                 if (opt->savegraph) {
                     // Open graph file
-                    string graph_file = "./data/unfiltered-graph.bin";
+                    string graph_file = "./data/stitched-graph.bin";
                     ofstream file(graph_file , ios::binary);
                     if (!file) {
                         cerr << "Error opening file: " << graph_file << " for reading" << endl;
@@ -124,355 +120,264 @@ int main(int argc, char* argv[]) {
                     file.close();
                 }
             }
-
             
         }
-        if(opt->printing)
-            cout << "Graph completed!" << endl;
-
-        // Calculate Recall rates when provided with a groundtruth //
-        if (opt->truth_filename.compare("") != 0) {
-            // IF NOT CREATED -> Create groundtruth file
-            if (!fileExists(opt->truth_filename)) {
-                // Graph case
-                if (opt->file_type) {
-                    cerr << "Groundtruth can be only created with dataset, not with graph file.." << endl;      // TODO: Check options 
-                    return -1;
-                }
-                create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
-            }
-
-            readKNN(opt->truth_filename, dimensions, groundtruth);     // Read groundtruth file
-            
-            srand(static_cast<unsigned int>(time(0)));
-
-            for (int i = 0; i < opt->query_count; i++) {
-                set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
-                set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-                int query_pos, query_type;
-                Node query = ask_query(opt->queries_filename, query_type, graph->dimensions, query_pos);
-    
-                // === filtered vamana search === //
-                if (opt->index_type == 'f')
-                {
-                    while(query_type == 2 || query_type == 3)
-                    {
-                        destroy_node(query);
-                        query = ask_query(opt->queries_filename, query_type, 100, query_pos);
-                    }
-                    if(query_type == 0)
-                    {
-                        query->categories.clear();
-                        query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
-                    }
-                    int s_count = query->categories.size();
-                    Node* S = (Node *)malloc(sizeof(*S)*s_count);
-                    int j = 0;
-                    for (const int& val : query->categories) {
-                        S[j] = graph->nodes[graph->medoid_mapping[val]];
-                        j++;
-                    }
-                    filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
-                    free(S);
-                }
-                //=== Clasic vamana search ===//
-                else
-                {
-                    while(query_type != 0)
-                    {
-                        destroy_node(query);
-                        query = ask_query(opt->queries_filename, query_type, 100, query_pos);
-                    }
-        
-                    gready_search(graph, graph->nodes[graph->unfiltered_medoid], query, opt->k, opt->L, neighbors, visited);
-
-                }
-                //=== Results Printing ===//
-                set<int> algorithm_results;
-                int j = 0;
-                for (const auto& r : *neighbors) {
-                    if (opt->k == j)
-                    break;
-                    algorithm_results.insert(r->to->pos);
-                    j++;
-                }
-                set<int> true_results(groundtruth[query_pos].begin(), groundtruth[query_pos].begin() + opt->k);
-                
-                set<int> intersection;
-                set_intersection(algorithm_results.begin(), algorithm_results.end(),
-                                true_results.begin(), true_results.end(),
-                                inserter(intersection, intersection.begin()));
-                
-                double recall = static_cast<double>(intersection.size()) / true_results.size();
-                j = 0;
-                
-                if(opt->printing){
-                    for (const auto& r : *neighbors) {
-                        cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
-                        j++;
-                    }
-                }
-                cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
-                if(opt->printing){
-                    cout << "Query type : " << query_type << endl;
-                    cout << "##########################" << endl << endl;    
-                }
-                
-                for (const auto& r : *neighbors)
-                    free(r);
-                
-                delete neighbors;
-                
-                for (const auto& r : *visited)
-                    free(r);
-                
-                delete visited;
-
-                destroy_node(query);
-
-            }
-        }
-        // Execute without recall calculation when not provided with a groundtruth //
-        else
-        {
-            srand(static_cast<unsigned int>(time(0)));
-
-            for (int i = 0; i < opt->query_count; i++) {
-                set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
-                set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-                int query_pos, query_type;
-                Node query = ask_query(opt->queries_filename, query_type, graph->dimensions, query_pos);
-    
-                // === filtered vamana search === //
-                if (opt->index_type == 'f')
-                {
-                    while(query_type == 2 || query_type == 3)
-                    {
-                        destroy_node(query);
-                        query = ask_query(opt->queries_filename, query_type, 100, query_pos);
-                    }
-        
-                    if(query_type == 0)
-                    {
-                        query->categories.clear();
-                        query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
-                    }
-                    int s_count = query->categories.size();
-                    Node* S = (Node *)malloc(sizeof(*S)*s_count);
-                    int j = 0;
-                    for (const int& val : query->categories) {
-                        S[j] = graph->nodes[graph->medoid_mapping[val]];
-                        j++;
-                    }
-                    filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
-                    free(S);
-                }
-                //=== Clasic vamana search ===//
-                else
-                {
-                    while(query_type != 0)
-                    {
-                        destroy_node(query);
-                        query = ask_query(opt->queries_filename, query_type, 100, query_pos);
-                    }
-        
-                    gready_search(graph, graph->nodes[graph->unfiltered_medoid], query, opt->k, opt->L, neighbors, visited);
-
-                }
-                // Results
-                set<int> algorithm_results;
-                int j = 0;
-                for (const auto& r : *neighbors) {
-                    if (opt->k == j)
-                    break;
-                    algorithm_results.insert(r->to->pos);
-                    j++;
-                }
-
-                j = 0;
-                for (const auto& r : *neighbors) {
-                    cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
-                    j++;
-                }
-                
-                cout << "Query with position: " << query_pos << endl;
-                cout << "Query type : " << query_type << endl;
-                cout << "##########################" << endl << endl;    
-            
-                for (const auto& r : *neighbors)
-                    free(r);
-                
-                delete neighbors;
-                
-                for (const auto& r : *visited)
-                    free(r);
-                
-                delete visited;
-
-                destroy_node(query);
-
-            }
-        }
-        destroy_graph(graph);
     }
-    else if (opt->index_type == 's') {
-        // File is stitched vamana
-        map<int, Graph>* index_mapping;
+    else {
         if (opt->file_type) {
-            index_mapping = new map<int, Graph>();
-            readGraphMap(*index_mapping, opt->data_filename);
+            graph = create_graph('f', 0, 0);
+            // Open graph file
+            ifstream file(opt->data_filename, ios::binary);
+            if (!file) {
+                cerr << "Error opening file: " << opt->data_filename << " for reading" << endl;
+                return -1;
+            }
+            readGraph(graph, file);
+            // Close file
+            file.close();
         }
+        // If the file is data
         else {
-            index_mapping = create_stiched_vamana_index(opt->data_filename, opt->data_type, opt->L, opt->R, opt->R, opt->a, dimensions);
-            if (index_mapping == NULL)
-            {
-                cout << "Error creating stiched vamana" << endl;
+            if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, dimensions, opt->rand_medoid)) {
+                cout << "Error creating filtered vamana" << endl;
                 delete opt;
                 return -1;
             }
             if (opt->savegraph) {
-                saveGraphMap(*index_mapping, "./data/stitched-graph.bin");
-            }
-        }
-
-        // if (index_mapping == NULL)
-        // {
-        //     cout << "Error creating stiched vamana" << endl;
-        //     delete opt;
-        //     return -1;
-        // }
-        if(opt->printing)
-            cout << "Index is ready" << endl;
-
-        if (opt->truth_filename.compare("") != 0) {
-            // IF NOT CREATED -> Create groundtruth file
-            if (!fileExists(opt->truth_filename)) {
-                // Graph case
-                if (opt->file_type) {
-                    cerr << "Groundtruth can be only created with dataset, not with graph file.." << endl;      // TODO: Check options 
+                // Open graph file
+                string graph_file = "./data/unfiltered-graph.bin";
+                ofstream file(graph_file , ios::binary);
+                if (!file) {
+                    cerr << "Error opening file: " << graph_file << " for reading" << endl;
                     return -1;
                 }
-                create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
+                // Save graph
+                saveGraph(graph, file);
+                // Close file
+                file.close();
             }
-
-            readKNN(opt->truth_filename, dimensions, groundtruth);     // Read groundtruth file
         }
 
-        if(opt->printing)
-            cout << "Ground truth is ready" << endl;
+        
+    }
+    if(opt->printing == 'f')
+        cout << "Graph completed!" << endl;
 
+    // Calculate Recall rates when provided with a groundtruth //
+    if (opt->truth_filename.compare("") != 0) {
+        // IF NOT CREATED -> Create groundtruth file
+        if (!fileExists(opt->truth_filename)) {
+            // Graph case
+            if (opt->file_type) {
+                cerr << "Groundtruth can be only created with dataset, not with graph file.." << endl;      // TODO: Check options 
+                return -1;
+            }
+            create_groundtruth_file(opt->data_filename, opt->queries_filename, opt->truth_filename);
+        }
+
+        readKNN(opt->truth_filename, dimensions, groundtruth);     // Read groundtruth file
+        
         srand(static_cast<unsigned int>(time(0)));
 
         for (int i = 0; i < opt->query_count; i++) {
+            set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
+            set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
             int query_pos, query_type;
-            
-            Node query = ask_query(opt->queries_filename, query_type, 100, query_pos);
-            while(query_type == 2 || query_type == 3)
-            {
-                destroy_node(query);
-                query = ask_query(opt->queries_filename, query_type, 100, query_pos);
-            }
-            
-            set<Candidate, CandidateComparator>* total_neighbors = new set<Candidate, CandidateComparator>();
-            
-            //cout << "Performing Query #" << query_pos << " of type " << query_type << endl;
+            Node query = ask_query(opt->queries_filename, query_type, graph->dimensions, query_pos);
 
-            if(query_type == 0)
+            // === filtered vamana search === //
+            if (opt->index_type != 'u')
             {
-                query->categories.clear();
-                for (const auto& pair : *index_mapping)
-                    query->categories.insert(pair.first);
-            }
-
-            for (const int& val : query->categories) {
-                // cout << "Performing gready search on category graph #" << val << endl;
-                Graph category_graph = (*index_mapping)[val];
-            
-                set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
-                set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-            
-                gready_search(category_graph, category_graph->nodes[category_graph->unfiltered_medoid], query, opt->k, opt->L, neighbors, visited);
-                
-                for (auto it = neighbors->begin(); it != neighbors->end(); ++it) {
-                    Candidate to_insert = create_candidate_copy(*it);
-                    auto result = total_neighbors->insert(to_insert);
-                    if (!result.second) {
-                        free(to_insert);
-                    }
+                while(query_type == 2 || query_type == 3)
+                {
+                    destroy_node(query);
+                    query = ask_query(opt->queries_filename, query_type, 100, query_pos);
                 }
-
-                for (const auto& r : *neighbors)
-                    free(r);
-                delete neighbors;
-                
-                for (const auto& r : *visited)
-                    free(r);
-                delete visited;
-            }
-            // Results
-            if (opt->truth_filename.compare("") != 0) {
-
-                set<int> algorithm_results;
+                if(query_type == 0)
+                {
+                    query->categories.clear();
+                    query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+                }
+                int s_count = query->categories.size();
+                Node* S = (Node *)malloc(sizeof(*S)*s_count);
                 int j = 0;
-                for (const auto& r : *total_neighbors) {
-                    if (opt->k == j)
-                        break;
-                    algorithm_results.insert(r->to->pos);
+                for (const int& val : query->categories) {
+                    S[j] = graph->nodes[graph->medoid_mapping[val]];
                     j++;
                 }
-                set<int> true_results(groundtruth[query_pos].begin(), groundtruth[query_pos].begin() + opt->k);
-
-                set<int> intersection;
-                set_intersection(algorithm_results.begin(), algorithm_results.end(),
-                                true_results.begin(), true_results.end(),
-                                inserter(intersection, intersection.begin()));
-
-                double recall = static_cast<double>(intersection.size()) / true_results.size();
-                j = 0;
-                if(opt->printing){
-                    for (const auto& r : *total_neighbors) {
-                        if(opt->k == j)
-                            break;
-                        cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
-                        j++;
-                    }
-                }
-
-                cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
-                if(opt->printing){
-                    cout << "Query type : " << query_type << endl;
-                    cout << "##########################" << endl << endl;    
-                }
+                filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+                free(S);
             }
+            //=== Clasic vamana search ===//
             else
             {
-                int j = 0;
-                for (const auto& r : *total_neighbors) {
-                    if(opt->k == j)
-                        break;
+                while(query_type != 0)
+                {
+                    destroy_node(query);
+                    query = ask_query(opt->queries_filename, query_type, 100, query_pos);
+                }
+    
+                gready_search(graph, graph->nodes[graph->unfiltered_medoid], query, opt->k, opt->L, neighbors, visited);
+
+            }
+            //=== Results Printing ===//
+            set<int> algorithm_results;
+            int j = 0;
+            for (const auto& r : *neighbors) {
+                if (opt->k == j)
+                break;
+                algorithm_results.insert(r->to->pos);
+                j++;
+            }
+            set<int> true_results(groundtruth[query_pos].begin(), groundtruth[query_pos].begin() + opt->k);
+            
+            set<int> intersection;
+            set_intersection(algorithm_results.begin(), algorithm_results.end(),
+                            true_results.begin(), true_results.end(),
+                            inserter(intersection, intersection.begin()));
+            
+            double recall = static_cast<double>(intersection.size()) / true_results.size();
+            j = 0;
+            
+            if(opt->printing != 'n'){
+                for (const auto& r : *neighbors) {
                     cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
                     j++;
                 }
+            }
+            if(opt->printing != 'n'){
+                cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
+                cout << "Query type : " << query_type << endl;
+                cout << "##########################" << endl << endl;    
+            }
+            
+            if(query_type == 1)
+            {
+                filt_avg += recall * 100;
+                filt_count++;
+            }
+            else
+            {
+                unfilt_avg += recall * 100;
+                unfilt_count++;
+            }
+
+            all_avg += recall* 100;
+
+            for (const auto& r : *neighbors)
+                free(r);
+            
+            delete neighbors;
+            
+            for (const auto& r : *visited)
+                free(r);
+            
+            delete visited;
+
+            destroy_node(query);
+
+        }
+
+        if(opt->query_count != 0)
+        {
+            cout << "Queries performed: " << opt->query_count << endl;
+            cout << "Average overall recall: " << all_avg/opt->query_count << "%" << endl;
+            if(unfilt_count != 0)
+                cout << "Average type 0 recall: " << unfilt_avg/unfilt_count << "%" << " (from " << unfilt_count << ")" << endl;
+            if(filt_count != 0)
+                cout << "Average type 1 recall: " << filt_avg/filt_count << "%" << " (from " << filt_count << ")" << endl;
+        }
+
+    }
+    // Execute without recall calculation when not provided with a groundtruth //
+    else
+    {
+        srand(static_cast<unsigned int>(time(0)));
+
+        for (int i = 0; i < opt->query_count; i++) {
+            set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
+            set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
+            int query_pos, query_type;
+            Node query = ask_query(opt->queries_filename, query_type, graph->dimensions, query_pos);
+
+            // === filtered vamana search === //
+            if (opt->index_type == 'f')
+            {
+                while(query_type == 2 || query_type == 3)
+                {
+                    destroy_node(query);
+                    query = ask_query(opt->queries_filename, query_type, 100, query_pos);
+                }
+    
+                if(query_type == 0)
+                {
+                    query->categories.clear();
+                    query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+                }
+                int s_count = query->categories.size();
+                Node* S = (Node *)malloc(sizeof(*S)*s_count);
+                int j = 0;
+                for (const int& val : query->categories) {
+                    S[j] = graph->nodes[graph->medoid_mapping[val]];
+                    j++;
+                }
+                filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+                free(S);
+            }
+            //=== Clasic vamana search ===//
+            else
+            {
+                while(query_type != 0)
+                {
+                    destroy_node(query);
+                    query = ask_query(opt->queries_filename, query_type, 100, query_pos);
+                }
+    
+                gready_search(graph, graph->nodes[graph->unfiltered_medoid], query, opt->k, opt->L, neighbors, visited);
+
+            }
+            // Results
+            set<int> algorithm_results;
+            int j = 0;
+            for (const auto& r : *neighbors) {
+                if (opt->k == j)
+                break;
+                algorithm_results.insert(r->to->pos);
+                j++;
+            }
+
+            if(opt->printing == 'f')
+            {
+                j = 0;
+                for (const auto& r : *neighbors) {
+                    cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
+                    j++;
+                }
+            }
+            
+            if(opt->printing != 'n')
+            {
                 cout << "Query with position: " << query_pos << endl;
                 cout << "Query type : " << query_type << endl;
                 cout << "##########################" << endl << endl;    
             }
             
-            for (const auto& r : *total_neighbors)
+            for (const auto& r : *neighbors)
                 free(r);
             
-            delete total_neighbors;
+            delete neighbors;
             
+            for (const auto& r : *visited)
+                free(r);
+            
+            delete visited;
+
             destroy_node(query);
 
         }
-
-        for (const auto& pair : *index_mapping) {
-            destroy_graph(pair.second);
-        }
-        delete index_mapping;
-        
     }
+    destroy_graph(graph);
+
     delete opt;
 
     // Create the Vamana Index

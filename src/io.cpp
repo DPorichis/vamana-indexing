@@ -773,8 +773,15 @@ void print_options(Options opt)
     else
         cout << "- File type: Graph File" << endl;
     cout << "----" << endl;
-    cout << "- Queries file: " << opt->queries_filename << endl;
-    cout << "- Queries to be performed: " << opt->query_count << endl;
+    if(opt->query_count != 0)
+    {
+        cout << "- Queries file: " << opt->queries_filename << endl;
+        cout << "- Queries to be performed: " << opt->query_count << endl;
+    }
+    else
+    {
+        cout << "- No queries will be performed" << endl;
+    }
     cout << "----" << endl;
     if(opt->truth_filename.compare("") == 0)
         cout << "- No ground truth file provided, accuracy stats won't be calculated" << endl;
@@ -787,7 +794,16 @@ void print_options(Options opt)
     cout << "- k: " << opt->k << endl;
     cout << "- L: " << opt->L << endl;
     cout << "- R: " << opt->R << endl;
+    if(opt->index_type=='s')
+        cout << "- Rs: " << opt->R_s << endl;
     cout << "----" << endl;
+    if(opt->rand_init)
+        cout << "- Random initialization will be used" << endl;
+    cout << "- Random medoid calculation: " << opt->rand_medoid << endl;
+    if(opt->opt)
+        cout << "- Optimized implementation in use" << endl;
+    cout << "----" << endl;
+    
 }
 
 int update_option(string flag, string value, Options opt)
@@ -805,10 +821,8 @@ int update_option(string flag, string value, Options opt)
     }
     else if(flag == "printing")
     {
-        if(value[0] == 't')
-            opt->printing = true;
-        else
-            opt->printing = false;
+        if(value[0] == 'm' || value[0] == 'f' || value[0] == 'n')
+            opt->printing = value[0];
     }
     else if(flag == "savegraph")
     {
@@ -837,9 +851,9 @@ int update_option(string flag, string value, Options opt)
     else if(flag == "queriescount")
     {
         opt->query_count = std::stoi(value);
-        if(opt->query_count < 1)
+        if(opt->query_count < 0)
         {
-            cout << "Invalid querieCount: querieCount must be >= 1" << endl;
+            cout << "Invalid querieCount: querieCount must be >= 0" << endl;
             return -1;
         }
     }
@@ -849,6 +863,15 @@ int update_option(string flag, string value, Options opt)
         if(opt->R < 1)
         {
             cout << "Invalid R: R must be >= 1" << endl;
+            return -1;
+        }
+    }
+    else if(flag == "Rs")
+    {
+        opt->R_s = std::stoi(value);
+        if(opt->R_s < 1)
+        {
+            cout << "Invalid Rs: Rs must be >= 1" << endl;
             return -1;
         }
     }
@@ -885,6 +908,25 @@ int update_option(string flag, string value, Options opt)
         }
         opt->index_type = value[0];
     }
+    else if(flag == "randinit")
+    {
+        if(value[0] == 't')
+            opt->rand_init = true;
+        else
+            opt->rand_init = false;
+    }
+    else if(flag == "optimized")
+    {
+        if(value[0] == 't')
+            opt->opt = true;
+        else
+            opt->opt = false;
+    }
+    else if(flag == "randmedoid")
+    {
+        if(value[0] == 'n' || value[0] == 's' || value[0] == 'y')
+            opt->rand_medoid = value[0];
+    }
     return 0;
 }
 
@@ -899,7 +941,7 @@ int check_options(Options opt)
         cout << "Error: No datafile provided. Use data=[yourfile]" << endl;
         ret = -1;
     }
-    if(opt->queries_filename.compare("") == 0)
+    if(opt->queries_filename.compare("") == 0 && opt->query_count != 0)
     {
         cout << "Error: No queries file provided. Use queries=[yourfile] " << endl;
         ret = -1;
