@@ -311,16 +311,115 @@ void test_create_stiched_vamana_index(void) {
     delete total_neighbors;
     
     destroy_node(query);
-
-
     destroy_graph(index_mapping);
+}
 
+void test_parallel_stitched_vamana_index(void) {
+    
+    int dimensions = 100;
 
+    // Dataset
+    string path = "./data/test-data.bin";
+    string queries = "./data/test-queries.bin";
+
+    // Groundtruth data
+    string groundtruth_file = "./data/test-groundtruth.bin";
+    vector<vector<uint32_t>> groundtruth;
+    readKNN(groundtruth_file, dimensions, groundtruth);
+
+    int L = 80;
+    int R = 20;
+    int K = 70;
+    int a = 1.2;
+
+    int medoid_pos;
+    
+    Graph index_mapping = create_stiched_vamana_index_parallel(path, 'f', L, R, R, a, dimensions, 4);
+    
+    TEST_ASSERT(index_mapping != NULL);
+
+    cout << "Index is ready" << endl;
+    cout << "Ground truth is ready" << endl;
+
+    srand(static_cast<unsigned int>(time(0)));
+
+    int query_pos, query_type;
+        
+    Node query = ask_query(queries, query_type, 100, query_pos);
+    while(query_type == 2 || query_type == 3)
+    {
+        destroy_node(query);
+        query = ask_query(queries, query_type, 100, query_pos);
+    }
+    
+    set<Candidate, CandidateComparator>* total_neighbors = new set<Candidate, CandidateComparator>();
+    
+    //cout << "Performing Query #" << query_pos << " of type " << query_type << endl;
+
+    if(query_type == 0)
+    {
+        query->categories.clear();
+        for (const auto& val : index_mapping->all_categories)
+            query->categories.insert(val);
+    }
+
+    for (const int& val : query->categories) {
+        
+        set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
+        set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
+    
+        gready_search(index_mapping, index_mapping->nodes[index_mapping->unfiltered_medoid], query, K, L, neighbors, visited);
+        
+        for (auto it = neighbors->begin(); it != neighbors->end(); ++it) {
+            Candidate to_insert = create_candidate_copy(*it);
+            auto result = total_neighbors->insert(to_insert);
+            if (!result.second) {
+                free(to_insert);
+            }
+        }
+
+        for (const auto& r : *neighbors)
+            free(r);
+        delete neighbors;
+        
+        for (const auto& r : *visited)
+            free(r);
+        delete visited;
+    }
+    // Results
+    set<int> algorithm_results;
+    int j = 0;
+    for (const auto& r : *total_neighbors) {
+        if (K == j)
+            break;
+        algorithm_results.insert(r->to->pos);
+        j++;
+    }
+
+    j = 0;
+    for (const auto& r : *total_neighbors) {
+        if(K == j)
+            break;
+        cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
+        j++;
+    }
+    cout << "Query with position: " << query_pos << endl;
+    cout << "##########################" << endl << endl;    
+    
+    
+    for (const auto& r : *total_neighbors)
+        free(r);
+    
+    delete total_neighbors;
+    
+    destroy_node(query);
+    destroy_graph(index_mapping);
 }
 
 TEST_LIST = {
     { "vamana_index", test_create_vamana_index},
     { "filtered_vamana_create", test_create_filtered_vamana_index},
     { "stiched_vamana_create", test_create_stiched_vamana_index},
+    { "parallel_stitched_vamana_create", test_parallel_stitched_vamana_index},
     { NULL, NULL}
 };
