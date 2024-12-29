@@ -20,6 +20,31 @@ using namespace std;
 void update_dif(set<Candidate, CandidateComparator>* A, set<Candidate, CandidateComparator>* B, set<Candidate, CandidateComparator>* dif);
 bool isSubset(set<int> A, set<int> B);
 
+struct category_sync {
+    set<int>* category_subset;
+    Graph g;
+    vector<Node>* shuffled_vec;
+
+    int L;
+    int R;
+    float a;
+    int dimensions;
+
+    category_sync(Graph graph_ptr, int Lsmall, int Rsmall, float a_param, int dim, vector<Node>* vec
+    ) : g(graph_ptr), L(Lsmall), R(Rsmall), a(a_param), dimensions(dim), shuffled_vec(vec) {
+        category_subset = new set<int>;
+    }
+
+    ~category_sync() {
+        delete category_subset;
+    }
+
+};
+typedef struct category_sync* CategorySync;
+
+
+void * thread_filtered_subgraph(void* arg);
+
 
 // Performs gready search on a graph g from starting the s_count points inside S, looking for neighbours of node query
 // Returns its results in the neighbours and visited sets pointers that must be passed by the user.
@@ -299,6 +324,141 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
     return 0;
 }
 
+
+// Creates a filtered vamana index as described by the paper provided
+int create_filtered_vamana_index_parallel(Graph* g, const string& filename, int L, int R, float a, int dimensions, int thread_count){
+    
+    // Graph creation and initialization
+    *g = create_graph_from_file(filename, 'f', R, dimensions);
+    Graph graph = *g;
+    if (graph == NULL) {
+        cerr << "Error while creating graph from file" << endl;
+        return -1;
+    }
+
+    // Find medoids
+    find_filtered_medoid(graph, graph->all_categories, &graph->medoid_mapping);
+    
+    vector<Node> vectors = graph->nodes;
+    random_device rd;
+    mt19937 generator(rd());
+
+    // Shuffle vector items according to Mersenne Twister engine
+    shuffle(vectors.begin(), vectors.end(), generator);
+
+    // K for gready search
+    int k = 1;
+
+    CategorySync* thread_args = (CategorySync*)malloc(sizeof(*thread_args)*thread_count);
+    for(int i = 0; i < thread_count; i++)
+    {
+        thread_args[i] = new category_sync(graph, L, R, a, dimensions, &vectors);
+    }
+
+    vector<int> vec(graph->all_categories.begin(), graph->all_categories.end());
+    std::shuffle(vec.begin(), vec.end(), generator);
+
+    for (size_t i = 0; i < vec.size(); i++)
+        thread_args[i%thread_count]->category_subset->insert(vec[i]);
+
+    pthread_t* threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_count);
+    for(int i = 0; i < thread_count; i++)
+    {
+        cout << "thread created" << endl;
+        pthread_create((threads + i), NULL, thread_filtered_subgraph, (thread_args[i]));
+    }
+
+    for(int i = 0; i < thread_count; i++)
+    {
+        void* ptr;
+        pthread_join(threads[i], &ptr);
+    }
+
+    for(int i = 0; i < thread_count; i++)
+    {
+        delete thread_args[i];
+    }
+
+    delete thread_args;
+
+    free(threads);
+
+
+    return 0;
+}
+
+
+void * thread_filtered_subgraph(void* arg)
+{
+    CategorySync sync = (CategorySync)arg;
+    Graph graph = sync->g;
+    for (int i = 0; i < sync->shuffled_vec->size(); i++) {
+        if(sync->category_subset->find(*(sync->shuffled_vec->at(i)->categories.begin())) == sync->category_subset->end())
+            continue;
+        int s_count = sync->shuffled_vec->at(i)->categories.size();
+        Node* S = (Node *)malloc(sizeof(*S)*s_count);
+
+        int j = 0;
+        for (const int& val : sync->shuffled_vec->at(i)->categories) {
+            S[j] = graph->nodes[graph->medoid_mapping[val]];
+            j++;
+        }
+
+        // Create neighbours and visited sets
+        // cout << i << endl;
+        set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
+        set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
+        
+        filtered_gready_search(graph, S, s_count, sync->shuffled_vec->at(i), 0, sync->L, sync->shuffled_vec->at(i)->categories, neighbours, visited);
+        
+        filtered_robust_prunning(graph, sync->shuffled_vec->at(i), visited, sync->a, sync->R);
+
+        for (const auto& j : sync->shuffled_vec->at(i)->neighbours) {
+            Link to_insert = create_link(graph, j->to, sync->shuffled_vec->at(i));
+            auto result = j->to->neighbours.insert(to_insert);
+            // If it wasn't inserted, free to manage memory leaks
+            if (!result.second) {
+                free(to_insert);
+            }
+            
+            if (j->to->neighbours.size() > sync->R) {
+                set<Candidate, CandidateComparator>* temp_visited = new set<Candidate, CandidateComparator>();
+                for(const auto& neigh : j->to->neighbours)
+                {
+                    Candidate clone = create_candidate_copy((Candidate)neigh);
+                    auto result = temp_visited->insert(clone);
+                    // If it wasn't inserted, free to manage memory leaks
+                    if (!result.second) {
+                        free(clone);
+                    }   
+                }
+
+                filtered_robust_prunning(graph, j->to, temp_visited, sync->a, sync->R);
+
+                for (const auto& r : *temp_visited)
+                    free(r);
+                delete temp_visited;
+            }
+            
+        }
+        
+        for (const auto& r : *neighbours)
+            free(r);
+        
+        delete neighbours;
+        
+        for (const auto& r : *visited)
+            free(r);
+        
+        delete visited;
+
+        free(S);
+
+    }
+
+    return NULL;
+
+}
 
 
 /******** OTHER USEFUL FUNCTIONS **********/

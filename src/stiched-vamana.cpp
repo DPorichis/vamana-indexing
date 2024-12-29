@@ -243,6 +243,8 @@ Graph create_stiched_vamana_index_parallel(const string& filename, int type, int
 
     delete sync;
 
+    free(threads);
+
     return g;
 }
 
