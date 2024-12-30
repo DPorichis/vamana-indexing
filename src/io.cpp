@@ -794,6 +794,7 @@ void print_options(Options opt)
     cout << "- k: " << opt->k << endl;
     cout << "- L: " << opt->L << endl;
     cout << "- R: " << opt->R << endl;
+    cout << "- dim: " << opt->dim << endl;
     if(opt->index_type=='s')
         cout << "- Rs: " << opt->R_s << endl;
     cout << "----" << endl;
