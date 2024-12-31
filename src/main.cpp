@@ -111,10 +111,22 @@ Graph graph_creation(Options opt)
         if (opt->printing == 'f')
             cout << "Creating Filtered Vamana..." << endl;
 
-        if (create_filtered_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, opt->dim, opt->rand_init)) {
-            cout << "Error creating filtered vamana" << endl;
-            delete opt;
-            return NULL;
+        if(opt->thread_count > 1 && opt->rand_init == false)
+        {
+            if (create_filtered_vamana_index_parallel(&graph, opt->data_filename, opt->L, opt->R, opt->a, opt->dim, opt->thread_count)) {
+                cout << "Error creating filtered vamana" << endl;
+                delete opt;
+                return NULL;
+            }
+        }
+        else
+        {
+            if (create_filtered_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, opt->dim, opt->rand_init)) {
+                cout << "Error creating filtered vamana" << endl;
+                delete opt;
+                return NULL;
+            }
+
         }
         graph_file = "./data/filtered-graph.bin";
     }
@@ -123,7 +135,10 @@ Graph graph_creation(Options opt)
         if (opt->printing == 'f')
             cout << "Creating Stitched Vamana..." << endl;
 
-        graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, opt->dim, opt->rand_init);
+        if(opt->thread_count > 1 && opt->rand_init == false)
+            graph = create_stiched_vamana_index_parallel(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, opt->dim, opt->thread_count);
+        else
+            graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, opt->dim, opt->rand_init); 
         if(graph == NULL)
         {
             cout << "Error creating filtered vamana" << endl;
