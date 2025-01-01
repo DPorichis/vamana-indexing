@@ -794,12 +794,16 @@ void print_options(Options opt)
     cout << "- k: " << opt->k << endl;
     cout << "- L: " << opt->L << endl;
     cout << "- R: " << opt->R << endl;
+    cout << "- dim: " << opt->dim << endl;
     if(opt->index_type=='s')
         cout << "- Rs: " << opt->R_s << endl;
     cout << "----" << endl;
     if(opt->rand_init)
         cout << "- Random initialization will be used" << endl;
     cout << "- Random medoid calculation: " << opt->rand_medoid << endl;
+    cout << "- Thread count: " << opt->thread_count << endl;
+    if(opt->thread_count > 1 && opt->rand_init && opt->file_type == 0)
+        cout << "IMPORTANT: Single thread implementation will be used for graph creation as random init is enabled" << endl;
     if(opt->opt)
         cout << "- Optimized implementation in use" << endl;
     cout << "----" << endl;
@@ -863,6 +867,24 @@ int update_option(string flag, string value, Options opt)
         if(opt->R < 1)
         {
             cout << "Invalid R: R must be >= 1" << endl;
+            return -1;
+        }
+    }
+    else if(flag == "dimensions")
+    {
+        opt->R = std::stoi(value);
+        if(opt->dim < 1)
+        {
+            cout << "Invalid dimensions: must be >= 1" << endl;
+            return -1;
+        }
+    }
+    else if(flag == "threadcount")
+    {
+        opt->thread_count = std::stoi(value);
+        if(opt->dim < 1)
+        {
+            cout << "Invalid thread count: must be >= 1" << endl;
             return -1;
         }
     }

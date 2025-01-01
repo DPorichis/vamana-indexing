@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <random>
 #include <vector>
+#include <pthread.h>
 
 #include <cstdlib>
 #include <ctime>
@@ -17,6 +18,7 @@
 
 using namespace std;
 
+void* thread_medoid(void * arg);
 
 // Alg 1 from the given paper. Performs gready search on a graph g from starting point s, looking for neighbours of node query
 // Returns its results in the neighbours and visited sets pointers that must be passed by the user.
@@ -294,6 +296,46 @@ int find_medoid(Graph graph) {
     return medoid_position;
 }
 
+
+int find_medoid_optimized(Graph graph, int thread_count) {
+    int n = graph->nodes.size();
+    if (n == 0) {
+        cerr << "Empty nodes vector" << endl;
+        // return NULL;
+        return -1;
+    }
+
+    Subproblem subs = (Subproblem)malloc(sizeof(*subs)*thread_count);
+    pthread_t* threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_count);
+    for(int i = 0; i < thread_count; i++)
+    {
+        // Pass the number of iterations inside the thread's spot
+        subs[i].start = i * (n / thread_count);
+        subs[i].end = (i + 1)*(n / thread_count);
+        subs[i].g = graph;
+        pthread_create((threads + i), NULL, thread_medoid, (subs + i));
+    }
+
+    int dimensions = graph->nodes[0]->d_count;
+    Node medoid = NULL;
+    int medoid_position = -1;
+    float min_distance = numeric_limits<float>::max();
+
+
+    for(int i = 0; i < thread_count; i++)
+    {
+        // One thrad at a time
+        void* ptr;
+        pthread_join(threads[i], &ptr);
+        if (subs[i].distance < min_distance) {
+            min_distance = subs[i].distance;
+            medoid = graph->nodes[subs[i].result];
+            medoid_position = subs[i].result;
+        }
+    }
+    return medoid_position;
+}
+
 int find_random_medoid(Graph graph) {
     int n = graph->nodes.size();
     if (n == 0) {
@@ -330,4 +372,36 @@ int find_random_medoid(Graph graph) {
         }
     }
     return medoid_position;
+}
+
+
+
+void* thread_medoid(void * arg)
+{
+    Subproblem sub = (Subproblem)arg;
+
+    int dimensions = sub->g->nodes[0]->d_count;
+    Node medoid = NULL;
+    int medoid_position = -1;
+    float min_distance = numeric_limits<float>::max();
+    // Calculate distance of each node to all other nodes
+    for (int i = sub->start; i < sub->end; i++) {
+        float total_distance = 0.0f;
+        for (int j = 0; j < sub->g->nodes.size(); j++) {
+            if (i != j) {
+                total_distance += calculate_distance(sub->g, sub->g->nodes[i], sub->g->nodes[j]);
+            }
+        }
+        // Update medoid if we find node with smaller total distance
+        if (total_distance < min_distance) {
+            min_distance = total_distance;
+            medoid = sub->g->nodes[i];
+            medoid_position = i;
+        }
+    }
+
+    sub->result = medoid_position;
+    sub->distance = min_distance;
+
+    return NULL;
 }

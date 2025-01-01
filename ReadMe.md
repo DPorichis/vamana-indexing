@@ -44,6 +44,7 @@ You can run this project by executing `./bin/project ...` from the base folder, 
 - `data=[filename]`: file containing the data points/graph representation
 - `datatype=[f/c/i]`: type of data in file (Defaults to f)
 - `filetype=[d/g]`: d for raw-data, g for graph representation (Defaults to d)
+- `dimensions=[int >= 1]`: Sets the dimension-count of the elements (Defaults to 100)
 - `index=[f/s/u]`: f for filtered Vamana, s for stitched Vamana, and u for unfiltered
 - `k=[int >= 1]`: (Defaults to 1)
 - `R=[int >= 1]`: (Defaults to 1)
@@ -60,6 +61,7 @@ You can run this project by executing `./bin/project ...` from the base folder, 
 	- `no`: Performs a brute force search
 	- `semi`: Performs a brute force search in a 10% random subpart of the dataset
 	- `yes`: Picks a medoid at random.
+- `threadcount=[int >=1]`: For thread count > 1, parallelism will be used whenever possible. (Defaults to 1)
 
 An example of execution is : 
 

@@ -7,6 +7,19 @@
 
 using namespace std;
 
+struct subproblem
+{
+    Graph g;
+    int start;
+    int end;
+    int result;
+    float distance;
+};
+
+typedef struct subproblem* Subproblem;
+
+
+
 // Alg 1 from the given paper. Performs gready search on a graph g from starting point s, looking for neighbours of node query
 // Returns its results in the neighbours and visited sets pointers that must be passed by the user.
 // Returns 0 on correct execution
@@ -23,5 +36,5 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,
 // Finds the medoid node of a graph
 // int find_medoid(const vector<Node>& nodes);
 int find_medoid(Graph graph);
-
+int find_medoid_optimized(Graph graph, int thread_count);
 int find_random_medoid(Graph graph);
