@@ -463,14 +463,8 @@ map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type
 }
 
 // Performs (and allocates) query. Returns the file position of query for success, -1 otherwise
-Node ask_query(const std::string& filename, int& type, int dimensions, int& pos) {
-    
-    // Store file data to vector
-    vector<vector<float>> queries;
-    readBinary(filename, dimensions + 4, queries);
+Node ask_query(int& type, int dimensions, int pos, vector<vector<float>>& queries) {
 
-    // Random query
-    pos = rand() % queries.size();
 
     if (pos < 0 || pos > queries.size() - 1) {
         cerr << "Position outside of range" << endl;

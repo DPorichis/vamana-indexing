@@ -58,20 +58,22 @@ void test_query(void) {
 	Graph graph = create_graph_from_file("./data/dummy-data.bin", 'f', 5, dimensions);
 
 	// The vectors of the query dataset
-	vector<vector<float>> data;
-	readBinary(path, dimensions + 4, data);			// Queries: 104 dimensions
+	vector<vector<float>> queries;
+	readBinary(path, dimensions + 4, queries);			// Queries: 104 dimensions
 
 	// The file position of query. Gets value by user input
-	int pos; 
+	int pos;
+	srand(static_cast<unsigned int>(time(0)));
+	pos = rand() % queries.size();
 
 	// Call function
 	int query_type;
-	Node query = ask_query(path, query_type, graph->dimensions, pos);
+	Node query = ask_query(query_type, graph->dimensions, pos, queries);
 	
 	TEST_ASSERT(query != NULL);
 
 	for (int i = 0; i < query->d_count; i++) {
-		TEST_ASSERT(data[pos][i + 4] == ((float*)query->components)[i]);
+		TEST_ASSERT(queries[pos][i + 4] == ((float*)query->components)[i]);
 	}
 
 	// ********* UNCOMMENT if we want user input ***************

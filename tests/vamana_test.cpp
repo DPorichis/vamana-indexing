@@ -18,7 +18,7 @@ void test_create_vamana_index(void) {
 
     // Dataset
     string path = "./data/test-data.bin";
-    string queries = "./data/test-queries.bin";
+    string queries_path = "./data/test-queries.bin";
 
     // Groundtruth data
     string groundtruth_file = "./data/test-groundtruth.bin";
@@ -37,11 +37,20 @@ void test_create_vamana_index(void) {
     set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
     
-    int pos, query_type = 1;
-    Node query = ask_query(queries, query_type, graph->dimensions, pos);
+    int query_type = 1;
+    vector<vector<float>> queries;
+	readBinary(queries_path, dimensions + 4, queries);
+
+    int pos;
+	srand(static_cast<unsigned int>(time(0)));
+	pos = rand() % queries.size();
+    Node query = ask_query(query_type, graph->dimensions, pos, queries);
+
+    int j = pos;
     while (query_type != 0) {
         destroy_node(query);
-        query = ask_query(queries, query_type, graph->dimensions, pos);
+        query = ask_query(query_type, graph->dimensions, j, queries);
+        j = (j + 1) % queries.size();
     }
 
 	// Node query = ask_query(queries, query_type, graph->dimensions, pos);
@@ -66,7 +75,7 @@ void test_create_vamana_index(void) {
                      true_results.begin(), true_results.end(),
                      inserter(intersection, intersection.begin()));
 
-    int j = 0;
+    j = 0;
     for (const auto& r : *neighbors) {
         cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
         float sum = 0.0;
@@ -106,7 +115,7 @@ void test_create_filtered_vamana_index(void) {
 
     // Dataset
     string path = "./data/test-data.bin";
-    string queries = "./data/test-queries.bin";
+    string queries_path = "./data/test-queries.bin";
 
     // Groundtruth data
     string groundtruth_file = "./data/test-groundtruth.bin";    
@@ -126,13 +135,21 @@ void test_create_filtered_vamana_index(void) {
     set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
 
-    int pos, query_type = 1;
-    Node query = ask_query(queries, query_type, graph->dimensions, pos);
+    int query_type = 1;
+    vector<vector<float>> queries;
+	readBinary(queries_path, dimensions + 4, queries);
+
+    int pos;
+	srand(static_cast<unsigned int>(time(0)));
+	pos = rand() % queries.size();
+    Node query = ask_query(query_type, graph->dimensions, pos, queries);
     
+    int j = pos;
     while(query_type == 2 || query_type == 3)
     {
         destroy_node(query);
-        query = ask_query(queries, query_type, 100, pos);
+        query = ask_query(query_type, graph->dimensions, j, queries);
+        j = (j + 1) % queries.size();
     }
 
     if(query_type == 0)
@@ -142,7 +159,7 @@ void test_create_filtered_vamana_index(void) {
     }
     int s_count = query->categories.size();
     Node* S = (Node *)malloc(sizeof(*S)*s_count);
-    int j = 0;
+    j = 0;
     for (const int& val : query->categories) {
         S[j] = graph->nodes[graph->medoid_mapping[val]];
         j++;
@@ -218,7 +235,7 @@ void test_create_filtered_vamana_index_parallel(void) {
 
     // Dataset
     string path = "./data/test-data.bin";
-    string queries = "./data/test-queries.bin";
+    string queries_path = "./data/test-queries.bin";
 
     // Groundtruth data
     string groundtruth_file = "./data/test-groundtruth.bin";    
@@ -238,13 +255,21 @@ void test_create_filtered_vamana_index_parallel(void) {
     set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
 
-    int pos, query_type = 1;
-    Node query = ask_query(queries, query_type, graph->dimensions, pos);
+    int query_type = 1;
+    vector<vector<float>> queries;
+	readBinary(queries_path, dimensions + 4, queries);
+
+    int pos;
+	srand(static_cast<unsigned int>(time(0)));
+	pos = rand() % queries.size();
+    Node query = ask_query(query_type, graph->dimensions, pos, queries);
     
+    int j = pos;
     while(query_type == 2 || query_type == 3)
     {
         destroy_node(query);
-        query = ask_query(queries, query_type, 100, pos);
+        query = ask_query(query_type, graph->dimensions, j, queries);
+        j = (j + 1) % queries.size();
     }
 
     if(query_type == 0)
@@ -254,7 +279,7 @@ void test_create_filtered_vamana_index_parallel(void) {
     }
     int s_count = query->categories.size();
     Node* S = (Node *)malloc(sizeof(*S)*s_count);
-    int j = 0;
+    j = 0;
     for (const int& val : query->categories) {
         S[j] = graph->nodes[graph->medoid_mapping[val]];
         j++;
@@ -330,7 +355,7 @@ void test_create_stiched_vamana_index(void) {
 
     // Dataset
     string path = "./data/test-data.bin";
-    string queries = "./data/test-queries.bin";
+    string queries_path = "./data/test-queries.bin";
 
     // Groundtruth data
     string groundtruth_file = "./data/test-groundtruth.bin";
@@ -353,13 +378,20 @@ void test_create_stiched_vamana_index(void) {
 
     srand(static_cast<unsigned int>(time(0)));
 
-    int query_pos, query_type;
-        
-    Node query = ask_query(queries, query_type, 100, query_pos);
+    int query_type = 1;
+    vector<vector<float>> queries;
+	readBinary(queries_path, dimensions + 4, queries);
+
+    int pos;
+	pos = rand() % queries.size();
+    Node query = ask_query(query_type, index_mapping->dimensions, pos, queries);
+    
+    int j = pos;
     while(query_type == 2 || query_type == 3)
     {
         destroy_node(query);
-        query = ask_query(queries, query_type, 100, query_pos);
+        query = ask_query(query_type, index_mapping->dimensions, j, queries);
+        j = (j + 1) % queries.size();
     }
     
     set<Candidate, CandidateComparator>* total_neighbors = new set<Candidate, CandidateComparator>();
@@ -398,7 +430,7 @@ void test_create_stiched_vamana_index(void) {
     }
     // Results
     set<int> algorithm_results;
-    int j = 0;
+    j = 0;
     for (const auto& r : *total_neighbors) {
         if (K == j)
             break;
@@ -413,7 +445,7 @@ void test_create_stiched_vamana_index(void) {
         cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
         j++;
     }
-    cout << "Query with position: " << query_pos << endl;
+    cout << "Query with position: " << query->pos << endl;
     cout << "##########################" << endl << endl;    
     
     
@@ -432,7 +464,7 @@ void test_parallel_stitched_vamana_index(void) {
 
     // Dataset
     string path = "./data/test-data.bin";
-    string queries = "./data/test-queries.bin";
+    string queries_path = "./data/test-queries.bin";
 
     // Groundtruth data
     string groundtruth_file = "./data/test-groundtruth.bin";
@@ -455,13 +487,20 @@ void test_parallel_stitched_vamana_index(void) {
 
     srand(static_cast<unsigned int>(time(0)));
 
-    int query_pos, query_type;
-        
-    Node query = ask_query(queries, query_type, 100, query_pos);
+    int query_type = 1;
+    vector<vector<float>> queries;
+	readBinary(queries_path, dimensions + 4, queries);
+
+    int pos;
+	pos = rand() % queries.size();
+    Node query = ask_query(query_type, index_mapping->dimensions, pos, queries);
+    
+    int j = pos;
     while(query_type == 2 || query_type == 3)
     {
         destroy_node(query);
-        query = ask_query(queries, query_type, 100, query_pos);
+        query = ask_query(query_type, index_mapping->dimensions, j, queries);
+        j = (j + 1) % queries.size();
     }
     
     set<Candidate, CandidateComparator>* total_neighbors = new set<Candidate, CandidateComparator>();
@@ -500,7 +539,7 @@ void test_parallel_stitched_vamana_index(void) {
     }
     // Results
     set<int> algorithm_results;
-    int j = 0;
+    j = 0;
     for (const auto& r : *total_neighbors) {
         if (K == j)
             break;
@@ -515,7 +554,7 @@ void test_parallel_stitched_vamana_index(void) {
         cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
         j++;
     }
-    cout << "Query with position: " << query_pos << endl;
+    cout << "Query with position: " << query->pos << endl;
     cout << "##########################" << endl << endl;    
     
     
