@@ -469,12 +469,10 @@ Stats perform_queries_with_accuracy_parallel(Graph graph, Options opt)
                 if (query_type == 1) {
                     st->filt_avg += recall;
                     st->filt_count++;
-                    // cout << "Type: " << query_type << ", recall: " << recall << ", filt_count: " << st->filt_count << endl;
     
                 } else {
                     st->unfilt_avg += recall;
                     st->unfilt_count++;
-                    cout << "Type: " << query_type << ", recall: " << recall << ", unffilt_count: " << st->unfilt_count << endl;
                 }
                 st->all_avg += recall;
             }
