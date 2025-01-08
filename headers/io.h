@@ -6,6 +6,7 @@
 #include "filtered-vamana.h"
 #include <cstdint>
 #include <fstream>
+#include <mutex>
 
 using namespace std;
 
@@ -143,7 +144,7 @@ map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type
 
 // Performs (and allocates) query. Returns the query as a node for success, NULL otherwise
 // type: 0 -> vector-only query, 1 -> query with categorical value , 2 -> query with timestamp, 3 -> categorical and timestamp
-Node ask_query(const string& filename, int& type, int graph_dimension, int& pos);
+Node ask_query(int& type, int dimensions, int pos, vector<vector<float>>& queries);
 
 // Creates file with KNN for recall calculation using sampling 
 void create_groundtruth_file(const string& source_file, const string& queries_file, const string& output_file);
