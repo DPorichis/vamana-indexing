@@ -789,17 +789,26 @@ void print_options(Options opt)
     cout << "- L: " << opt->L << endl;
     cout << "- R: " << opt->R << endl;
     cout << "- dim: " << opt->dim << endl;
+
     if(opt->index_type=='s')
         cout << "- Rs: " << opt->R_s << endl;
+
     cout << "----" << endl;
+
     if(opt->rand_init)
-        cout << "- Random initialization will be used" << endl;
+        cout << "- Random initialization will be used." << endl;
+
+    if(opt->medoid_parallel != 0 && opt->rand_medoid == 'n')
+        cout << "- Medoid parallelism will be used with " << opt->medoid_parallel <<" threads." << endl;
+    else if(opt->medoid_parallel != 0)
+        cout << "- Medoid parallelism won't be used as random medoid was selected." << endl;
+    
     cout << "- Random medoid calculation: " << opt->rand_medoid << endl;
     cout << "- Thread count: " << opt->thread_count << endl;
     if(opt->thread_count > 1 && opt->rand_init && opt->file_type == 0)
-        cout << "IMPORTANT: Single thread implementation will be used for graph creation as random init is enabled" << endl;
+        cout << "IMPORTANT: Single thread implementation will be used for graph creation as random init is enabled." << endl;
     if(opt->opt)
-        cout << "- Optimized implementation in use" << endl;
+        cout << "- Optimized implementation in use." << endl;
     cout << "----" << endl;
     
 }
@@ -879,6 +888,15 @@ int update_option(string flag, string value, Options opt)
         if(opt->dim < 1)
         {
             cout << "Invalid thread count: must be >= 1" << endl;
+            return -1;
+        }
+    }
+    else if(flag == "medoidparallel")
+    {
+        opt->medoid_parallel = std::stoi(value);
+        if(opt->medoid_parallel < 0)
+        {
+            cout << "Invalid medoid parallel flag: must be >= 1 or 0 to dissable" << endl;
             return -1;
         }
     }

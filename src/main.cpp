@@ -137,9 +137,9 @@ Graph graph_creation(Options opt)
             cout << "Creating Stitched Vamana..." << endl;
 
         if(opt->thread_count > 1 && opt->rand_init == false)
-            graph = create_stiched_vamana_index_parallel(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, opt->dim, opt->thread_count);
+            graph = create_stiched_vamana_index_parallel(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, opt->dim, opt->thread_count, opt->medoid_parallel);
         else
-            graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, opt->dim, opt->rand_init); 
+            graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, opt->dim, opt->rand_init, opt->medoid_parallel); 
         if(graph == NULL)
         {
             cout << "Error creating filtered vamana" << endl;
@@ -154,7 +154,7 @@ Graph graph_creation(Options opt)
             cout << "Creating Vamana..." << endl;
 
         int medoid_pos;
-        if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, opt->dim, opt->rand_medoid)) {
+        if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, opt->dim, opt->rand_medoid, opt->medoid_parallel)) {
             cout << "Error creating filtered vamana" << endl;
             delete opt;
             return NULL;

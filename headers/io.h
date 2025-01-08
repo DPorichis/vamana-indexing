@@ -52,7 +52,7 @@ struct options {
     bool rand_init;
     char rand_medoid;
     int thread_count;
-
+    int medoid_parallel;
 
     char printing;
     bool savegraph;
@@ -63,7 +63,7 @@ struct options {
     options()
         : file_type(0), data_filename(""), data_type('f'), queries_filename(""), query_count(1), truth_filename(""),
         a(1), k(1), L(1), R(1), R_s(1), printing('f'), savegraph(false), index_type('f'), rand_init(false), rand_medoid('n'),
-        opt(false), dim(100), thread_count(1) {}
+        opt(false), dim(100), thread_count(1), medoid_parallel(0) {}
 };
 typedef struct options* Options;
 
