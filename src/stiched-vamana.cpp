@@ -75,22 +75,20 @@ Graph create_stiched_vamana_index(const string& filename, int type, int L_small,
 
     // Perform Vamana initialazation for every sub-graph
     for (auto it = g->all_categories.begin(); it != g->all_categories.end(); ++it) {
-        cout << "Category " << *it << endl;
+        // cout << "Category " << *it << endl;
         Graph subgraph = new graph('f', R_small, dimensions);
         for(int i = 0; i < g->nodes.size(); i++)
         {
             if(g->nodes[i]->categories.find(*it) != g->nodes[i]->categories.end())
                 subgraph->nodes.push_back(g->nodes[i]);
         }
-        cout << "Subcategory Found with " << subgraph->nodes.size() << " elements" << endl;
+        // cout << "Subcategory Found with " << subgraph->nodes.size() << " elements" << endl;
         
         // cout << "Initializing dummy graph of elements : " << graph->nodes.size() << endl;
         if (init_dummy_graph(subgraph)) {
             cerr << "Error in graph initialization";
             return NULL;
         }
-
-        cout << "Dummy Done" << endl;
 
         // Find medoid
         int category = *it;
@@ -102,7 +100,7 @@ Graph create_stiched_vamana_index(const string& filename, int type, int L_small,
         
         Node medoid_node = subgraph->nodes[medoid_pos];
         g->medoid_mapping[category] = subgraph->nodes[medoid_pos]->pos;
-        cout << "Medoid Found" << endl;
+        // cout << "Medoid Found" << endl;
         
         // Create random permutation of nodes, vectors is a copy of nodes (not the original)
         vector<Node> vectors = subgraph->nodes;
