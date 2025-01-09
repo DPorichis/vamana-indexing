@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <vector>
 #include <string>
 #include "vamana.h"
@@ -7,6 +8,7 @@
 #include <cstdint>
 #include <fstream>
 #include <mutex>
+#include <set>
 
 using namespace std;
 
@@ -85,7 +87,19 @@ struct stats {
 typedef struct stats* Stats;
 
 
+struct FilterCategory {
+    set<int> acceptedValues;
 
+    bool isAccepted(int value) {
+        return acceptedValues.find(value) != acceptedValues.end();
+    }
+};
+
+
+/* Returns a vector with spesific catefories */
+void filterArray(vector<vector<float>>& data, vector<vector<float>>& filtered_data, FilterCategory filters);
+
+void filterIntArray(vector<vector<uint32_t>>& data, vector<vector<uint32_t>>& filtered_data, FilterCategory filters);
 
 /*============== Binary functions =============*/
 

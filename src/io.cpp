@@ -13,6 +13,16 @@ int update_option(string flag, string value, Options opt);
 int check_options(Options opt);
 
 
+// Returns a vector with spesific catefories 
+void filterArray(vector<vector<float>>& data, vector<vector<float>>& filtered_data, FilterCategory filters) {
+     for (const auto& row : data) {
+        // cout << row[0] << endl;
+        if (filters.isAccepted(row[0])) {
+            filtered_data.push_back(row);
+        }
+    }
+}
+
 // Insert binary data into the 2D vector "data"
 void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data) {
     ifstream file;
@@ -467,7 +477,7 @@ Node ask_query(int& type, int dimensions, int pos, vector<vector<float>>& querie
 
 
     if (pos < 0 || pos > queries.size() - 1) {
-        cerr << "Position outside of range" << endl;
+        cerr << "Position outside of range. Must be [0, " << queries.size() << "]" << endl;
         return NULL;
     }
     

@@ -11,7 +11,7 @@ for config_file in $config_files; do
         rm ./data/*-graph.bin
 
         echo "Running with config file: $config_file (iteration $i)"
-        ../bin/project -config "$config_file" >> "./data/output-${config_name}-graph.txt"
+        ../bin/project -config "$config_file" >> "./output-data/output-${config_name}-graph.txt"
 
     done
 
