@@ -24,5 +24,4 @@ for config_file in $config_files; do
         echo "No graph file found for $config_file"
     fi
 
-    mv ./output.txt "./data/output-${config_name}-graph.txt"
 done
