@@ -1,4 +1,6 @@
-config_files=$(find ./config-files/ -type f -name "*.txt")
+config_files=$(find ./config-files-graph/ -type f -name "*.txt")
+
+rm -rf ./output-data/*-queries.txt
 
 # Loop through each configuration file and run the program 4 times
 for config_file in $config_files; do
