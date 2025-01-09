@@ -14,4 +14,4 @@ queriescount=0
 printing=m
 savegraph=true
 truth=../data/groundtruth.bin
-threadcount=8
+medoidparallel=8

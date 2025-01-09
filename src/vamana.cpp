@@ -182,10 +182,12 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,
 
     // Find medoid
     if(random_medoid == 'n')
+    {
         if(parallel > 0)
             medoid_pos = find_medoid_optimized(graph, parallel);
         else
             medoid_pos =  find_medoid(graph);
+    }
     else if(random_medoid == 's')
         medoid_pos =  find_random_medoid(graph);
     else

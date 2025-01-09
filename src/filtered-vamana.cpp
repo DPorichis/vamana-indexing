@@ -364,7 +364,7 @@ int create_filtered_vamana_index_parallel(Graph* g, const string& filename, int 
     pthread_t* threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_count);
     for(int i = 0; i < thread_count; i++)
     {
-        cout << "thread created" << endl;
+        // cout << "thread created" << endl;
         pthread_create((threads + i), NULL, thread_filtered_subgraph, (thread_args[i]));
     }
 

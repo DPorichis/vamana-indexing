@@ -44,8 +44,8 @@ int main(int argc, char* argv[]) {
     auto start = std::chrono::high_resolution_clock::now();
 
     if (opt->file_type)
-        graph = graph_retrival(opt);
-    else 
+        graph = graph_retrival(opt); 
+    else
         graph = graph_creation(opt);
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -107,7 +107,7 @@ Graph graph_creation(Options opt)
 {
     Graph graph;
     string graph_file;
-    if(opt->file_type == 'f')
+    if(opt->index_type == 'f')
     {
         if (opt->printing == 'f')
             cout << "Creating Filtered Vamana..." << endl;
@@ -131,7 +131,7 @@ Graph graph_creation(Options opt)
         }
         graph_file = "./data/filtered-graph.bin";
     }
-    else if(opt->file_type == 's')
+    else if(opt->index_type == 's')
     {
         if (opt->printing == 'f')
             cout << "Creating Stitched Vamana..." << endl;
