@@ -231,6 +231,11 @@ Stats perform_queries_with_accuracy(Graph graph, Options opt)
     mt19937 g(rd());                        // Initialize random number generator
     shuffle(indexes.begin(), indexes.end(), g);
 
+    // If opt->query_count = -1, run for all queries
+    if (opt->query_count == -1) {
+        opt->query_count = queries.size();
+    }
+
     auto start = chrono::high_resolution_clock::now();
 
     for (int i = 0; i < opt->query_count; i++) {
@@ -389,6 +394,11 @@ Stats perform_queries_with_accuracy_parallel(Graph graph, Options opt)
     mt19937 g(rd());                        // Initialize random number generator
     shuffle(indexes.begin(), indexes.end(), g);
 
+    // If opt->query_count = -1, run for all queries
+    if (opt->query_count == -1) {
+        opt->query_count = queries.size();
+    }
+
     auto start = chrono::high_resolution_clock::now();
 
     // Lambda function to process a range of queries
@@ -539,6 +549,11 @@ Stats perform_queries_without_accuracy(Graph graph, Options opt)
     mt19937 g(rd());                        // Initialize random number generator
     shuffle(indexes.begin(), indexes.end(), g);
 
+    // If opt->query_count = -1, run for all queries
+    if (opt->query_count == -1) {
+        opt->query_count = queries.size();
+    }
+
     auto start = chrono::high_resolution_clock::now();
 
     for (int i = 0; i < opt->query_count; i++) {
@@ -661,6 +676,11 @@ Stats perform_queries_without_accuracy_parallel(Graph graph, Options opt)
     random_device rd;                          // Obtain a random seed
     mt19937 g(rd());                        // Initialize random number generator
     shuffle(indexes.begin(), indexes.end(), g);
+
+    // If opt->query_count = -1, run for all queries
+    if (opt->query_count == -1) {
+        opt->query_count = queries.size();
+    }
 
     auto start = chrono::high_resolution_clock::now();
 

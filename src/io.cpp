@@ -868,7 +868,7 @@ int update_option(string flag, string value, Options opt)
     else if(flag == "queriescount")
     {
         opt->query_count = std::stoi(value);
-        if(opt->query_count < 0)
+        if(opt->query_count < 0 && opt->query_count != -1)
         {
             cout << "Invalid querieCount: querieCount must be >= 0" << endl;
             return -1;
