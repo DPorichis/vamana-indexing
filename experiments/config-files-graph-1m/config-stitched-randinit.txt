@@ -1,0 +1,17 @@
+data=../data/contest-data-release-1m.bin
+filetype=d
+datatype=f
+index=s
+optimized=false
+randinit=true
+randmedoid=no
+k=20
+R=32
+Rs=64
+L=100
+a=1.2
+queries=../data/dummy-queries.bin
+queriescount=0
+printing=m
+savegraph=true
+truth=../data/groundtruth.bin
