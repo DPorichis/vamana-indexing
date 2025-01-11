@@ -1,4 +1,4 @@
-data=./graphs/stitched-parallel-4.bin
+data=./data/stitched-graph.bin
 filetype=g
 datatype=f
 index=s

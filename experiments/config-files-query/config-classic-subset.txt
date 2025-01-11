@@ -1,4 +1,4 @@
-data=./graphs/classic-subset-4.bin
+data=./data/unfiltered-graph.bin
 filetype=g
 datatype=f
 index=u
