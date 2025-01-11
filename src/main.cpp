@@ -137,7 +137,7 @@ Graph graph_creation(Options opt)
             cout << "Creating Stitched Vamana..." << endl;
 
         if(opt->thread_count > 1 && opt->rand_init == false)
-            graph = create_stiched_vamana_index_parallel(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, opt->dim, opt->thread_count, opt->medoid_parallel);
+            graph = create_stiched_vamana_index_parallel(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->thread_count, opt->medoid_parallel);
         else
             graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->rand_init, opt->medoid_parallel); 
         if(graph == NULL)
