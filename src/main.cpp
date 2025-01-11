@@ -5,6 +5,7 @@
 #include "filtered-vamana.h"
 #include "vamana-utils.h"
 #include <fstream>
+#include <chrono>
 
 using namespace std;
 
@@ -47,6 +48,9 @@ int main(int argc, char* argv[]) {
     
     // Create Filtered/Unfiltered Vamana
     if (opt->index_type == 'f' || opt->index_type == 'u') {
+        
+        auto start = std::chrono::high_resolution_clock::now();
+
         Graph graph;
         if (opt->printing) {
             if (opt->index_type == 'f')
@@ -127,6 +131,12 @@ int main(int argc, char* argv[]) {
 
             
         }
+
+        auto end = std::chrono::high_resolution_clock::now();
+        
+        std::chrono::duration<double> duration = end - start;
+        std::cout << "Graph time: " << duration.count() << " seconds" << std::endl;
+
         if(opt->printing)
             cout << "Graph completed!" << endl;
 
@@ -295,9 +305,9 @@ int main(int argc, char* argv[]) {
                     j++;
                 }
                 
-                cout << "Query with position: " << query_pos << endl;
-                cout << "Query type : " << query_type << endl;
-                cout << "##########################" << endl << endl;    
+                //cout << "Query with position: " << query_pos << endl;
+                //cout << "Query type : " << query_type << endl;
+                //cout << "##########################" << endl << endl;    
             
                 for (const auto& r : *neighbors)
                     free(r);
@@ -317,6 +327,8 @@ int main(int argc, char* argv[]) {
     }
     else if (opt->index_type == 's') {
         // File is stitched vamana
+        auto start = std::chrono::high_resolution_clock::now();
+
         map<int, Graph>* index_mapping;
         if (opt->file_type) {
             index_mapping = new map<int, Graph>();
@@ -334,6 +346,11 @@ int main(int argc, char* argv[]) {
                 saveGraphMap(*index_mapping, "./data/stitched-graph.bin");
             }
         }
+
+        auto end = std::chrono::high_resolution_clock::now();
+        
+        std::chrono::duration<double> duration = end - start;
+        std::cout << "Graph time: " << duration.count() << " seconds" << std::endl;
 
         // if (index_mapping == NULL)
         // {
@@ -429,20 +446,20 @@ int main(int argc, char* argv[]) {
 
                 double recall = static_cast<double>(intersection.size()) / true_results.size();
                 j = 0;
-                if(opt->printing){
-                    for (const auto& r : *total_neighbors) {
-                        if(opt->k == j)
-                            break;
-                        cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
-                        j++;
-                    }
-                }
+                // if(opt->printing){
+                //     for (const auto& r : *total_neighbors) {
+                //         if(opt->k == j)
+                //             break;
+                //         cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
+                //         j++;
+                //     }
+                // }
 
-                cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
-                if(opt->printing){
-                    cout << "Query type : " << query_type << endl;
-                    cout << "##########################" << endl << endl;    
-                }
+                // cout << "Query with position: " << query_pos << " -> Recall: " << recall * 100 << "%" << endl;
+                // if(opt->printing){
+                //     cout << "Query type : " << query_type << endl;
+                //     cout << "##########################" << endl << endl;    
+                // }
             }
             else
             {
@@ -453,9 +470,9 @@ int main(int argc, char* argv[]) {
                     cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
                     j++;
                 }
-                cout << "Query with position: " << query_pos << endl;
-                cout << "Query type : " << query_type << endl;
-                cout << "##########################" << endl << endl;    
+                // cout << "Query with position: " << query_pos << endl;
+                // cout << "Query type : " << query_type << endl;
+                // cout << "##########################" << endl << endl;    
             }
             
             for (const auto& r : *total_neighbors)
