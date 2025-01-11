@@ -44,8 +44,8 @@ int main(int argc, char* argv[]) {
     auto start = std::chrono::high_resolution_clock::now();
 
     if (opt->file_type)
-        graph = graph_retrival(opt);
-    else 
+        graph = graph_retrival(opt); 
+    else
         graph = graph_creation(opt);
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -107,7 +107,7 @@ Graph graph_creation(Options opt)
 {
     Graph graph;
     string graph_file;
-    if(opt->file_type == 'f')
+    if(opt->index_type == 'f')
     {
         if (opt->printing == 'f')
             cout << "Creating Filtered Vamana..." << endl;
@@ -131,15 +131,15 @@ Graph graph_creation(Options opt)
         }
         graph_file = "./data/filtered-graph.bin";
     }
-    else if(opt->file_type == 's')
+    else if(opt->index_type == 's')
     {
         if (opt->printing == 'f')
             cout << "Creating Stitched Vamana..." << endl;
 
         if(opt->thread_count > 1 && opt->rand_init == false)
-            graph = create_stiched_vamana_index_parallel(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, opt->dim, opt->thread_count);
+            graph = create_stiched_vamana_index_parallel(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->thread_count, opt->medoid_parallel);
         else
-            graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R, opt->a, opt->dim, opt->rand_init); 
+            graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->rand_init, opt->medoid_parallel); 
         if(graph == NULL)
         {
             cout << "Error creating filtered vamana" << endl;
@@ -154,12 +154,12 @@ Graph graph_creation(Options opt)
             cout << "Creating Vamana..." << endl;
 
         int medoid_pos;
-        if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, opt->dim, opt->rand_medoid)) {
+        if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, opt->dim, opt->rand_medoid, opt->medoid_parallel)) {
             cout << "Error creating filtered vamana" << endl;
             delete opt;
             return NULL;
         }
-        string graph_file = "./data/unfiltered-graph.bin";
+        graph_file = "./data/unfiltered-graph.bin";
     }
 
     if (opt->savegraph) 
@@ -230,6 +230,11 @@ Stats perform_queries_with_accuracy(Graph graph, Options opt)
     random_device rd;                          // Obtain a random seed
     mt19937 g(rd());                        // Initialize random number generator
     shuffle(indexes.begin(), indexes.end(), g);
+
+    // If opt->query_count = -1, run for all queries
+    if (opt->query_count == -1) {
+        opt->query_count = queries.size();
+    }
 
     auto start = chrono::high_resolution_clock::now();
 
@@ -389,6 +394,11 @@ Stats perform_queries_with_accuracy_parallel(Graph graph, Options opt)
     mt19937 g(rd());                        // Initialize random number generator
     shuffle(indexes.begin(), indexes.end(), g);
 
+    // If opt->query_count = -1, run for all queries
+    if (opt->query_count == -1) {
+        opt->query_count = queries.size();
+    }
+
     auto start = chrono::high_resolution_clock::now();
 
     // Lambda function to process a range of queries
@@ -539,6 +549,11 @@ Stats perform_queries_without_accuracy(Graph graph, Options opt)
     mt19937 g(rd());                        // Initialize random number generator
     shuffle(indexes.begin(), indexes.end(), g);
 
+    // If opt->query_count = -1, run for all queries
+    if (opt->query_count == -1) {
+        opt->query_count = queries.size();
+    }
+
     auto start = chrono::high_resolution_clock::now();
 
     for (int i = 0; i < opt->query_count; i++) {
@@ -661,6 +676,11 @@ Stats perform_queries_without_accuracy_parallel(Graph graph, Options opt)
     random_device rd;                          // Obtain a random seed
     mt19937 g(rd());                        // Initialize random number generator
     shuffle(indexes.begin(), indexes.end(), g);
+
+    // If opt->query_count = -1, run for all queries
+    if (opt->query_count == -1) {
+        opt->query_count = queries.size();
+    }
 
     auto start = chrono::high_resolution_clock::now();
 

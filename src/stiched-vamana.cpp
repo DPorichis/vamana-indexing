@@ -30,9 +30,10 @@ struct category_sync {
     int R_stiched; 
     float a; 
     int dimensions;
+    int medoid_parallel;
 
-    category_sync(set<int>* cat_p, Graph graph_ptr, int Lsmall, int Rsmall, int Rstiched, float a_param, int dim
-    ) : category_pointer(cat_p), g(graph_ptr), L_small(Lsmall), R_small(Rsmall), R_stiched(Rstiched), a(a_param), dimensions(dim) {
+    category_sync(set<int>* cat_p, Graph graph_ptr, int Lsmall, int Rsmall, int Rstiched, float a_param, int dim, int par_med
+    ) : category_pointer(cat_p), g(graph_ptr), L_small(Lsmall), R_small(Rsmall), R_stiched(Rstiched), a(a_param), dimensions(dim), medoid_parallel(par_med) {
         pthread_mutex_init(&mutex, nullptr);  // Initialize the mutex
         index = g->all_categories.begin();
     }
@@ -65,7 +66,7 @@ using namespace std;
 
 // Creates a Stitched vamana index, by creating sub Vamana graphs for each category.
 // Returns a map containing these graphs.
-Graph create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, bool random_init) {
+Graph create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, bool random_init, int parallel_medoid) {
     // Graph creation and initialization
     Graph g = create_graph_from_file(filename, type, R_stiched, dimensions);
 
@@ -74,14 +75,14 @@ Graph create_stiched_vamana_index(const string& filename, int type, int L_small,
 
     // Perform Vamana initialazation for every sub-graph
     for (auto it = g->all_categories.begin(); it != g->all_categories.end(); ++it) {
-        cout << "Category " << *it << endl;
+        // cout << "Category " << *it << endl;
         Graph subgraph = new graph('f', R_small, dimensions);
         for(int i = 0; i < g->nodes.size(); i++)
         {
             if(g->nodes[i]->categories.find(*it) != g->nodes[i]->categories.end())
                 subgraph->nodes.push_back(g->nodes[i]);
         }
-        cout << "Subcategory Found with " << subgraph->nodes.size() << " elements" << endl;
+        // cout << "Subcategory Found with " << subgraph->nodes.size() << " elements" << endl;
         
         // cout << "Initializing dummy graph of elements : " << graph->nodes.size() << endl;
         if (init_dummy_graph(subgraph)) {
@@ -89,14 +90,17 @@ Graph create_stiched_vamana_index(const string& filename, int type, int L_small,
             return NULL;
         }
 
-        cout << "Dummy Done" << endl;
-
         // Find medoid
         int category = *it;
-        int medoid_pos = find_medoid(subgraph);
+        int medoid_pos;
+        if(parallel_medoid == 0)
+            medoid_pos = find_medoid(subgraph);
+        else
+            medoid_pos = find_medoid_optimized(subgraph, parallel_medoid);
+        
         Node medoid_node = subgraph->nodes[medoid_pos];
         g->medoid_mapping[category] = subgraph->nodes[medoid_pos]->pos;
-        cout << "Medoid Found" << endl;
+        // cout << "Medoid Found" << endl;
         
         // Create random permutation of nodes, vectors is a copy of nodes (not the original)
         vector<Node> vectors = subgraph->nodes;
@@ -197,11 +201,11 @@ Graph create_stiched_vamana_index(const string& filename, int type, int L_small,
     return g;
 }
 
-Graph create_stiched_vamana_index_parallel(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, int thread_count) {
+Graph create_stiched_vamana_index_parallel(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, int thread_count, int parallel_medoid) {
     // Graph creation and initialization
     Graph g = create_graph_from_file(filename, type, R_stiched, dimensions);
 
-    CategorySync sync = new category_sync(&g->all_categories, g, L_small, R_small, R_stiched, a, dimensions);
+    CategorySync sync = new category_sync(&g->all_categories, g, L_small, R_small, R_stiched, a, dimensions, parallel_medoid);
 
     pthread_t* threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_count);
     for(int i = 0; i < thread_count; i++)
@@ -280,7 +284,11 @@ void * thread_stitched_subgraph(void* arg)
         }
 
         // Find medoid
-        int medoid_pos = find_medoid(subgraph);
+        int medoid_pos;
+        if (sync->medoid_parallel == 0)
+            medoid_pos = find_medoid(subgraph);
+        else
+            medoid_pos = find_medoid_optimized(subgraph, sync->medoid_parallel);
         Node medoid_node = subgraph->nodes[medoid_pos];
         g->medoid_mapping[category] = subgraph->nodes[medoid_pos]->pos;
         // cout << "Medoid Found" << endl;

@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <vector>
 #include <string>
 #include "vamana.h"
@@ -7,6 +8,7 @@
 #include <cstdint>
 #include <fstream>
 #include <mutex>
+#include <set>
 
 using namespace std;
 
@@ -52,7 +54,7 @@ struct options {
     bool rand_init;
     char rand_medoid;
     int thread_count;
-
+    int medoid_parallel;
 
     char printing;
     bool savegraph;
@@ -63,7 +65,7 @@ struct options {
     options()
         : file_type(0), data_filename(""), data_type('f'), queries_filename(""), query_count(1), truth_filename(""),
         a(1), k(1), L(1), R(1), R_s(1), printing('f'), savegraph(false), index_type('f'), rand_init(false), rand_medoid('n'),
-        opt(false), dim(100), thread_count(1) {}
+        opt(false), dim(100), thread_count(1), medoid_parallel(0) {}
 };
 typedef struct options* Options;
 
@@ -85,7 +87,19 @@ struct stats {
 typedef struct stats* Stats;
 
 
+struct FilterCategory {
+    set<int> acceptedValues;
 
+    bool isAccepted(int value) {
+        return acceptedValues.find(value) != acceptedValues.end();
+    }
+};
+
+
+/* Returns a vector with spesific catefories */
+void filterArray(vector<vector<float>>& data, vector<vector<float>>& filtered_data, FilterCategory filters);
+
+void filterIntArray(vector<vector<uint32_t>>& data, vector<vector<uint32_t>>& filtered_data, FilterCategory filters);
 
 /*============== Binary functions =============*/
 

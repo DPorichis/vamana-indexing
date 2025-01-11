@@ -13,6 +13,16 @@ int update_option(string flag, string value, Options opt);
 int check_options(Options opt);
 
 
+// Returns a vector with spesific catefories 
+void filterArray(vector<vector<float>>& data, vector<vector<float>>& filtered_data, FilterCategory filters) {
+     for (const auto& row : data) {
+        // cout << row[0] << endl;
+        if (filters.isAccepted(row[0])) {
+            filtered_data.push_back(row);
+        }
+    }
+}
+
 // Insert binary data into the 2D vector "data"
 void readBinary(const string& filename, const int dimensions, vector<vector<float>>& data) {
     ifstream file;
@@ -467,7 +477,7 @@ Node ask_query(int& type, int dimensions, int pos, vector<vector<float>>& querie
 
 
     if (pos < 0 || pos > queries.size() - 1) {
-        cerr << "Position outside of range" << endl;
+        cerr << "Position outside of range. Must be [0, " << queries.size() << "]" << endl;
         return NULL;
     }
     
@@ -789,17 +799,26 @@ void print_options(Options opt)
     cout << "- L: " << opt->L << endl;
     cout << "- R: " << opt->R << endl;
     cout << "- dim: " << opt->dim << endl;
+
     if(opt->index_type=='s')
         cout << "- Rs: " << opt->R_s << endl;
+
     cout << "----" << endl;
+
     if(opt->rand_init)
-        cout << "- Random initialization will be used" << endl;
+        cout << "- Random initialization will be used." << endl;
+
+    if(opt->medoid_parallel != 0 && opt->rand_medoid == 'n')
+        cout << "- Medoid parallelism will be used with " << opt->medoid_parallel <<" threads." << endl;
+    else if(opt->medoid_parallel != 0)
+        cout << "- Medoid parallelism won't be used as random medoid was selected." << endl;
+    
     cout << "- Random medoid calculation: " << opt->rand_medoid << endl;
     cout << "- Thread count: " << opt->thread_count << endl;
     if(opt->thread_count > 1 && opt->rand_init && opt->file_type == 0)
-        cout << "IMPORTANT: Single thread implementation will be used for graph creation as random init is enabled" << endl;
+        cout << "IMPORTANT: Single thread implementation will be used for graph creation as random init is enabled." << endl;
     if(opt->opt)
-        cout << "- Optimized implementation in use" << endl;
+        cout << "- Optimized implementation in use." << endl;
     cout << "----" << endl;
     
 }
@@ -849,7 +868,7 @@ int update_option(string flag, string value, Options opt)
     else if(flag == "queriescount")
     {
         opt->query_count = std::stoi(value);
-        if(opt->query_count < 0)
+        if(opt->query_count < 0 && opt->query_count != -1)
         {
             cout << "Invalid querieCount: querieCount must be >= 0" << endl;
             return -1;
@@ -879,6 +898,15 @@ int update_option(string flag, string value, Options opt)
         if(opt->dim < 1)
         {
             cout << "Invalid thread count: must be >= 1" << endl;
+            return -1;
+        }
+    }
+    else if(flag == "medoidparallel")
+    {
+        opt->medoid_parallel = std::stoi(value);
+        if(opt->medoid_parallel < 0)
+        {
+            cout << "Invalid medoid parallel flag: must be >= 1 or 0 to dissable" << endl;
             return -1;
         }
     }
