@@ -66,9 +66,9 @@ using namespace std;
 
 // Creates a Stitched vamana index, by creating sub Vamana graphs for each category.
 // Returns a map containing these graphs.
-Graph create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, bool random_init, int parallel_medoid) {
+Graph create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, bool random_init, int parallel_medoid, bool enable_cache) {
     // Graph creation and initialization
-    Graph g = create_graph_from_file(filename, type, R_stiched, dimensions);
+    Graph g = create_graph_from_file(filename, type, R_stiched, dimensions, enable_cache);
 
     if(random_init)
         init_dummy_graph(g);
@@ -76,7 +76,7 @@ Graph create_stiched_vamana_index(const string& filename, int type, int L_small,
     // Perform Vamana initialazation for every sub-graph
     for (auto it = g->all_categories.begin(); it != g->all_categories.end(); ++it) {
         // cout << "Category " << *it << endl;
-        Graph subgraph = new graph('f', R_small, dimensions);
+        Graph subgraph = new graph('f', R_small, dimensions, 0);
         for(int i = 0; i < g->nodes.size(); i++)
         {
             if(g->nodes[i]->categories.find(*it) != g->nodes[i]->categories.end())
@@ -201,9 +201,9 @@ Graph create_stiched_vamana_index(const string& filename, int type, int L_small,
     return g;
 }
 
-Graph create_stiched_vamana_index_parallel(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, int thread_count, int parallel_medoid) {
+Graph create_stiched_vamana_index_parallel(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, int thread_count, int parallel_medoid, bool enable_cache) {
     // Graph creation and initialization
-    Graph g = create_graph_from_file(filename, type, R_stiched, dimensions);
+    Graph g = create_graph_from_file(filename, type, R_stiched, dimensions, enable_cache);
 
     CategorySync sync = new category_sync(&g->all_categories, g, L_small, R_small, R_stiched, a, dimensions, parallel_medoid);
 
@@ -268,7 +268,7 @@ void * thread_stitched_subgraph(void* arg)
         }
 
         // cout << "Category " << category << endl;
-        Graph subgraph = new graph('f', sync->R_small, sync->dimensions);
+        Graph subgraph = new graph('f', sync->R_small, sync->dimensions, 0);
         Graph g = sync->g;
         for(int i = 0; i < g->nodes.size(); i++)
         {

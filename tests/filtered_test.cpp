@@ -13,7 +13,7 @@
 using namespace std;
 
 void test_gready_search(void) {
-	Graph graph = create_graph('f', 5, 2);
+	Graph graph = create_graph('f', 5, 2, false);
 	int n = 30;
 	for(int i = 0; i < n; i++)
 	{	
@@ -92,7 +92,7 @@ void test_gready_search(void) {
 }
 
 void test_medoid(void) {
-	Graph graph = create_graph('f', 5, 2);
+	Graph graph = create_graph('f', 5, 2, false);
 	int n = 31;
     set<int> all_categories;
 	for(int i = 0; i < n; i++)
@@ -129,7 +129,7 @@ void test_medoid(void) {
 }
 
 void test_pruning(void) {
-	Graph graph = create_graph('f', 5, 2);
+	Graph graph = create_graph('f', 5, 2, false);
 	int n = 30;
 	for(int i = 0; i < n; i++)
 	{	

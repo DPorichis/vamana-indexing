@@ -167,9 +167,9 @@ int robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, flo
 
 /*-------- Gready search and prunning need error return values--------------*/
 // Vamana index implementation
-int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,int& medoid_pos, int dimensions, char random_medoid, int parallel) {
+int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,int& medoid_pos, int dimensions, char random_medoid, int parallel, bool enable_cache) {
     // Graph creation and initialization
-    *g = create_graph_from_file(filename, 'f', R, dimensions);            
+    *g = create_graph_from_file(filename, 'f', R, dimensions, enable_cache);            
     Graph graph = *g;
     if (graph == NULL) {
         cerr << "Error while creating graph from file" << endl;
@@ -288,7 +288,7 @@ int find_medoid(Graph graph) {
         float total_distance = 0.0f;
         for (int j = 0; j < n; j++) {
             if (i != j) {
-                total_distance += calculate_distance(graph, graph->nodes[i], graph->nodes[j]);
+                total_distance += calculate_distance_without_cache(graph, graph->nodes[i], graph->nodes[j]);
             }
         }
         // Update medoid if we find node with smaller total distance
@@ -338,6 +338,10 @@ int find_medoid_optimized(Graph graph, int thread_count) {
             medoid_position = subs[i].result;
         }
     }
+
+    free(subs);
+    free(threads);
+
     return medoid_position;
 }
 
@@ -366,7 +370,7 @@ int find_random_medoid(Graph graph) {
         float total_distance = 0.0f;
         for (int j : indexes) {
             if (i != j) {
-                total_distance += calculate_distance(graph, graph->nodes[i], graph->nodes[j]);
+                total_distance += calculate_distance_without_cache(graph, graph->nodes[i], graph->nodes[j]);
             }
         }
         // Update medoid if we find node with smaller total distance
@@ -394,7 +398,7 @@ void* thread_medoid(void * arg)
         float total_distance = 0.0f;
         for (int j = 0; j < sub->g->nodes.size(); j++) {
             if (i != j) {
-                total_distance += calculate_distance(sub->g, sub->g->nodes[i], sub->g->nodes[j]);
+                total_distance += calculate_distance_without_cache(sub->g, sub->g->nodes[i], sub->g->nodes[j]);
             }
         }
         // Update medoid if we find node with smaller total distance

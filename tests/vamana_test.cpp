@@ -32,7 +32,7 @@ void test_create_vamana_index(void) {
     int a = 1.2;
 
     int medoid_pos;
-    TEST_ASSERT(!create_vamana_index(&graph, path, L, R, a, medoid_pos, dimensions, 'n', 0));
+    TEST_ASSERT(!create_vamana_index(&graph, path, L, R, a, medoid_pos, dimensions, 'n', 0, false));
     
     set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
@@ -129,7 +129,7 @@ void test_create_filtered_vamana_index(void) {
     int a = 1.2;
 
     int medoid_pos;
-    TEST_ASSERT(!create_filtered_vamana_index(&graph, path, L, R, a, dimensions, false));
+    TEST_ASSERT(!create_filtered_vamana_index(&graph, path, L, R, a, dimensions, false, false));
     TEST_ASSERT(!graph->all_categories.empty());
 
     set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
@@ -369,7 +369,7 @@ void test_create_stiched_vamana_index(void) {
 
     int medoid_pos;
     
-    Graph index_mapping = create_stiched_vamana_index(path, 'f', L, R, R, a, dimensions, false, 0);
+    Graph index_mapping = create_stiched_vamana_index(path, 'f', L, R, R, a, dimensions, false, 0, false);
     
     TEST_ASSERT(index_mapping != NULL);
 
@@ -478,7 +478,7 @@ void test_parallel_stitched_vamana_index(void) {
 
     int medoid_pos;
     
-    Graph index_mapping = create_stiched_vamana_index_parallel(path, 'f', L, R, R, a, dimensions, 4, 0);
+    Graph index_mapping = create_stiched_vamana_index_parallel(path, 'f', L, R, R, a, dimensions, 4, 0, false);
     
     TEST_ASSERT(index_mapping != NULL);
 

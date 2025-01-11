@@ -55,6 +55,7 @@ struct options {
     char rand_medoid;
     int thread_count;
     int medoid_parallel;
+    bool enable_cache;
 
     char printing;
     bool savegraph;
@@ -65,7 +66,7 @@ struct options {
     options()
         : file_type(0), data_filename(""), data_type('f'), queries_filename(""), query_count(1), truth_filename(""),
         a(1), k(1), L(1), R(1), R_s(1), printing('f'), savegraph(false), index_type('f'), rand_init(false), rand_medoid('n'),
-        opt(false), dim(100), thread_count(1), medoid_parallel(0) {}
+        opt(false), dim(100), thread_count(1), medoid_parallel(0), enable_cache(false){}
 };
 typedef struct options* Options;
 
@@ -151,7 +152,7 @@ vector<file_vector_int> read_int_vectors_from_file(const string& filename);
 vector<file_vector_char> read_char_vectors_from_file(const string& filename);
 
 // Create graph from dataset. Returns graph for success, NULL otherwise
-Graph create_graph_from_file(const string& filename, int type, int k, int dimensions);
+Graph create_graph_from_file(const string& filename, int type, int k, int dimensions, bool enable_cache);
 
 // Create stitched vamana graph from dataset. Returns a map of simple vamana graphs
 map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type, int k, int dimensions);

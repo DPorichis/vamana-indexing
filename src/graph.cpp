@@ -2,6 +2,7 @@
 
 #include "header.h"
 #include "graph.h"
+#include "dist-cache.h"
 #include <iostream>
 #include <cmath>
 
@@ -10,10 +11,14 @@ using namespace std;
 //**** Graph Functions ****//
 
 // Creates a graph and initializes all of the meta data
-Graph create_graph(char type, int k, int dimensions)
+Graph create_graph(char type, int k, int dimensions, bool enable_cache)
 {
     // Call the constructor
-    Graph g = new graph(type, k, dimensions);
+    Graph g;
+    if (enable_cache)
+        g = new graph(type, k, dimensions, 100);
+    else
+        g = new graph(type, k, dimensions, 0);
     return g;
 }
 
@@ -59,6 +64,9 @@ void destroy_graph(Graph g)
     g->nodes.clear();
     g->all_categories.clear();
     g->medoid_mapping.clear();
+
+    if(g->graph_cache != NULL)
+        delete g->graph_cache;
 
     // And yourself
     delete g;
@@ -172,8 +180,59 @@ double calculate_distance(Graph g, Node a, Node b)
         return -1;
     }
 
-    // Call the find_distance stored in the graph meta data with the two points as arguments
-    return g->find_distance(a->components, b->components, dim);
+    // If we have a cache
+    if(g->graph_cache != NULL)
+    {
+        // Search for the distance there
+        double distance = g->graph_cache->getDistance(a, b);
+        if(distance >= 0)
+        {
+            //cout << "Distance found" << endl;
+            return distance;
+        }
+        // If it is not available, calculate it and store it yourself
+        distance = g->find_distance(a->components, b->components, dim);
+        g->graph_cache->putDistance(a, b, distance);
+        
+        return distance;
+    }
+    else
+    {
+        // Call the find_distance stored in the graph meta data with the two points as arguments
+        return g->find_distance(a->components, b->components, dim);
+    }
+}
+
+double calculate_distance_without_cache(Graph g, Node a, Node b)
+{
+    int dim = a->d_count;
+    // If the dimentions do not match, skip return error code -1
+    if (dim != b->d_count)
+    {    
+        cout << "Not matching dimentions " << a->d_count << " != " << b->d_count << endl;
+        return -1;
+    }
+
+    // If we have a cache
+    if(g->graph_cache != NULL)
+    {
+        // Search for the distance there
+        double distance = g->graph_cache->getDistance(a, b);
+        if(distance >= 0)
+        {
+            cout << "Distance found" << endl;
+            return distance;
+        }
+        // If it is not available, calculate it and store it yourself
+        distance = g->find_distance(a->components, b->components, dim);
+        g->graph_cache->putDistance(a, b, distance);
+        return distance;
+    }
+    else
+    {
+        // Call the find_distance stored in the graph meta data with the two points as arguments
+        return g->find_distance(a->components, b->components, dim);
+    }
 }
 
 // Distance calculation for int vectors

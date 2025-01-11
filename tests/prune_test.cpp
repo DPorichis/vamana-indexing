@@ -8,7 +8,7 @@
 
 
 void test_pruning(void) {
-	Graph graph = create_graph('f', 5, 2);
+	Graph graph = create_graph('f', 5, 2, true);
 	int n = 30;
 	for(int i = 0; i < n; i++)
 	{	

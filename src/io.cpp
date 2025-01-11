@@ -396,7 +396,7 @@ void readGraphMap(map<int, Graph>& graph_map, const string& input_file) {
         int key;
         file.read(reinterpret_cast<char*>(&key), sizeof(key));
         // Graph graph = new struct graph;
-        Graph graph = create_graph('f', 0, 0);
+        Graph graph = create_graph('f', 0, 0, false);
         readGraph(graph, file);
 
         graph_map[key] = graph;
@@ -407,12 +407,12 @@ void readGraphMap(map<int, Graph>& graph_map, const string& input_file) {
 
 
 // Create graph from dataset. Returns graph for success, NULL otherwise
-Graph create_graph_from_file(const string& filename, int type, int k, int dimensions) {
+Graph create_graph_from_file(const string& filename, int type, int k, int dimensions, bool enable_cache) {
     // Store file data to 2D vector
     vector<vector<float>> nodes;
     readBinary(filename, dimensions + 2, nodes);
     //  Graph creation
-    Graph graph = create_graph(type, k, dimensions);
+    Graph graph = create_graph(type, k, dimensions, enable_cache);
     // Insert graph nodes
     for (int i = 0; i < nodes.size(); i++) {
         // Allocate the required memory
@@ -462,7 +462,7 @@ map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type
         if(stiched_index->find(category) == stiched_index->end())
         {
             // Make one
-            Graph graph = create_graph(type, k, dimensions);
+            Graph graph = create_graph(type, k, dimensions, false);
             (*stiched_index)[category] = graph;
         }
         // Add it to the desired graph
@@ -812,7 +812,8 @@ void print_options(Options opt)
         cout << "- Medoid parallelism will be used with " << opt->medoid_parallel <<" threads." << endl;
     else if(opt->medoid_parallel != 0)
         cout << "- Medoid parallelism won't be used as random medoid was selected." << endl;
-    
+    if(opt->enable_cache == true)
+        cout << "- Cache is enabled";
     cout << "- Random medoid calculation: " << opt->rand_medoid << endl;
     cout << "- Thread count: " << opt->thread_count << endl;
     if(opt->thread_count > 1 && opt->rand_init && opt->file_type == 0)
@@ -871,6 +872,22 @@ int update_option(string flag, string value, Options opt)
         if(opt->query_count < 0 && opt->query_count != -1)
         {
             cout << "Invalid querieCount: querieCount must be >= 0" << endl;
+            return -1;
+        }
+    }
+    else if(flag == "cache")
+    {
+        if(value[0] == 't')
+        {
+            opt->enable_cache = true;
+        }
+        else if(value[0] == 'f')
+        {
+            opt->enable_cache = false;
+        }
+        else
+        {
+            cout << "Invalid cache flag: must be true or false" << endl;
             return -1;
         }
     }
@@ -999,6 +1016,11 @@ int check_options(Options opt)
             cout << "       Use a pure data file for it bo calculated" << endl;
             ret = -1;
         }
+    }
+    if(opt->index_type == 'f' && opt->thread_count > 1 && opt->enable_cache)
+    {
+        cout << "Caching is not supported in parallel filtered vamana" << endl;
+        ret = -1;
     }
     return ret;
 }

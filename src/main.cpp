@@ -122,7 +122,7 @@ Graph graph_creation(Options opt)
         }
         else
         {
-            if (create_filtered_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, opt->dim, opt->rand_init)) {
+            if (create_filtered_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, opt->dim, opt->rand_init, opt->enable_cache)) {
                 cout << "Error creating filtered vamana" << endl;
                 delete opt;
                 return NULL;
@@ -137,9 +137,9 @@ Graph graph_creation(Options opt)
             cout << "Creating Stitched Vamana..." << endl;
 
         if(opt->thread_count > 1 && opt->rand_init == false)
-            graph = create_stiched_vamana_index_parallel(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->thread_count, opt->medoid_parallel);
+            graph = create_stiched_vamana_index_parallel(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->thread_count, opt->medoid_parallel, opt->enable_cache);
         else
-            graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->rand_init, opt->medoid_parallel); 
+            graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->rand_init, opt->medoid_parallel, opt->enable_cache); 
         if(graph == NULL)
         {
             cout << "Error creating filtered vamana" << endl;
@@ -154,7 +154,7 @@ Graph graph_creation(Options opt)
             cout << "Creating Vamana..." << endl;
 
         int medoid_pos;
-        if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, opt->dim, opt->rand_medoid, opt->medoid_parallel)) {
+        if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, opt->dim, opt->rand_medoid, opt->medoid_parallel, opt->enable_cache)) {
             cout << "Error creating filtered vamana" << endl;
             delete opt;
             return NULL;
@@ -183,7 +183,7 @@ Graph graph_retrival(Options opt)
     Graph graph;
     if (opt->file_type) 
     {
-        graph = create_graph('f', 0, 0);
+        graph = create_graph('f', 0, 0, false);
         // Open graph file
         ifstream file(opt->data_filename, ios::binary);
         if (!file) {

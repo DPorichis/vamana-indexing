@@ -19,7 +19,7 @@ set<Candidate, CandidateComparator>* neighbours, set<Candidate, CandidateCompara
 int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator>* v, float a, int r);
 
 // Creates a filtered vamana index as described by the paper provided
-int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions, bool random_init);
+int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions, bool random_init, bool enable_cache);
 
 int create_filtered_vamana_index_parallel(Graph* g, const string& filename, int L, int R, float a, int dimensions, int thread_count);
 
@@ -28,6 +28,6 @@ int find_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoid
 
 // Creates a Stitched vamana index, by creating sub Vamana graphs for each category.
 // Returns a map containing these graphs.
-Graph create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, bool random_init, int parallel_medoid);
+Graph create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, bool random_init, int parallel_medoid, bool enable_cache);
 
-Graph create_stiched_vamana_index_parallel(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, int thread_count, int parallel_medoid);
+Graph create_stiched_vamana_index_parallel(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, int thread_count, int parallel_medoid, bool enable_cache);

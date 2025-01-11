@@ -13,7 +13,7 @@ void test_create_from_file(void) {
 	int dimensions = 100;
 
 	// Create graph
-	Graph graph = create_graph_from_file(path, 'f', 5, dimensions);
+	Graph graph = create_graph_from_file(path, 'f', 5, dimensions, false);
 
 	// The vectors of the dataset
 	vector<vector<float>> data;
@@ -55,7 +55,7 @@ void test_query(void) {
 	int dimensions = 100;
 
 	// Create graph
-	Graph graph = create_graph_from_file("./data/dummy-data.bin", 'f', 5, dimensions);
+	Graph graph = create_graph_from_file("./data/dummy-data.bin", 'f', 5, dimensions, false);
 
 	// The vectors of the query dataset
 	vector<vector<float>> queries;
@@ -133,7 +133,7 @@ void test_save_write(void) {
 	int dimensions = 100;
 
 	// Create graph
-	Graph graph = create_graph_from_file(path, 'f', 5, dimensions);
+	Graph graph = create_graph_from_file(path, 'f', 5, dimensions, false);
 
 	// Open graph file
 	string graph_file = "./data/test-graph.bin";
@@ -148,7 +148,7 @@ void test_save_write(void) {
 	// Close file
 	file.close();
 
-	Graph new_graph = create_graph(0, 0, 0);
+	Graph new_graph = create_graph(0, 0, 0, false);
 
 	// Open graph file
 	ifstream infile(graph_file, ios::binary);

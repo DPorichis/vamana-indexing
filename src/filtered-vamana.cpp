@@ -229,10 +229,10 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
 }
 
 // Creates a filtered vamana index as described by the paper provided
-int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions, bool random_init){
+int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions, bool random_init, bool enable_cache){
     // Graph creation and initialization
 
-    *g = create_graph_from_file(filename, 'f', R, dimensions);
+    *g = create_graph_from_file(filename, 'f', R, dimensions, enable_cache);
     Graph graph = *g;
     if (graph == NULL) {
         cerr << "Error while creating graph from file" << endl;
@@ -329,7 +329,7 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
 int create_filtered_vamana_index_parallel(Graph* g, const string& filename, int L, int R, float a, int dimensions, int thread_count){
     
     // Graph creation and initialization
-    *g = create_graph_from_file(filename, 'f', R, dimensions);
+    *g = create_graph_from_file(filename, 'f', R, dimensions, false);
     Graph graph = *g;
     if (graph == NULL) {
         cerr << "Error while creating graph from file" << endl;
