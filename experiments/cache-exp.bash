@@ -1,7 +1,6 @@
 config_files=$(find ./config-files-cache-graph/ -type f -name "*.txt")
 
-rm -rf ./output-data/*-queries.txt
-rm -rf ./output-data/*-graph.txt
+rm -rf ./output-data/*-cache.txt
 
 # Loop through each configuration file and run the program 4 times
 for config_file in $config_files; do

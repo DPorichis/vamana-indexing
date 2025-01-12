@@ -81,7 +81,7 @@ Graph create_stiched_vamana_index(const string& filename, int type, int L_small,
         Graph subgraph = new graph('f', R_small, dimensions, 0);
         for(int i = 0; i < g->nodes.size(); i++)
         {
-            if(g->nodes[i]->categories.find(*it) != g->nodes[i]->categories.end())
+            if(g->nodes[i]->category == *it)
                 subgraph->nodes.push_back(g->nodes[i]);
         }
         // cout << "Subcategory Found with " << subgraph->nodes.size() << " elements" << endl;
@@ -173,6 +173,8 @@ Graph create_stiched_vamana_index(const string& filename, int type, int L_small,
         subgraph->all_categories.clear();
         subgraph->medoid_mapping.clear();
 
+        if(subgraph->graph_cache != NULL)
+            delete subgraph->graph_cache;
         delete subgraph;
     }
     // Second for-loop of the pseudocode (Maybe useless)
@@ -274,7 +276,7 @@ void * thread_stitched_subgraph(void* arg)
         Graph g = sync->g;
         for(int i = 0; i < g->nodes.size(); i++)
         {
-            if(g->nodes[i]->categories.find(category) != g->nodes[i]->categories.end())
+            if(g->nodes[i]->category == category)
                 subgraph->nodes.push_back(g->nodes[i]);
         }
         // cout << "Subcategory Found with " << subgraph->nodes.size() << " elements" << endl;
@@ -364,8 +366,8 @@ void * thread_stitched_subgraph(void* arg)
         subgraph->all_categories.clear();
         subgraph->medoid_mapping.clear();
 
+        if(subgraph->graph_cache != NULL)
+            delete subgraph->graph_cache;
         delete subgraph;
-
-
         }
 }

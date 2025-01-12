@@ -258,19 +258,25 @@ Stats perform_queries_with_accuracy(Graph graph, Options opt)
                 if (j >= queries.size())
                     j = 0;
             }
+            set<int> categories;
             if(query_type == 0)
             {
-                query->categories.clear();
-                query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+                categories.clear();
+                categories.insert(graph->all_categories.begin(), graph->all_categories.end());
             }
-            int s_count = query->categories.size();
+            else if(query_type == 1)
+            {
+                categories.insert(query->category);
+            }
+
+            int s_count = categories.size();
             Node* S = (Node *)malloc(sizeof(*S)*s_count);
             j = 0;
-            for (const int& val : query->categories) {
+            for (const int& val : categories) {
                 S[j] = graph->nodes[graph->medoid_mapping[val]];
                 j++;
             }
-            filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+            filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, categories, neighbors, visited);
             free(S);
         }
         //=== Clasic vamana search ===//
@@ -417,18 +423,24 @@ Stats perform_queries_with_accuracy_parallel(Graph graph, Options opt)
                     query = ask_query(query_type, 100, indexes[j], queries);
                     j = (j + 1) % queries.size();
                 }
+                set<int> categories;
                 if (query_type == 0) {
-                    query->categories.clear();
-                    query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+                    categories.clear();
+                    categories.insert(graph->all_categories.begin(), graph->all_categories.end());
                 }
-                int s_count = query->categories.size();
+                else if (query_type == 1)
+                {
+                    categories.insert(query->category);
+                }
+
+                int s_count = categories.size();
                 Node* S = (Node*)malloc(sizeof(*S) * s_count);
                 j = 0;
-                for (const int& val : query->categories) {
+                for (const int& val : categories) {
                     S[j] = graph->nodes[graph->medoid_mapping[val]];
                     j++;
                 }
-                filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+                filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, categories, neighbors, visited);
                 free(S);
             } 
             // Classic vamana search
@@ -575,19 +587,24 @@ Stats perform_queries_without_accuracy(Graph graph, Options opt)
                     j = 0;
             }
 
+            set<int> categories;
             if(query_type == 0)
             {
-                query->categories.clear();
-                query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+                categories.clear();
+                categories.insert(graph->all_categories.begin(), graph->all_categories.end());
             }
-            int s_count = query->categories.size();
+            else if(query_type == 1)
+            {
+                categories.insert(query->category);
+            }
+            int s_count = categories.size();
             Node* S = (Node *)malloc(sizeof(*S)*s_count);
             j = 0;
-            for (const int& val : query->categories) {
+            for (const int& val : categories) {
                 S[j] = graph->nodes[graph->medoid_mapping[val]];
                 j++;
             }
-            filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+            filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, categories, neighbors, visited);
             free(S);
         }
         //=== Clasic vamana search ===//
@@ -702,18 +719,25 @@ Stats perform_queries_without_accuracy_parallel(Graph graph, Options opt)
                     if (j >= queries.size())
                         j = 0;
                 }
+
+                set<int> categories;
                 if (query_type == 0) {
-                    query->categories.clear();
-                    query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+                    categories.clear();
+                    categories.insert(graph->all_categories.begin(), graph->all_categories.end());
                 }
-                int s_count = query->categories.size();
+                else if (query_type == 1)
+                {
+                    categories.insert(query->category);
+                }
+
+                int s_count = categories.size();
                 Node* S = (Node*)malloc(sizeof(*S) * s_count);
                 j = 0;
-                for (const int& val : query->categories) {
+                for (const int& val : categories) {
                     S[j] = graph->nodes[graph->medoid_mapping[val]];
                     j++;
                 }
-                filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+                filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, categories, neighbors, visited);
                 free(S);
             } 
             // Classic vamana search

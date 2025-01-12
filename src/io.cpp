@@ -190,12 +190,9 @@ void saveGraph(Graph graph, ofstream& file) {
             file.write(reinterpret_cast<const char*>(&link->to->pos), sizeof(link->to->pos));
         }
 
-        // Write categories set
-        size_t category_count = node->categories.size();
-        file.write(reinterpret_cast<const char*>(&category_count), sizeof(category_count));
-        for (const int category : node->categories) {
-            file.write(reinterpret_cast<const char*>(&category), sizeof(category));
-        }
+        // Write category
+        file.write(reinterpret_cast<const char*>(&node->category), sizeof(node->category));
+        
     }
     // Write `all_categories`
     int category_count = graph->all_categories.size();
@@ -266,12 +263,9 @@ void saveGraphMap(const map<int, Graph>& graph_map, const string& output_file) {
                 file.write(reinterpret_cast<const char*>(&pos_mapping[link->to->pos]), sizeof(link->to->pos));
             }
 
-            // Write categories set
-            size_t category_count = node->categories.size();
-            file.write(reinterpret_cast<const char*>(&category_count), sizeof(category_count));
-            for (const int category : node->categories) {
-                file.write(reinterpret_cast<const char*>(&category), sizeof(category));
-            }
+            // Write category
+            file.write(reinterpret_cast<const char*>(&node->category), sizeof(node->category));
+
         }
         // Write `all_categories`
         int category_count = graph->all_categories.size();
@@ -335,13 +329,8 @@ void readGraph(Graph& graph, ifstream& file) {
         
         // Read categories set
         size_t category_count;
-        file.read(reinterpret_cast<char*>(&category_count), sizeof(category_count));
-        for (size_t j = 0; j < category_count; ++j) {
-            int category;
-            file.read(reinterpret_cast<char*>(&category), sizeof(category));
-            node->categories.insert(category);
-        }
-
+        file.read(reinterpret_cast<char*>(&node->category), sizeof(node->category));
+        
         graph->nodes.push_back(node);
     }
     // Read `all_categories`
@@ -423,11 +412,7 @@ Graph create_graph_from_file(const string& filename, int type, int k, int dimens
     }
         // Copy vector data to graph (Important)
         memcpy(components, nodes[i].data() + 2, dimensions * sizeof(float));
-
-        // Save the filter in the categories set
-        set<int> categories;
-        categories.insert(nodes[i][0]);
-        add_node_graph(graph, dimensions, components, i, categories);
+        add_node_graph(graph, dimensions, components, i, nodes[i][0]);
     }
 
     // Connecting the nodes
@@ -489,7 +474,7 @@ Node ask_query(int& type, int dimensions, int pos, vector<vector<float>>& querie
     query->components = malloc(query->d_count * sizeof(float));
     memcpy(query->components, queries[pos].data() + 4, query->d_count * sizeof(float));
     query->pos = pos;
-    query->categories.insert(queries[pos][1]);
+    query->category = queries[pos][1];
 
     type = queries[pos][0];
 

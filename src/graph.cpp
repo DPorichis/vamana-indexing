@@ -24,16 +24,16 @@ Graph create_graph(char type, int k, int dimensions, bool enable_cache)
 
 // Adds a node for a given point to the graph, and returns a pointer to it
 // Returns NULL if the dimensions dont match with the graph selected for insertion
-Node add_node_graph(Graph g, int d_count, void* components, int pos, set<int> categories)
+Node add_node_graph(Graph g, int d_count, void* components, int pos, int category)
 {
     if(d_count != g->dimensions)
         return NULL;
     
     // Create and add
-    Node n = create_node(components, d_count, pos, categories);
+    Node n = create_node(components, d_count, pos, category);
 
     g->nodes.push_back(n);
-    g->all_categories.insert(categories.begin(), categories.end());
+    g->all_categories.insert(category);
 
     return n;
 }
@@ -76,13 +76,12 @@ void destroy_graph(Graph g)
 //**** Node Functions ****//
 
 // Creates a node representation for the given data
-Node create_node(void* components, int d_count, int pos, set<int> categories)
+Node create_node(void* components, int d_count, int pos, int category)
 {
     // Call the constructor
     Node n = new node(components, d_count, pos);
     set<int>::iterator itr;
-    for (itr = categories.begin(); itr != categories.end(); itr++) 
-        n->categories.insert(*itr);
+    n->category = category;
     return n;
 }
 
@@ -127,8 +126,7 @@ void destroy_node(Node n)
         free(l);
     }
     n->neighbours.clear();
-    n->categories.clear();
-
+    
     // Destroy self
     delete n;
 }
