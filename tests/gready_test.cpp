@@ -20,7 +20,7 @@ void test_dummy(void) {
 		Node item = add_node_graph(graph, 2, point, i);
 		
 	}
-	init_dummy_graph(graph);
+	init_dummy_graph(graph, 0);
 	int total_num = 0;
 	for(int i = 0; i < n; i++)
 	{
@@ -44,7 +44,7 @@ void test_gready_search(void) {
     	point[1] = i;
 		Node item = add_node_graph(graph, 2, point, i);
 	}
-	init_dummy_graph(graph);
+	init_dummy_graph(graph, 0);
 
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();

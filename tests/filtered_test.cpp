@@ -26,7 +26,7 @@ void test_gready_search(void) {
     	point[1] = i;
 		Node item = add_node_graph(graph, 2, point, i, categories);
 	}
-	init_dummy_graph(graph);
+	init_dummy_graph(graph, 0);
 
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
     set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
@@ -142,7 +142,7 @@ void test_pruning(void) {
     	point[1] = i;
 		Node item = add_node_graph(graph, 2, point, i, categories);	
     }
-	init_dummy_graph(graph);
+	init_dummy_graph(graph, 0);
 
     set<int> all_categories;
     for(int i = 0; i < n + 2; i++)

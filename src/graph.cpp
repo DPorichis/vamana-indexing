@@ -16,7 +16,7 @@ Graph create_graph(char type, int k, int dimensions, bool enable_cache)
     // Call the constructor
     Graph g;
     if (enable_cache)
-        g = new graph(type, k, dimensions, 100);
+        g = new graph(type, k, dimensions, 1000);
     else
         g = new graph(type, k, dimensions, 0);
     return g;

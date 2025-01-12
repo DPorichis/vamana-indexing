@@ -175,7 +175,7 @@ int create_vamana_index(Graph* g, const string& filename, int L, int R, float a,
         cerr << "Error while creating graph from file" << endl;
         return -1;
     }
-    if (init_dummy_graph(graph)) {
+    if (init_dummy_graph(graph, 0)) {
         cerr << "Error in graph initialization";
         return -2;
     }
