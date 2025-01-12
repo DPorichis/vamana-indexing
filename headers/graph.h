@@ -14,6 +14,10 @@ using namespace std;
 struct node;
 typedef struct node* Node;
 
+struct graph;
+typedef struct graph* Graph;
+
+
 // Represents a neighbour relationship //
 struct link
 {
@@ -94,10 +98,18 @@ typedef struct distcache* DistCache;
 // Distance calculation functions for each type of data //
 
 typedef double (*DistanceFunc)(void*, void*, int);
+typedef double (*CalcFunc)(Graph, Node, Node);
 
 double calculate_int(void* a, void* b, int dim);
 double calculate_char(void* a, void* b, int dim);
 double calculate_float(void* a, void* b, int dim);
+
+// Wrapper function for calling the graph function given in the graph's meta data
+// returning error code -1 when the dimentions of the two nodes are not the same
+double calculate_distance_with_cache(Graph g, Node a, Node b);
+
+double calculate_distance_without_cache(Graph g, Node a, Node b);
+
 
 // Represents the entirity of the graph and its meta data //
 struct graph
@@ -111,6 +123,7 @@ struct graph
     set<int> all_categories;
     map<int,int> medoid_mapping;
     DistCache graph_cache;
+    CalcFunc calculate_distance;
 
     // Basic constructor
     graph(char t, int kn, int dim, int cache_size)
@@ -124,9 +137,15 @@ struct graph
         else
             find_distance = calculate_int;
         if(cache_size == 0)
+        {
             graph_cache = NULL;
+            calculate_distance = calculate_distance_without_cache;
+        }
         else
+        {
             graph_cache = new distcache(cache_size);
+            calculate_distance = calculate_distance_with_cache;
+        }
     }
 
     graph(char t, int kn, int dim, bool filt, int cache_size)
@@ -145,11 +164,16 @@ struct graph
         else
             unfiltered_medoid = 0;
         if(cache_size == 0)
+        {
             graph_cache = NULL;
+            calculate_distance = calculate_distance_without_cache;
+        }
         else
+        {
             graph_cache = new distcache(cache_size);
+            calculate_distance = calculate_distance_with_cache;
+        }
     }
-
 };
 typedef struct graph* Graph;
 
@@ -214,12 +238,6 @@ void destroy_node(Node n);
 // Creates a link representation for the connection of two nodes
 // of graph g
 Link create_link(Graph g, Node from, Node to);
-
-// Wrapper function for calling the graph function given in the graph's meta data
-// returning error code -1 when the dimentions of the two nodes are not the same
-double calculate_distance(Graph g, Node a, Node b);
-
-double calculate_distance_without_cache(Graph g, Node a, Node b);
 
 // Creates a candiadate represantation for two nodes
 // (Its the same thing as with create_link, used for better understanding)

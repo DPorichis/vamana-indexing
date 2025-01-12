@@ -210,7 +210,7 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
                 ++it;
             }
             // if not smaller when multiplied with the a factor
-            else if(a * calculate_distance(g ,elem->to, target->to) <= elem->distance)
+            else if(a * g->calculate_distance(g ,elem->to, target->to) <= elem->distance)
             {
                 // cout << a * calculate_distance(elem->to, target->to) << " < " << elem->distance;
                 // fflush(stdout);
@@ -540,7 +540,7 @@ int find_accurate_filtered_medoid(Graph graph, set<int> categories, map<int, int
                 if (i != j) {
                     if(graph->nodes[j]->categories.find(category) != 
                     graph->nodes[j]->categories.end())
-                        total_distance += calculate_distance(graph, graph->nodes[i], graph->nodes[j]);
+                        total_distance += calculate_distance_without_cache(graph, graph->nodes[i], graph->nodes[j]);
                 }
                 }
                 // Update medoid if we find node with smaller total distance
