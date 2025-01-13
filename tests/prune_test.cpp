@@ -17,7 +17,7 @@ void test_pruning(void) {
     	point[1] = i;
 		Node item = add_node_graph(graph, 2, point, i);
 	}
-	init_dummy_graph(graph);
+	init_dummy_graph(graph, 0);
 
 
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();

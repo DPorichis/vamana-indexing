@@ -152,20 +152,25 @@ void test_create_filtered_vamana_index(void) {
         j = (j + 1) % queries.size();
     }
 
+    set<int> categories;
     if(query_type == 0)
     {
-        query->categories.clear();
-        query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+        categories.clear();
+        categories.insert(graph->all_categories.begin(), graph->all_categories.end());
     }
-    int s_count = query->categories.size();
+    else if(query_type == 1)
+    {
+        categories.insert(query->category);
+    }
+    int s_count = categories.size();
     Node* S = (Node *)malloc(sizeof(*S)*s_count);
     j = 0;
-    for (const int& val : query->categories) {
+    for (const int& val : categories) {
         S[j] = graph->nodes[graph->medoid_mapping[val]];
         j++;
     }
 
-    filtered_gready_search(graph, S, s_count, query, K, L, query->categories, neighbors, visited);
+    filtered_gready_search(graph, S, s_count, query, K, L, categories, neighbors, visited);
 
     int i = 0;
     // Print the nodes
@@ -272,20 +277,25 @@ void test_create_filtered_vamana_index_parallel(void) {
         j = (j + 1) % queries.size();
     }
 
+    set<int> categories;
     if(query_type == 0)
     {
-        query->categories.clear();
-        query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+        categories.clear();
+        categories.insert(graph->all_categories.begin(), graph->all_categories.end());
     }
-    int s_count = query->categories.size();
+    else if(query_type == 1)
+    {
+        categories.insert(query->category);
+    }
+    int s_count = categories.size();
     Node* S = (Node *)malloc(sizeof(*S)*s_count);
     j = 0;
-    for (const int& val : query->categories) {
+    for (const int& val : categories) {
         S[j] = graph->nodes[graph->medoid_mapping[val]];
         j++;
     }
 
-    filtered_gready_search(graph, S, s_count, query, K, L, query->categories, neighbors, visited);
+    filtered_gready_search(graph, S, s_count, query, K, L, categories, neighbors, visited);
 
     int i = 0;
     // Print the nodes
@@ -398,14 +408,19 @@ void test_create_stiched_vamana_index(void) {
     
     //cout << "Performing Query #" << query_pos << " of type " << query_type << endl;
 
+    set<int> categories;
     if(query_type == 0)
     {
-        query->categories.clear();
+        categories.clear();
         for (const auto& val : index_mapping->all_categories)
-            query->categories.insert(val);
+            categories.insert(val);
+    }
+    else if(query_type == 1)
+    {
+        categories.insert(query->category);
     }
 
-    for (const int& val : query->categories) {
+    for (const int& val : categories) {
         
         set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
         set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
@@ -507,14 +522,19 @@ void test_parallel_stitched_vamana_index(void) {
     
     //cout << "Performing Query #" << query_pos << " of type " << query_type << endl;
 
+    set<int> categories;
     if(query_type == 0)
     {
-        query->categories.clear();
+        categories.clear();
         for (const auto& val : index_mapping->all_categories)
-            query->categories.insert(val);
+            categories.insert(val);
+    }
+    else if(query_type == 1)
+    {
+        categories.insert(query->category);
     }
 
-    for (const int& val : query->categories) {
+    for (const int& val : categories) {
         
         set<Candidate, CandidateComparator>* neighbors = new set<Candidate, CandidateComparator>();
         set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();

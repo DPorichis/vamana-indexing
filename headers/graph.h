@@ -56,7 +56,7 @@ struct node
     void* components;
     int pos;
     set<Link, LinkComp> neighbours;
-    set<int> categories;
+    int category;
 
     // Basic Constractor
     node(void* comp, int dim, int position)
@@ -208,7 +208,7 @@ Graph create_graph(char type, int k, int dimensions, bool enable_cache);
 // Adds a node for a given point to the graph, and returns a pointer to it
 // Returns NULL if the dimensions dont match with the graph selected for insertion
 // Will copy the categories inside the categorie's set, if provided with.
-Node add_node_graph(Graph g, int d_count, void* components, int pos, set<int> categories);
+Node add_node_graph(Graph g, int d_count, void* components, int pos, int categories);
 Node add_node_graph(Graph g, int d_count, void* components, int pos);
 
 
@@ -221,7 +221,7 @@ void destroy_graph(Graph g);
 // Node Functions //
 
 // Creates a node representation for the given data, categories used for filtered
-Node create_node(void* components, int d_count, int pos, set<int> categories);
+Node create_node(void* components, int d_count, int pos, int categories);
 Node create_node(void* components, int d_count, int pos);
 
 // Adds a Node to as a neighbour to node from in the given graph G

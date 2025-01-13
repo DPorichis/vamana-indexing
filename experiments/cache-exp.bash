@@ -1,7 +1,6 @@
 config_files=$(find ./config-files-cache-graph/ -type f -name "*.txt")
 
-rm -rf ./output-data/*-queries.txt
-rm -rf ./output-data/*-graph.txt
+rm -rf ./output-data/*-cache.txt
 
 # Loop through each configuration file and run the program 4 times
 for config_file in $config_files; do
@@ -12,7 +11,7 @@ for config_file in $config_files; do
     config_file_queries="./config-files-query/$(basename "$config_file")"
 
 
-    # for i in {1..2}; do
+    # for i in {1..4}; do
         
         rm ./data/*-graph.bin
 
