@@ -1,0 +1,24 @@
+Graph time: 0.132203 seconds
+Queries performed: 2516
+Average overall recall: 99.7953%
+Average type 0 recall: 99.7953% (from 2516)
+Total time: 3.93577
+Average time per query: 0.0015643
+Graph time: 0.130199 seconds
+Queries performed: 2516
+Average overall recall: 99.8112%
+Average type 0 recall: 99.8112% (from 2516)
+Total time: 3.99636
+Average time per query: 0.00158838
+Graph time: 0.142007 seconds
+Queries performed: 2516
+Average overall recall: 99.8172%
+Average type 0 recall: 99.8172% (from 2516)
+Total time: 3.5674
+Average time per query: 0.00141789
+Graph time: 0.142356 seconds
+Queries performed: 2516
+Average overall recall: 99.8112%
+Average type 0 recall: 99.8112% (from 2516)
+Total time: 3.70728
+Average time per query: 0.00147348
