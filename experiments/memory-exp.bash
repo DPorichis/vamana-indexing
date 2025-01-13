@@ -10,7 +10,7 @@ for config_file in $config_files; do
     config_file_queries="./config-files-query/$(basename "$config_file")"
 
     
-    # for i in {1..2}; do
+    for i in {1..2}; do
         
         rm ./data/*-graph.bin
 
@@ -23,5 +23,5 @@ for config_file in $config_files; do
         echo "$time_output" | grep "Maximum resident set size" >> "./output-data/output-${config_name}-queries-memory.txt"
 
 
-    # done
+    done
 done

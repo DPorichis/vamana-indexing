@@ -228,7 +228,7 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
 
     // Connecting the nodes if requested
     if(random_init)
-        init_dummy_graph(graph, R);
+        init_dummy_graph(graph, 0);
 
 
     // Find medoids
