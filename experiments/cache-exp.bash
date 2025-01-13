@@ -12,7 +12,7 @@ for config_file in $config_files; do
     config_file_queries="./config-files-query/$(basename "$config_file")"
 
 
-    for i in {1..4}; do
+    # for i in {1..2}; do
         
         rm ./data/*-graph.bin
 
@@ -23,7 +23,7 @@ for config_file in $config_files; do
         ../bin/project -config "$config_file_queries" >> "./output-data/output-${config_name}-queries-cache.txt"
 
 
-    done
+    # done
 
     graph_file=$(ls ./data/*-graph.bin 2>/dev/null)
         
