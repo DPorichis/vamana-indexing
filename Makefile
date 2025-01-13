@@ -8,7 +8,7 @@ TESTS = ./tests
 BUILD = ./build
 BIN = ./bin
 
-CFLAGS = -g -I$(HEAD) -pthread
+CFLAGS = -g -I$(HEAD) -pthread -O3 -ffast-math -std=c++17
 
 PROJOBJ = $(BUILD)/vamana.o $(BUILD)/io.o $(BUILD)/graph.o $(BUILD)/dist-cache.o $(BUILD)/main.o $(BUILD)/vamana-utils.o $(BUILD)/filtered-vamana.o $(BUILD)/stiched-vamana.o
 
