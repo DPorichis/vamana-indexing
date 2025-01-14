@@ -15,3 +15,4 @@ medoidparallel=8
 data=../data/data-50k.bin
 truth=../data/unfiltered-groundtruth-50k.bin
 queries=../data/unfiltered-queries-50k.bin
+threadcount=16

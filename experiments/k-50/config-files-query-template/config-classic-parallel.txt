@@ -14,3 +14,4 @@ printing=n
 savegraph=true
 truth=../data/unfiltered-groundtruth-50k.bin
 queries=../data/unfiltered-queries-50k.bin
+threadcount=16

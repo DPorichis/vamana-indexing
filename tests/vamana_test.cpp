@@ -26,9 +26,9 @@ void test_create_vamana_index(void) {
     readKNN(groundtruth_file, dimensions, groundtruth);
 
     Graph graph;
-    int L = 80;
-    int R = 20;
-    int K = 70;
+    int L = 50;
+    int R = 40;
+    int K = 100;
     int a = 1.2;
 
     int medoid_pos;
@@ -84,7 +84,7 @@ void test_create_vamana_index(void) {
             float diff = ((float*)graph->nodes[groundtruth[pos][j]]->components)[i] - ((float*)query->components)[i];
             sum += diff * diff;
         }
-        cout << "Correct Node: " << groundtruth[pos][j] << " with distance: " << sqrt(sum) << endl;
+        cout << "Correct Node: " << groundtruth[pos][j] << " with distance: " << sum << endl;
         j++;
     }
 
@@ -123,9 +123,9 @@ void test_create_filtered_vamana_index(void) {
     readKNN(groundtruth_file, dimensions, groundtruth);
 
     Graph graph;
-    int L = 80;
-    int R = 20;
-    int K = 70;
+    int L = 50;
+    int R = 40;
+    int K = 100;
     int a = 1.2;
 
     int medoid_pos;
@@ -207,7 +207,7 @@ void test_create_filtered_vamana_index(void) {
             float diff = ((float*)graph->nodes[groundtruth[pos][j]]->components)[i] - ((float*)query->components)[i];
             sum += diff * diff;
         }
-        cout << "Correct Node: " << groundtruth[pos][j] << " with distance: " << sqrt(sum) << endl;
+        cout << "Correct Node: " << groundtruth[pos][j] << " with distance: " << sum << endl;
         j++;
     }
 
@@ -248,9 +248,9 @@ void test_create_filtered_vamana_index_parallel(void) {
     readKNN(groundtruth_file, dimensions, groundtruth);
 
     Graph graph;
-    int L = 80;
-    int R = 20;
-    int K = 70;
+    int L = 50;
+    int R = 40;
+    int K = 100;
     int a = 1.2;
 
     int medoid_pos;
@@ -332,7 +332,7 @@ void test_create_filtered_vamana_index_parallel(void) {
             float diff = ((float*)graph->nodes[groundtruth[pos][j]]->components)[i] - ((float*)query->components)[i];
             sum += diff * diff;
         }
-        cout << "Correct Node: " << groundtruth[pos][j] << " with distance: " << sqrt(sum) << endl;
+        cout << "Correct Node: " << groundtruth[pos][j] << " with distance: " << sum << endl;
         j++;
     }
 
@@ -486,9 +486,9 @@ void test_parallel_stitched_vamana_index(void) {
     vector<vector<uint32_t>> groundtruth;
     readKNN(groundtruth_file, dimensions, groundtruth);
 
-    int L = 80;
-    int R = 20;
-    int K = 70;
+    int L = 50;
+    int R = 40;
+    int K = 100;
     int a = 1.2;
 
     int medoid_pos;

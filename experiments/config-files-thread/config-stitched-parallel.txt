@@ -15,4 +15,4 @@ queriescount=0
 printing=m
 savegraph=true
 truth=../data/groundtruth.bin
-threadcount=4
+threadcount=16

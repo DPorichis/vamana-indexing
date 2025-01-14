@@ -14,4 +14,3 @@ queriescount=-1
 printing=n
 savegraph=true
 truth=../data/dummy-unfiltered-groundtruth.bin
-threadcount=
