@@ -30,7 +30,7 @@
 	- Configuration file and arguments reading
 - Part 3
 	- Optimization Implementation
-	- Report Writting
+	- Report Writing
 	- Experiments Scripting
 
 Each person was responsible for creating tests on their part.
@@ -72,6 +72,7 @@ You can run this project by executing `./bin/project ...` from the base folder, 
 	- `yes`: Picks a medoid at random.
 - `threadcount=[int >=1]`: For thread count > 1, parallelism will be used whenever possible. (Defaults to 1)
 - `medoidparallel=[int >=1]`: For medoid parallel > 1 and **randmedoid=no**, brute force medoid calculation will be used with *medoidparallel* threads.
+- `cache=[true/false]`: Enables or disables an LRU distance cache. (Defaults to false)
 
 An example of execution is : 
 `./bin/project data=./data/dummy-data.bin
@@ -178,8 +179,14 @@ Parallelism is supported in the graph creation of all Vamana versions
 - Stitched Vamana supports parallel sub-graph creation
 - Filtered Vamana supports parallel graph creation, by splitting different nodes to different threads.
 
-Parallelism is supported in the query making process of all graphs. Choosing so splits the number of queries to n sub-threads to execute them concurenetly
+Parallelism is supported in the query-making process of all graphs. Choosing so splits the number of queries to n sub-threads to execute them concurrently
 
+#### Cache Support
+An LRU chache is implemented for storing distances.
+- Its storage is a simple unordered map for easy accessing
+- Its history for LRU is a linked list, which gets updated in each access.
+
+`Note: Due to the good management of distances, this cache doesn't seem to produce any benefit in any of our tests.`
 
 #### I/O
 For the data insertion, we use a 2D vector that each row contains the node's or the query's information. Each node has 102 values (1 * category + 1 * timestamp + 100 * dimensions), and each query contains 104 values (1 * query_type + 1 * category + 1 * start_timestamp + 1 * end_timestamp + 100 * dimensions).
