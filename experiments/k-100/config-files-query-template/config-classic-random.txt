@@ -1,0 +1,16 @@
+data=./data/unfiltered-graph.bin
+filetype=g
+datatype=f
+index=u
+optimized=false
+randinit=false
+randmedoid=yes
+k=20
+R=70
+L=75
+a=1.2
+queriescount=-1
+printing=n
+savegraph=true
+truth=../data/unfiltered-groundtruth-100k.bin
+queries=../data/unfiltered-queries-100k.bins
