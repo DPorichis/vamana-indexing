@@ -16,15 +16,16 @@
 #include <cstdlib>
 #include <ctime>
 
-void * thread_stitched_subgraph(void* arg);
 
+void * thread_stitched_subgraph(void* arg);
 
 struct category_sync {
     pthread_mutex_t mutex;  // Mutex to protect the index
-    std::set<int>::iterator index;              // The index to be synchronized
+    std::set<int>::iterator index; // The index to be synchronized
     set<int>* category_pointer;
     Graph g;
 
+    // Parameters for execution
     int L_small; 
     int R_small; 
     int R_stiched; 

@@ -1,5 +1,6 @@
 #include "graph.h"
 
+// Method to add a distance to cache
 void distcache::putDistance(Node point_a, Node point_b, double distance) 
 {
     pair<Node, Node> key = {point_a, point_b};
