@@ -1,24 +1,24 @@
-Graph time: 1.30754 seconds
-Error opening file: ../data/unfiltered-queries-100k.bins
-Queries performed: 0
-Average overall recall: -nan%
-Total time: 1.91e-07
-Average time per query: inf
-Graph time: 1.28138 seconds
-Error opening file: ../data/unfiltered-queries-100k.bins
-Queries performed: 0
-Average overall recall: -nan%
-Total time: 1.89e-07
-Average time per query: inf
-Graph time: 1.29617 seconds
-Error opening file: ../data/unfiltered-queries-100k.bins
-Queries performed: 0
-Average overall recall: -nan%
-Total time: 2.33e-07
-Average time per query: inf
-Graph time: 1.27206 seconds
-Error opening file: ../data/unfiltered-queries-100k.bins
-Queries performed: 0
-Average overall recall: -nan%
-Total time: 3e-07
-Average time per query: inf
+Graph time: 1.49345 seconds
+Queries performed: 2516
+Average overall recall: 99.847%
+Average type 0 recall: 99.847% (from 2516)
+Total time: 3.42889
+Average time per query: 0.00136283
+Graph time: 1.63036 seconds
+Queries performed: 2516
+Average overall recall: 99.847%
+Average type 0 recall: 99.847% (from 2516)
+Total time: 3.83219
+Average time per query: 0.00152313
+Graph time: 1.43352 seconds
+Queries performed: 2516
+Average overall recall: 99.847%
+Average type 0 recall: 99.847% (from 2516)
+Total time: 3.23938
+Average time per query: 0.00128751
+Graph time: 1.41113 seconds
+Queries performed: 2516
+Average overall recall: 99.847%
+Average type 0 recall: 99.847% (from 2516)
+Total time: 3.31596
+Average time per query: 0.00131795
