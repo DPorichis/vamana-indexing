@@ -65,31 +65,11 @@ void test_create_vamana_index(void) {
         algorithm_results.insert(r->to->pos);
         i++;
     }
-    set<int> true_results;
-
-    for(int i = 0; i < 100; i++)
-        true_results.insert(groundtruth[pos][i]); 
     
-    set<int> intersection;
-    set_intersection(algorithm_results.begin(), algorithm_results.end(),
-                     true_results.begin(), true_results.end(),
-                     inserter(intersection, intersection.begin()));
-
     j = 0;
     for (const auto& r : *neighbors) {
         cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
-        float sum = 0.0;
-        // Skip the first 2 dimensions
-        for (size_t i = 0; i < 100; ++i) {
-            float diff = ((float*)graph->nodes[groundtruth[pos][j]]->components)[i] - ((float*)query->components)[i];
-            sum += diff * diff;
-        }
-        cout << "Correct Node: " << groundtruth[pos][j] << " with distance: " << sum << endl;
-        j++;
     }
-
-    double recall = static_cast<double>(intersection.size()) / true_results.size();
-    cout << "Recall: " << recall * 100 << "%" << endl;
 
     cout << "Query with position: " << pos << endl;
     cout << "##########################" << endl << endl;    
@@ -180,39 +160,10 @@ void test_create_filtered_vamana_index(void) {
     //     i++;
     // }
     
-    // Recall calculation
-    set<int> algorithm_results;
-    for (const auto& r : *neighbors) {
-        if (K == i)
-            break;
-        algorithm_results.insert(r->to->pos);
-        i++;
-    }
-    set<int> true_results;
-
-    for(int i = 0; i < 100; i++)
-        true_results.insert(groundtruth[pos][i]); 
-    
-    set<int> intersection;
-    set_intersection(algorithm_results.begin(), algorithm_results.end(),
-                     true_results.begin(), true_results.end(),
-                     inserter(intersection, intersection.begin()));
-
     j = 0;
     for (const auto& r : *neighbors) {
         cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
-        float sum = 0.0;
-        // Skip the first 2 dimensions
-        for (size_t i = 0; i < 100; ++i) {
-            float diff = ((float*)graph->nodes[groundtruth[pos][j]]->components)[i] - ((float*)query->components)[i];
-            sum += diff * diff;
-        }
-        cout << "Correct Node: " << groundtruth[pos][j] << " with distance: " << sum << endl;
-        j++;
     }
-
-    double recall = static_cast<double>(intersection.size()) / true_results.size();
-    cout << "Recall: " << recall * 100 << "%" << endl;
 
     cout << "Query with position: " << pos << endl;
     cout << "##########################" << endl << endl;    
@@ -305,40 +256,9 @@ void test_create_filtered_vamana_index_parallel(void) {
     //     i++;
     // }
     
-    // Recall calculation
-    set<int> algorithm_results;
-    for (const auto& r : *neighbors) {
-        if (K == i)
-            break;
-        algorithm_results.insert(r->to->pos);
-        i++;
-    }
-    set<int> true_results;
-
-    for(int i = 0; i < 100; i++)
-        true_results.insert(groundtruth[pos][i]); 
-    
-    set<int> intersection;
-    set_intersection(algorithm_results.begin(), algorithm_results.end(),
-                     true_results.begin(), true_results.end(),
-                     inserter(intersection, intersection.begin()));
-
-    j = 0;
     for (const auto& r : *neighbors) {
         cout << "Node: " << r->to->pos << " with distance: " << r->distance << endl;
-        float sum = 0.0;
-        // Skip the first 2 dimensions
-        for (size_t i = 0; i < 100; ++i) {
-            float diff = ((float*)graph->nodes[groundtruth[pos][j]]->components)[i] - ((float*)query->components)[i];
-            sum += diff * diff;
-        }
-        cout << "Correct Node: " << groundtruth[pos][j] << " with distance: " << sum << endl;
-        j++;
     }
-
-    double recall = static_cast<double>(intersection.size()) / true_results.size();
-    cout << "Recall: " << recall * 100 << "%" << endl;
-
     cout << "Query with position: " << pos << endl;
     cout << "##########################" << endl << endl;    
 
