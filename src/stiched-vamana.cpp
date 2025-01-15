@@ -16,15 +16,16 @@
 #include <cstdlib>
 #include <ctime>
 
-void * thread_stitched_subgraph(void* arg);
 
+void * thread_stitched_subgraph(void* arg);
 
 struct category_sync {
     pthread_mutex_t mutex;  // Mutex to protect the index
-    std::set<int>::iterator index;              // The index to be synchronized
+    std::set<int>::iterator index; // The index to be synchronized
     set<int>* category_pointer;
     Graph g;
 
+    // Parameters for execution
     int L_small; 
     int R_small; 
     int R_stiched; 
@@ -66,26 +67,28 @@ using namespace std;
 
 // Creates a Stitched vamana index, by creating sub Vamana graphs for each category.
 // Returns a map containing these graphs.
-Graph create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, bool random_init, int parallel_medoid) {
+Graph create_stiched_vamana_index(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, bool random_init, int parallel_medoid, bool enable_cache) {
     // Graph creation and initialization
-    Graph g = create_graph_from_file(filename, type, R_stiched, dimensions);
-
+    Graph g = create_graph_from_file(filename, type, R_stiched, dimensions, enable_cache);
+    
     if(random_init)
-        init_dummy_graph(g);
-
+    {
+        init_dummy_graph(g, R_stiched);
+        //cout << "Randinit done" << endl;
+    }
     // Perform Vamana initialazation for every sub-graph
     for (auto it = g->all_categories.begin(); it != g->all_categories.end(); ++it) {
         // cout << "Category " << *it << endl;
-        Graph subgraph = new graph('f', R_small, dimensions);
+        Graph subgraph = new graph('f', R_small, dimensions, 0);
         for(int i = 0; i < g->nodes.size(); i++)
         {
-            if(g->nodes[i]->categories.find(*it) != g->nodes[i]->categories.end())
+            if(g->nodes[i]->category == *it)
                 subgraph->nodes.push_back(g->nodes[i]);
         }
         // cout << "Subcategory Found with " << subgraph->nodes.size() << " elements" << endl;
         
-        // cout << "Initializing dummy graph of elements : " << graph->nodes.size() << endl;
-        if (init_dummy_graph(subgraph)) {
+        //cout << "Initializing dummy graph of elements : " << subgraph->nodes.size() << endl;
+        if (init_dummy_graph(subgraph, 0)) {
             cerr << "Error in graph initialization";
             return NULL;
         }
@@ -171,6 +174,8 @@ Graph create_stiched_vamana_index(const string& filename, int type, int L_small,
         subgraph->all_categories.clear();
         subgraph->medoid_mapping.clear();
 
+        if(subgraph->graph_cache != NULL)
+            delete subgraph->graph_cache;
         delete subgraph;
     }
     // Second for-loop of the pseudocode (Maybe useless)
@@ -201,9 +206,9 @@ Graph create_stiched_vamana_index(const string& filename, int type, int L_small,
     return g;
 }
 
-Graph create_stiched_vamana_index_parallel(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, int thread_count, int parallel_medoid) {
+Graph create_stiched_vamana_index_parallel(const string& filename, int type, int L_small, int R_small, int R_stiched, float a, int dimensions, int thread_count, int parallel_medoid, bool enable_cache) {
     // Graph creation and initialization
-    Graph g = create_graph_from_file(filename, type, R_stiched, dimensions);
+    Graph g = create_graph_from_file(filename, type, R_stiched, dimensions, enable_cache);
 
     CategorySync sync = new category_sync(&g->all_categories, g, L_small, R_small, R_stiched, a, dimensions, parallel_medoid);
 
@@ -268,17 +273,17 @@ void * thread_stitched_subgraph(void* arg)
         }
 
         // cout << "Category " << category << endl;
-        Graph subgraph = new graph('f', sync->R_small, sync->dimensions);
+        Graph subgraph = new graph('f', sync->R_small, sync->dimensions, 0);
         Graph g = sync->g;
         for(int i = 0; i < g->nodes.size(); i++)
         {
-            if(g->nodes[i]->categories.find(category) != g->nodes[i]->categories.end())
+            if(g->nodes[i]->category == category)
                 subgraph->nodes.push_back(g->nodes[i]);
         }
         // cout << "Subcategory Found with " << subgraph->nodes.size() << " elements" << endl;
         
         // cout << "Initializing dummy graph of elements : " << graph->nodes.size() << endl;
-        if (init_dummy_graph(subgraph)) {
+        if (init_dummy_graph(subgraph, 0)) {
             cerr << "Error in graph initialization";
             return NULL;
         }
@@ -362,8 +367,8 @@ void * thread_stitched_subgraph(void* arg)
         subgraph->all_categories.clear();
         subgraph->medoid_mapping.clear();
 
+        if(subgraph->graph_cache != NULL)
+            delete subgraph->graph_cache;
         delete subgraph;
-
-
         }
 }

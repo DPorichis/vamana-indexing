@@ -5,7 +5,7 @@
 using namespace std;
 
 void test_create(void) {
-	Graph graph = create_graph('f', 5, 3);
+	Graph graph = create_graph('f', 5, 3, true);
 
 	TEST_ASSERT(graph != NULL);
     TEST_ASSERT(graph->type == 'f');
@@ -19,7 +19,7 @@ void test_create(void) {
 void test_insert(void){
     //==== Float type ====//
     {
-        Graph graph = create_graph('f', 5, 3);
+        Graph graph = create_graph('f', 5, 3, true);
 
         float* point = (float*)malloc(sizeof(*point)*3);
         point[0] = 0;
@@ -58,7 +58,7 @@ void test_insert(void){
 
     //==== int type ====//
     {
-        Graph graph = create_graph('i', 5, 3);
+        Graph graph = create_graph('i', 5, 3, true);
 
         int* point = (int*)malloc(sizeof(*point)*3);
         point[0] = 0;
@@ -97,7 +97,7 @@ void test_insert(void){
 
     //==== char type ====//
     {
-        Graph graph = create_graph('i', 5, 3);
+        Graph graph = create_graph('i', 5, 3, true);
 
         char* point = (char*)malloc(sizeof(*point)*3);
         point[0] = 'a';
@@ -139,7 +139,7 @@ void test_insert(void){
 void test_neighbours(void){
     //==== Float type ====//
     {    
-        Graph graph = create_graph('f', 5, 3);
+        Graph graph = create_graph('f', 5, 3, true);
 
         float* point0 = (float*)malloc(sizeof(*point0)*3);
         point0[0] = 0;
@@ -173,7 +173,7 @@ void test_neighbours(void){
 
     //==== char type ====//
     {    
-        Graph graph = create_graph('c', 5, 3);
+        Graph graph = create_graph('c', 5, 3, true);
 
         char* point0 = (char*)malloc(sizeof(*point0)*3);
         point0[0] = 'a';
@@ -206,7 +206,7 @@ void test_neighbours(void){
     }
     //==== int type ====//
     {
-        Graph graph = create_graph('i', 5, 3);
+        Graph graph = create_graph('i', 5, 3, true);
 
         int* point0 = (int*)malloc(sizeof(*point0)*3);
         point0[0] = 0;

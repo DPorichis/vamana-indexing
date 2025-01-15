@@ -122,7 +122,7 @@ Graph graph_creation(Options opt)
         }
         else
         {
-            if (create_filtered_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, opt->dim, opt->rand_init)) {
+            if (create_filtered_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, opt->dim, opt->rand_init, opt->enable_cache)) {
                 cout << "Error creating filtered vamana" << endl;
                 delete opt;
                 return NULL;
@@ -137,9 +137,9 @@ Graph graph_creation(Options opt)
             cout << "Creating Stitched Vamana..." << endl;
 
         if(opt->thread_count > 1 && opt->rand_init == false)
-            graph = create_stiched_vamana_index_parallel(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->thread_count, opt->medoid_parallel);
+            graph = create_stiched_vamana_index_parallel(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->thread_count, opt->medoid_parallel, opt->enable_cache);
         else
-            graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->rand_init, opt->medoid_parallel); 
+            graph = create_stiched_vamana_index(opt->data_filename, 'f', opt->L, opt->R, opt->R_s, opt->a, opt->dim, opt->rand_init, opt->medoid_parallel, opt->enable_cache); 
         if(graph == NULL)
         {
             cout << "Error creating filtered vamana" << endl;
@@ -154,7 +154,7 @@ Graph graph_creation(Options opt)
             cout << "Creating Vamana..." << endl;
 
         int medoid_pos;
-        if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, opt->dim, opt->rand_medoid, opt->medoid_parallel)) {
+        if (create_vamana_index(&graph, opt->data_filename, opt->L, opt->R, opt->a, medoid_pos, opt->dim, opt->rand_medoid, opt->medoid_parallel, opt->enable_cache)) {
             cout << "Error creating filtered vamana" << endl;
             delete opt;
             return NULL;
@@ -183,7 +183,7 @@ Graph graph_retrival(Options opt)
     Graph graph;
     if (opt->file_type) 
     {
-        graph = create_graph('f', 0, 0);
+        graph = create_graph('f', 0, 0, false);
         // Open graph file
         ifstream file(opt->data_filename, ios::binary);
         if (!file) {
@@ -258,19 +258,25 @@ Stats perform_queries_with_accuracy(Graph graph, Options opt)
                 if (j >= queries.size())
                     j = 0;
             }
+            set<int> categories;
             if(query_type == 0)
             {
-                query->categories.clear();
-                query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+                categories.clear();
+                categories.insert(graph->all_categories.begin(), graph->all_categories.end());
             }
-            int s_count = query->categories.size();
+            else if(query_type == 1)
+            {
+                categories.insert(query->category);
+            }
+
+            int s_count = categories.size();
             Node* S = (Node *)malloc(sizeof(*S)*s_count);
             j = 0;
-            for (const int& val : query->categories) {
+            for (const int& val : categories) {
                 S[j] = graph->nodes[graph->medoid_mapping[val]];
                 j++;
             }
-            filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+            filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, categories, neighbors, visited);
             free(S);
         }
         //=== Clasic vamana search ===//
@@ -417,18 +423,24 @@ Stats perform_queries_with_accuracy_parallel(Graph graph, Options opt)
                     query = ask_query(query_type, 100, indexes[j], queries);
                     j = (j + 1) % queries.size();
                 }
+                set<int> categories;
                 if (query_type == 0) {
-                    query->categories.clear();
-                    query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+                    categories.clear();
+                    categories.insert(graph->all_categories.begin(), graph->all_categories.end());
                 }
-                int s_count = query->categories.size();
+                else if (query_type == 1)
+                {
+                    categories.insert(query->category);
+                }
+
+                int s_count = categories.size();
                 Node* S = (Node*)malloc(sizeof(*S) * s_count);
                 j = 0;
-                for (const int& val : query->categories) {
+                for (const int& val : categories) {
                     S[j] = graph->nodes[graph->medoid_mapping[val]];
                     j++;
                 }
-                filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+                filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, categories, neighbors, visited);
                 free(S);
             } 
             // Classic vamana search
@@ -575,19 +587,24 @@ Stats perform_queries_without_accuracy(Graph graph, Options opt)
                     j = 0;
             }
 
+            set<int> categories;
             if(query_type == 0)
             {
-                query->categories.clear();
-                query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+                categories.clear();
+                categories.insert(graph->all_categories.begin(), graph->all_categories.end());
             }
-            int s_count = query->categories.size();
+            else if(query_type == 1)
+            {
+                categories.insert(query->category);
+            }
+            int s_count = categories.size();
             Node* S = (Node *)malloc(sizeof(*S)*s_count);
             j = 0;
-            for (const int& val : query->categories) {
+            for (const int& val : categories) {
                 S[j] = graph->nodes[graph->medoid_mapping[val]];
                 j++;
             }
-            filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+            filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, categories, neighbors, visited);
             free(S);
         }
         //=== Clasic vamana search ===//
@@ -702,18 +719,25 @@ Stats perform_queries_without_accuracy_parallel(Graph graph, Options opt)
                     if (j >= queries.size())
                         j = 0;
                 }
+
+                set<int> categories;
                 if (query_type == 0) {
-                    query->categories.clear();
-                    query->categories.insert(graph->all_categories.begin(), graph->all_categories.end());
+                    categories.clear();
+                    categories.insert(graph->all_categories.begin(), graph->all_categories.end());
                 }
-                int s_count = query->categories.size();
+                else if (query_type == 1)
+                {
+                    categories.insert(query->category);
+                }
+
+                int s_count = categories.size();
                 Node* S = (Node*)malloc(sizeof(*S) * s_count);
                 j = 0;
-                for (const int& val : query->categories) {
+                for (const int& val : categories) {
                     S[j] = graph->nodes[graph->medoid_mapping[val]];
                     j++;
                 }
-                filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, query->categories, neighbors, visited);
+                filtered_gready_search(graph, S, s_count, query, opt->k, opt->L, categories, neighbors, visited);
                 free(S);
             } 
             // Classic vamana search

@@ -1,0 +1,24 @@
+Graph time: 1.30754 seconds
+Error opening file: ../data/unfiltered-queries-100k.bins
+Queries performed: 0
+Average overall recall: -nan%
+Total time: 1.91e-07
+Average time per query: inf
+Graph time: 1.28138 seconds
+Error opening file: ../data/unfiltered-queries-100k.bins
+Queries performed: 0
+Average overall recall: -nan%
+Total time: 1.89e-07
+Average time per query: inf
+Graph time: 1.29617 seconds
+Error opening file: ../data/unfiltered-queries-100k.bins
+Queries performed: 0
+Average overall recall: -nan%
+Total time: 2.33e-07
+Average time per query: inf
+Graph time: 1.27206 seconds
+Error opening file: ../data/unfiltered-queries-100k.bins
+Queries performed: 0
+Average overall recall: -nan%
+Total time: 3e-07
+Average time per query: inf

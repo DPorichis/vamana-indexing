@@ -1,0 +1,17 @@
+filetype=d
+datatype=f
+index=f
+optimized=true
+randinit=false
+randmedoid=no
+k=20
+R=96
+L=90
+a=1.2
+queriescount=0
+printing=m
+savegraph=true
+threadcount=16
+data=../data/data-50k.bin
+truth=../data/filtered-groundtruth-50k.bin
+queries=../data/filtered-queries-50k.bin

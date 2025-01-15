@@ -10,7 +10,7 @@ for config_file in $config_files; do
     config_file_queries="./config-files-query/$(basename "$config_file")"
 
     
-    for i in {1..4}; do
+    for i in {1..2}; do
         
         rm ./data/*-graph.bin
 

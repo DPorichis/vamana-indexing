@@ -2,6 +2,7 @@
 
 #include "header.h"
 #include "graph.h"
+#include "dist-cache.h"
 #include <iostream>
 #include <cmath>
 
@@ -10,25 +11,29 @@ using namespace std;
 //**** Graph Functions ****//
 
 // Creates a graph and initializes all of the meta data
-Graph create_graph(char type, int k, int dimensions)
+Graph create_graph(char type, int k, int dimensions, bool enable_cache)
 {
     // Call the constructor
-    Graph g = new graph(type, k, dimensions);
+    Graph g;
+    if (enable_cache)
+        g = new graph(type, k, dimensions, 1000);
+    else
+        g = new graph(type, k, dimensions, 0);
     return g;
 }
 
 // Adds a node for a given point to the graph, and returns a pointer to it
 // Returns NULL if the dimensions dont match with the graph selected for insertion
-Node add_node_graph(Graph g, int d_count, void* components, int pos, set<int> categories)
+Node add_node_graph(Graph g, int d_count, void* components, int pos, int category)
 {
     if(d_count != g->dimensions)
         return NULL;
     
     // Create and add
-    Node n = create_node(components, d_count, pos, categories);
+    Node n = create_node(components, d_count, pos, category);
 
     g->nodes.push_back(n);
-    g->all_categories.insert(categories.begin(), categories.end());
+    g->all_categories.insert(category);
 
     return n;
 }
@@ -60,6 +65,9 @@ void destroy_graph(Graph g)
     g->all_categories.clear();
     g->medoid_mapping.clear();
 
+    if(g->graph_cache != NULL)
+        delete g->graph_cache;
+
     // And yourself
     delete g;
 }
@@ -68,13 +76,12 @@ void destroy_graph(Graph g)
 //**** Node Functions ****//
 
 // Creates a node representation for the given data
-Node create_node(void* components, int d_count, int pos, set<int> categories)
+Node create_node(void* components, int d_count, int pos, int category)
 {
     // Call the constructor
     Node n = new node(components, d_count, pos);
     set<int>::iterator itr;
-    for (itr = categories.begin(); itr != categories.end(); itr++) 
-        n->categories.insert(*itr);
+    n->category = category;
     return n;
 }
 
@@ -119,8 +126,7 @@ void destroy_node(Node n)
         free(l);
     }
     n->neighbours.clear();
-    n->categories.clear();
-
+    
     // Destroy self
     delete n;
 }
@@ -133,7 +139,7 @@ Link create_link(Graph g, Node from, Node to)
 {
     Link link = (Link)malloc(sizeof(*link));
     link->to = to;
-    link->distance = calculate_distance(g, from, to);
+    link->distance = g->calculate_distance(g, from, to);
     return link;
 }
 
@@ -143,7 +149,7 @@ Candidate create_candidate(Graph g, Node to, Node query)
 {
     Candidate cand = (Candidate)malloc(sizeof(*cand));
     cand->to = to;
-    cand->distance = calculate_distance(g, query, to);
+    cand->distance = g->calculate_distance(g, query, to);
     return cand;
 }
 
@@ -162,7 +168,31 @@ Candidate create_candidate_copy(Candidate cand)
 
 // Wrapper function for calling the graph function given in the graph's meta data
 // returning error code -1 when the dimentions of the two nodes are not the same
-double calculate_distance(Graph g, Node a, Node b)
+double calculate_distance_with_cache(Graph g, Node a, Node b)
+{
+    int dim = a->d_count;
+    // If the dimentions do not match, skip return error code -1
+    if (dim != b->d_count)
+    {    
+        cout << "Not matching dimentions " << a->d_count << " != " << b->d_count << endl;
+        return -1;
+    }
+
+    // Search for the distance there
+    double distance = g->graph_cache->getDistance(a, b);
+    if(distance >= 0)
+    {
+        //cout << "Distance found" << endl;
+        return distance;
+    }
+    // If it is not available, calculate it and store it yourself
+    distance = g->find_distance(a->components, b->components, dim);
+    g->graph_cache->putDistance(a, b, distance);
+    
+    return distance;
+}
+
+double calculate_distance_without_cache(Graph g, Node a, Node b)
 {
     int dim = a->d_count;
     // If the dimentions do not match, skip return error code -1

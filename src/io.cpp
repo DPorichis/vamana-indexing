@@ -190,12 +190,9 @@ void saveGraph(Graph graph, ofstream& file) {
             file.write(reinterpret_cast<const char*>(&link->to->pos), sizeof(link->to->pos));
         }
 
-        // Write categories set
-        size_t category_count = node->categories.size();
-        file.write(reinterpret_cast<const char*>(&category_count), sizeof(category_count));
-        for (const int category : node->categories) {
-            file.write(reinterpret_cast<const char*>(&category), sizeof(category));
-        }
+        // Write category
+        file.write(reinterpret_cast<const char*>(&node->category), sizeof(node->category));
+        
     }
     // Write `all_categories`
     int category_count = graph->all_categories.size();
@@ -266,12 +263,9 @@ void saveGraphMap(const map<int, Graph>& graph_map, const string& output_file) {
                 file.write(reinterpret_cast<const char*>(&pos_mapping[link->to->pos]), sizeof(link->to->pos));
             }
 
-            // Write categories set
-            size_t category_count = node->categories.size();
-            file.write(reinterpret_cast<const char*>(&category_count), sizeof(category_count));
-            for (const int category : node->categories) {
-                file.write(reinterpret_cast<const char*>(&category), sizeof(category));
-            }
+            // Write category
+            file.write(reinterpret_cast<const char*>(&node->category), sizeof(node->category));
+
         }
         // Write `all_categories`
         int category_count = graph->all_categories.size();
@@ -335,13 +329,8 @@ void readGraph(Graph& graph, ifstream& file) {
         
         // Read categories set
         size_t category_count;
-        file.read(reinterpret_cast<char*>(&category_count), sizeof(category_count));
-        for (size_t j = 0; j < category_count; ++j) {
-            int category;
-            file.read(reinterpret_cast<char*>(&category), sizeof(category));
-            node->categories.insert(category);
-        }
-
+        file.read(reinterpret_cast<char*>(&node->category), sizeof(node->category));
+        
         graph->nodes.push_back(node);
     }
     // Read `all_categories`
@@ -396,7 +385,7 @@ void readGraphMap(map<int, Graph>& graph_map, const string& input_file) {
         int key;
         file.read(reinterpret_cast<char*>(&key), sizeof(key));
         // Graph graph = new struct graph;
-        Graph graph = create_graph('f', 0, 0);
+        Graph graph = create_graph('f', 0, 0, false);
         readGraph(graph, file);
 
         graph_map[key] = graph;
@@ -407,12 +396,12 @@ void readGraphMap(map<int, Graph>& graph_map, const string& input_file) {
 
 
 // Create graph from dataset. Returns graph for success, NULL otherwise
-Graph create_graph_from_file(const string& filename, int type, int k, int dimensions) {
+Graph create_graph_from_file(const string& filename, int type, int k, int dimensions, bool enable_cache) {
     // Store file data to 2D vector
     vector<vector<float>> nodes;
     readBinary(filename, dimensions + 2, nodes);
     //  Graph creation
-    Graph graph = create_graph(type, k, dimensions);
+    Graph graph = create_graph(type, k, dimensions, enable_cache);
     // Insert graph nodes
     for (int i = 0; i < nodes.size(); i++) {
         // Allocate the required memory
@@ -423,11 +412,7 @@ Graph create_graph_from_file(const string& filename, int type, int k, int dimens
     }
         // Copy vector data to graph (Important)
         memcpy(components, nodes[i].data() + 2, dimensions * sizeof(float));
-
-        // Save the filter in the categories set
-        set<int> categories;
-        categories.insert(nodes[i][0]);
-        add_node_graph(graph, dimensions, components, i, categories);
+        add_node_graph(graph, dimensions, components, i, nodes[i][0]);
     }
 
     // Connecting the nodes
@@ -462,7 +447,7 @@ map<int, Graph>* create_stiched_graph_from_file(const string& filename, int type
         if(stiched_index->find(category) == stiched_index->end())
         {
             // Make one
-            Graph graph = create_graph(type, k, dimensions);
+            Graph graph = create_graph(type, k, dimensions, false);
             (*stiched_index)[category] = graph;
         }
         // Add it to the desired graph
@@ -489,7 +474,7 @@ Node ask_query(int& type, int dimensions, int pos, vector<vector<float>>& querie
     query->components = malloc(query->d_count * sizeof(float));
     memcpy(query->components, queries[pos].data() + 4, query->d_count * sizeof(float));
     query->pos = pos;
-    query->categories.insert(queries[pos][1]);
+    query->category = queries[pos][1];
 
     type = queries[pos][0];
 
@@ -812,7 +797,8 @@ void print_options(Options opt)
         cout << "- Medoid parallelism will be used with " << opt->medoid_parallel <<" threads." << endl;
     else if(opt->medoid_parallel != 0)
         cout << "- Medoid parallelism won't be used as random medoid was selected." << endl;
-    
+    if(opt->enable_cache == true)
+        cout << "- Cache is enabled";
     cout << "- Random medoid calculation: " << opt->rand_medoid << endl;
     cout << "- Thread count: " << opt->thread_count << endl;
     if(opt->thread_count > 1 && opt->rand_init && opt->file_type == 0)
@@ -871,6 +857,22 @@ int update_option(string flag, string value, Options opt)
         if(opt->query_count < 0 && opt->query_count != -1)
         {
             cout << "Invalid querieCount: querieCount must be >= 0" << endl;
+            return -1;
+        }
+    }
+    else if(flag == "cache")
+    {
+        if(value[0] == 't')
+        {
+            opt->enable_cache = true;
+        }
+        else if(value[0] == 'f')
+        {
+            opt->enable_cache = false;
+        }
+        else
+        {
+            cout << "Invalid cache flag: must be true or false" << endl;
             return -1;
         }
     }
@@ -999,6 +1001,11 @@ int check_options(Options opt)
             cout << "       Use a pure data file for it bo calculated" << endl;
             ret = -1;
         }
+    }
+    if(opt->index_type == 'f' && opt->thread_count > 1 && opt->enable_cache)
+    {
+        cout << "Caching is not supported in parallel filtered vamana" << endl;
+        ret = -1;
     }
     return ret;
 }

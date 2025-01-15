@@ -1,4 +1,5 @@
 # Dit Project 2024-2025
+````Note: The experiments in this repository are outdated, you can safely ignore them :)````
 ### Team members
 - Gerasimos Bekos (sdi2100113)
 - Dimitrios Stefanos Porichis (sdi2100159)
@@ -14,6 +15,10 @@
 	- Storing and loading graph representation
 	- Groundtruth structure
 	- File management
+- Part 3
+	- Experiments Execution
+	- Result Plotting
+	- Data management
 #### Dimitrios Stefanos Porichis 
 - Part 1
 	- Graph Representation and relevant functions
@@ -23,6 +28,10 @@
 	- Filtered Vamana implementations
 	- Stitched Vamana implementations
 	- Configuration file and arguments reading
+- Part 3
+	- Optimization Implementation
+	- Report Writing
+	- Experiments Scripting
 
 Each person was responsible for creating tests on their part.
 
@@ -62,9 +71,10 @@ You can run this project by executing `./bin/project ...` from the base folder, 
 	- `semi`: Performs a brute force search in a 10% random subpart of the dataset
 	- `yes`: Picks a medoid at random.
 - `threadcount=[int >=1]`: For thread count > 1, parallelism will be used whenever possible. (Defaults to 1)
+- `medoidparallel=[int >=1]`: For medoid parallel > 1 and **randmedoid=no**, brute force medoid calculation will be used with *medoidparallel* threads.
+- `cache=[true/false]`: Enables or disables an LRU distance cache. (Defaults to false)
 
 An example of execution is : 
-
 `./bin/project data=./data/dummy-data.bin
 datatype=f k=20 R=40 L=50 a=1.4
 queries=./data/dummy-queries.bin
@@ -127,7 +137,7 @@ For the most part, all algorithms were trivial in their implementation given the
 - a void pointer to the array containing the point information
 - an int containing the position of the node in the graph's vector
 - a Set containing all node's neighbors (represented as Links), sorted by the memory address they point to (no duplicates allowed)
-- a Set containing all categories a node belongs to.
+- an int containing the category of the node (previously was a set, optimized to reduce execution times).
 
 
 #### Links or Candidates 
@@ -163,6 +173,20 @@ This helped in leveraging the old code we had developed in part 1.
 
 Stitched Vamana is just a map of simple Vamana Indexes, keyed by their category.
 
+#### Parallelism Support
+Parallelism is supported in the graph creation of all Vamana versions
+- Classic Vamana supports parallel medoid calculation
+- Stitched Vamana supports parallel sub-graph creation
+- Filtered Vamana supports parallel graph creation, by splitting different nodes to different threads.
+
+Parallelism is supported in the query-making process of all graphs. Choosing so splits the number of queries to n sub-threads to execute them concurrently
+
+#### Cache Support
+An LRU chache is implemented for storing distances.
+- Its storage is a simple unordered map for easy accessing
+- Its history for LRU is a linked list, which gets updated in each access.
+
+`Note: Due to the good management of distances, this cache doesn't seem to produce any benefit in any of our tests.`
 
 #### I/O
 For the data insertion, we use a 2D vector that each row contains the node's or the query's information. Each node has 102 values (1 * category + 1 * timestamp + 100 * dimensions), and each query contains 104 values (1 * query_type + 1 * category + 1 * start_timestamp + 1 * end_timestamp + 100 * dimensions).

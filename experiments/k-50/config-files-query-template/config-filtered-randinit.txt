@@ -1,0 +1,16 @@
+data=./data/filtered-graph.bin
+filetype=g
+datatype=f
+index=f
+optimized=false
+randinit=true
+randmedoid=no
+k=20
+R=96
+L=90
+a=1.2
+queriescount=-1
+printing=n
+savegraph=true
+truth=../data/filtered-groundtruth-50k.bin
+queries=../data/filtered-queries-50k.bin

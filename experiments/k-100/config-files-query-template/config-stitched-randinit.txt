@@ -1,0 +1,17 @@
+data=./data/stitched-graph.bin
+filetype=g
+datatype=f
+index=s
+optimized=false
+randinit=true
+randmedoid=no
+k=20
+R=32
+Rs=64
+L=100
+a=1.2
+queriescount=-1
+printing=n
+savegraph=true
+truth=../data/filtered-groundtruth-100k.bin
+queries=../data/filtered-queries-100k.bin

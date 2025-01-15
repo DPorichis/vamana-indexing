@@ -1,0 +1,4 @@
+Graph time: 7.83124 seconds
+Graph time: 7.56696 seconds
+Graph time: 7.57398 seconds
+Graph time: 7.91623 seconds

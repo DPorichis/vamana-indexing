@@ -1,0 +1,17 @@
+filetype=d
+datatype=f
+index=s
+optimized=false
+randinit=true
+randmedoid=no
+k=20
+R=32
+Rs=64
+L=100
+a=1.2
+queriescount=0
+printing=m
+savegraph=true
+data=../data/data-100k.bin
+truth=../data/filtered-groundtruth-100k.bin
+queries=../data/filtered-queries-100k.bin

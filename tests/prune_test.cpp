@@ -8,7 +8,7 @@
 
 
 void test_pruning(void) {
-	Graph graph = create_graph('f', 5, 2);
+	Graph graph = create_graph('f', 5, 2, true);
 	int n = 30;
 	for(int i = 0; i < n; i++)
 	{	
@@ -17,7 +17,7 @@ void test_pruning(void) {
     	point[1] = i;
 		Node item = add_node_graph(graph, 2, point, i);
 	}
-	init_dummy_graph(graph);
+	init_dummy_graph(graph, 0);
 
 
 	set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();

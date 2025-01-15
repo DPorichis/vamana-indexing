@@ -62,13 +62,7 @@ int filtered_gready_search(Graph g, Node *S, int s_count, Node query, int k, int
     for(int i = 0; i < s_count; i++)
     {
         set<int> intersection;
-        set_intersection(query_categories.begin(),
-            query_categories.end(),
-            S[i]->categories.begin(),
-            S[i]->categories.end(),
-            inserter(intersection, intersection.begin())
-        );
-        if(!intersection.empty())
+        if(query_categories.find(S[i]->category) != query_categories.end())
         {
             neighbours->insert(create_candidate(g, S[i], query));
         }
@@ -98,14 +92,7 @@ int filtered_gready_search(Graph g, Node *S, int s_count, Node query, int k, int
         // Update L to include the neighbours of p* that fulfill the category limits
         for (const auto& neig : selected_cand->to->neighbours) 
         {
-            set<int> intersection;
-            set_intersection(query_categories.begin(),
-                query_categories.end(),
-                neig->to->categories.begin(),
-                neig->to->categories.end(),
-                inserter(intersection, intersection.begin())
-            );
-            if(!intersection.empty())
+            if(query_categories.find(neig->to->category) != query_categories.end())
             {
                 Candidate for_insert = create_candidate(g, neig->to, query);
                 auto result = neighbours->insert(for_insert);
@@ -146,6 +133,8 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
         }
     }
 
+    //cout << "Check" << endl;
+
     // But not p (erase the p if it exists in the v set)
     Candidate erase_self = create_candidate(g, p, p);
     auto it_self = v->find(erase_self);
@@ -157,6 +146,8 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
     }
     free(erase_self);
 
+    //cout << "Check" << endl;
+
     // Empty all the existing neighbours
     for (auto it = p->neighbours.begin(); it != p->neighbours.end();) {
         const auto elem = *it;
@@ -164,9 +155,12 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
         free(elem);
     }
 
+    //cout << "Check" << endl;
+
     while(!v->empty())
     {
 
+        //cout << "Check" << endl;
         // Get the min, which in our set is the first element
         Candidate selected_cand = *(v->begin());
 
@@ -195,22 +189,15 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
                 // cout << "WHY?" << endl;
                 // fflush(stdout);
             }
-
-            set<int> intersection;
-            set_intersection(elem->to->categories.begin(),
-                elem->to->categories.end(),
-                p->categories.begin(),
-                p->categories.end(),
-                inserter(intersection, intersection.begin())
-            );
             
             // Continue close
-            if(!isSubset(intersection, target->to->categories))
+            if(elem->to->category == p->category && target->to->category != p->category)
             {
+                //cout << "Not same category" << endl;
                 ++it;
             }
             // if not smaller when multiplied with the a factor
-            else if(a * calculate_distance(g ,elem->to, target->to) <= elem->distance)
+            else if(a * g->calculate_distance(g ,elem->to, target->to) <= elem->distance)
             {
                 // cout << a * calculate_distance(elem->to, target->to) << " < " << elem->distance;
                 // fflush(stdout);
@@ -229,10 +216,10 @@ int filtered_robust_prunning(Graph g, Node p, set<Candidate, CandidateComparator
 }
 
 // Creates a filtered vamana index as described by the paper provided
-int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions, bool random_init){
+int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R, float a, int dimensions, bool random_init, bool enable_cache){
     // Graph creation and initialization
 
-    *g = create_graph_from_file(filename, 'f', R, dimensions);
+    *g = create_graph_from_file(filename, 'f', R, dimensions, enable_cache);
     Graph graph = *g;
     if (graph == NULL) {
         cerr << "Error while creating graph from file" << endl;
@@ -241,7 +228,7 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
 
     // Connecting the nodes if requested
     if(random_init)
-        init_dummy_graph(graph);
+        init_dummy_graph(graph, 0);
 
 
     // Find medoids
@@ -260,21 +247,18 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
 
     for (int i = 0; i < vectors.size(); i++) {
 
-        int s_count = vectors[i]->categories.size();
+        int s_count = 1;
         Node* S = (Node *)malloc(sizeof(*S)*s_count);
-
-        int j = 0;
-        for (const int& val : vectors[i]->categories) {
-            S[j] = graph->nodes[graph->medoid_mapping[val]];
-            j++;
-        }
-
+        S[0] = graph->nodes[graph->medoid_mapping[vectors[i]->category]];
+        
         // Create neighbours and visited sets
         // cout << i << endl;
         set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
         set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-        
-        filtered_gready_search(graph, S, s_count, vectors[i], 0, L, vectors[i]->categories, neighbours, visited);
+        set<int> categories;
+        categories.insert(vectors[i]->category);
+
+        filtered_gready_search(graph, S, s_count, vectors[i], 0, L, categories, neighbours, visited);
         
         filtered_robust_prunning(graph, vectors[i], visited, a, R);
 
@@ -329,7 +313,7 @@ int create_filtered_vamana_index(Graph* g, const string& filename, int L, int R,
 int create_filtered_vamana_index_parallel(Graph* g, const string& filename, int L, int R, float a, int dimensions, int thread_count){
     
     // Graph creation and initialization
-    *g = create_graph_from_file(filename, 'f', R, dimensions);
+    *g = create_graph_from_file(filename, 'f', R, dimensions, false);
     Graph graph = *g;
     if (graph == NULL) {
         cerr << "Error while creating graph from file" << endl;
@@ -379,7 +363,7 @@ int create_filtered_vamana_index_parallel(Graph* g, const string& filename, int 
         delete thread_args[i];
     }
 
-    delete thread_args;
+    free(thread_args);
 
     free(threads);
 
@@ -393,24 +377,21 @@ void * thread_filtered_subgraph(void* arg)
     CategorySync sync = (CategorySync)arg;
     Graph graph = sync->g;
     for (int i = 0; i < sync->shuffled_vec->size(); i++) {
-        if(sync->category_subset->find(*(sync->shuffled_vec->at(i)->categories.begin())) == sync->category_subset->end())
+        if(sync->category_subset->find(sync->shuffled_vec->at(i)->category) == sync->category_subset->end())
             continue;
-        int s_count = sync->shuffled_vec->at(i)->categories.size();
+        int s_count = 1;
         Node* S = (Node *)malloc(sizeof(*S)*s_count);
 
-        int j = 0;
-        for (const int& val : sync->shuffled_vec->at(i)->categories) {
-            S[j] = graph->nodes[graph->medoid_mapping[val]];
-            j++;
-        }
+        S[0] = graph->nodes[graph->medoid_mapping[sync->shuffled_vec->at(i)->category]];
 
         // Create neighbours and visited sets
         // cout << i << endl;
         set<Candidate, CandidateComparator>* neighbours = new set<Candidate, CandidateComparator>();
         set<Candidate, CandidateComparator>* visited = new set<Candidate, CandidateComparator>();
-        
-        filtered_gready_search(graph, S, s_count, sync->shuffled_vec->at(i), 0, sync->L, sync->shuffled_vec->at(i)->categories, neighbours, visited);
-        
+        set<int> categories;
+        categories.insert(sync->shuffled_vec->at(i)->category);
+
+        filtered_gready_search(graph, S, s_count, sync->shuffled_vec->at(i), 0, sync->L, categories, neighbours, visited);        
         filtered_robust_prunning(graph, sync->shuffled_vec->at(i), visited, sync->a, sync->R);
 
         for (const auto& j : sync->shuffled_vec->at(i)->neighbours) {
@@ -498,8 +479,7 @@ int find_filtered_medoid(Graph graph, set<int> categories, map<int, int>* medoid
         // Select a random node of correct type
         vector<int> indexes;
         for (int i = 0; i < n; i++) {
-            if(graph->nodes[i]->categories.find(category) != 
-            graph->nodes[i]->categories.end())
+            if(graph->nodes[i]->category == category)
             {
                 indexes.push_back(i);
             }
@@ -532,15 +512,13 @@ int find_accurate_filtered_medoid(Graph graph, set<int> categories, map<int, int
         float min_distance = numeric_limits<float>::max();
         // Calculate distance of each node to all other nodes
         for (int i = 0; i < n; i++) {
-            if(graph->nodes[i]->categories.find(category) != 
-            graph->nodes[i]->categories.end())
+            if(graph->nodes[i]->category == category)
             {
                 float total_distance = 0.0f;
                 for (int j = 0; j < n; j++) {
                 if (i != j) {
-                    if(graph->nodes[j]->categories.find(category) != 
-                    graph->nodes[j]->categories.end())
-                        total_distance += calculate_distance(graph, graph->nodes[i], graph->nodes[j]);
+                    if(graph->nodes[j]->category == category)
+                        total_distance += calculate_distance_without_cache(graph, graph->nodes[i], graph->nodes[j]);
                 }
                 }
                 // Update medoid if we find node with smaller total distance
