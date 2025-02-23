@@ -1,5 +1,8 @@
 # Vamana Indexing
 This project was developed as part of the [Software Development for Information Systems (K23a)](https://www.di.uoa.gr/en/studies/undergraduate/263) course at DIT-NKUA.
+
+Feel free to check out our [Experimental Report](https://github.com/DPorichis/vamana-indexing/blob/main/project_report.pdf).
+
 ### Team members
 - Gerasimos Bekos (sdi2100113)
 - Dimitrios Stefanos Porichis (sdi2100159)
