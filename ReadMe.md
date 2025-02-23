@@ -1,41 +1,10 @@
-# Dit Project 2024-2025
-````Note: The experiments in this repository are outdated, you can safely ignore them :)````
+# Vamana Indexing
+This project was developed as part of the [Software Development for Information Systems (K23a)](https://www.di.uoa.gr/en/studies/undergraduate/263) course at DIT-NKUA.
 ### Team members
 - Gerasimos Bekos (sdi2100113)
 - Dimitrios Stefanos Porichis (sdi2100159)
 
-### Work Distribution
-
-#### Gerasimos Bekos
-- Part 1
-	- I/O of the program
-	- Dataset Management
-	- Vamana Index
-- Part 2
-	- Storing and loading graph representation
-	- Groundtruth structure
-	- File management
-- Part 3
-	- Experiments Execution
-	- Result Plotting
-	- Data management
-#### Dimitrios Stefanos Porichis 
-- Part 1
-	- Graph Representation and relevant functions
-	- Greedy Search
-	- Robust Pruning
-- Part 2
-	- Filtered Vamana implementations
-	- Stitched Vamana implementations
-	- Configuration file and arguments reading
-- Part 3
-	- Optimization Implementation
-	- Report Writing
-	- Experiments Scripting
-
-Each person was responsible for creating tests on their part.
-
-### Quick start guide
+## Quick start guide
 
 This project supports 3 Vamana indexing implementations:
 - Original Vamana
@@ -43,11 +12,11 @@ This project supports 3 Vamana indexing implementations:
 - Stitched Vamana
 
 
-#### Compilation
+### Compilation
 
 This project can be compiled by using the `make all` command in the base folder. 
 
-#### Execution
+### Execution
 
 You can run this project by executing `./bin/project ...` from the base folder, followed by the arguments as shown below:
 - `data=[filename]`: file containing the data points/graph representation
@@ -119,11 +88,11 @@ Sample data from the provided website have been included to make running easier 
 
 A smaller dataset for testing was developed containing only 1000 points and 100 queries, you can also find it at `./data`, or populate it using the `./test_io`
 
-### Design choices
+## Design choices
 
 For the most part, all algorithms were trivial in their implementation given the paper provided. The most notable design choices are about the graph representation of our program, and the structs used.
 
-#### Graph
+### Graph
 - a char type identifier
 - an int dimensions parameter
 - a distance function pointer that is selected specifically for the type used
@@ -132,7 +101,7 @@ For the most part, all algorithms were trivial in their implementation given the
 - a set with all possible categories found in the graph (ignore for unfiltered)
 - a medoid mapping category -> starting point (ignore for unfiltered)
 
-#### Nodes
+### Nodes
 - an int dimensions parameter
 - a void pointer to the array containing the point information
 - an int containing the position of the node in the graph's vector
@@ -140,20 +109,20 @@ For the most part, all algorithms were trivial in their implementation given the
 - an int containing the category of the node (previously was a set, optimized to reduce execution times).
 
 
-#### Links or Candidates 
+### Links or Candidates 
 - a double containing the distance between the nodes;
 - a Node pointer to the destination node
 	The node of origin contains the Link in its neighbor set.
 
 Candidates are an **alias of Links** and are used to create "candidates" of Links (e.g., in GreadySearch, Prunning, etc.). There is no difference under the hood.
 
-#### On the other hand, Candidate sets differ from Link sets in the way they sort data. 
+### On the other hand, Candidate sets differ from Link sets in the way they sort data. 
 
 Candidate sets use the stored distance to order themselves (from closest to farthest), and the "to" attribute to recognize duplicates. 
 
 This sorting makes finding the min in our algorithm faster while maintaining the sort comes at a price of logn for each entry, which we believe is a fair trade.
 
-#### Multiple index support
+### Multiple index support
 
 To make things easier we use the same graph representation for all Indexes, by overloading functions with more fields where relevant.
 
@@ -173,7 +142,7 @@ This helped in leveraging the old code we had developed in part 1.
 
 Stitched Vamana is just a map of simple Vamana Indexes, keyed by their category.
 
-#### Parallelism Support
+### Parallelism Support
 Parallelism is supported in the graph creation of all Vamana versions
 - Classic Vamana supports parallel medoid calculation
 - Stitched Vamana supports parallel sub-graph creation
@@ -181,21 +150,54 @@ Parallelism is supported in the graph creation of all Vamana versions
 
 Parallelism is supported in the query-making process of all graphs. Choosing so splits the number of queries to n sub-threads to execute them concurrently
 
-#### Cache Support
+### Cache Support
 An LRU chache is implemented for storing distances.
 - Its storage is a simple unordered map for easy accessing
 - Its history for LRU is a linked list, which gets updated in each access.
 
 `Note: Due to the good management of distances, this cache doesn't seem to produce any benefit in any of our tests.`
 
-#### I/O
+### I/O
 For the data insertion, we use a 2D vector that each row contains the node's or the query's information. Each node has 102 values (1 * category + 1 * timestamp + 100 * dimensions), and each query contains 104 values (1 * query_type + 1 * category + 1 * start_timestamp + 1 * end_timestamp + 100 * dimensions).
 
 In order to evaluate the recall of the results, we need a groundtruth file. We calculate the nearest neighbors for each query with bruteforce, based on its type, and then store the results in the file `./data/groundtruth.bin`
 
  
-### Test Report
+## Test Report
 
-In our computers, all tests pass without errors and memory leaks. The same applies to the project execution
+In our computers, all tests pass without errors and memory leaks. The same applies to the project execution.
 
 `vamana_test` and `io_test` are mainly written for memory leak debugging.
+
+
+## Work Distribution
+
+### Gerasimos Bekos
+- Part 1
+	- I/O of the program
+	- Dataset Management
+	- Vamana Index
+- Part 2
+	- Storing and loading graph representation
+	- Groundtruth structure
+	- File management
+- Part 3
+	- Experiments Execution
+	- Result Plotting
+	- Data management
+### Dimitrios Stefanos Porichis 
+- Part 1
+	- Graph Representation and relevant functions
+	- Greedy Search
+	- Robust Pruning
+- Part 2
+	- Filtered Vamana implementations
+	- Stitched Vamana implementations
+	- Configuration file and arguments reading
+- Part 3
+	- Optimization Implementation
+	- Report Writing
+	- Experiments Scripting
+
+Each person was responsible for creating tests on their part.
+
