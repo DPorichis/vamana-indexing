@@ -1,3 +1,4 @@
+# targets
 alltests: gready_test graph_test io_test prune_test vamana_test filtered_test
 all: gready_test graph_test io_test prune_test vamana_test filtered_test project
 
