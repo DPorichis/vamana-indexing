@@ -1,11 +1,21 @@
 # Vamana Indexing
-This project was developed as part of the [Software Development for Information Systems (K23a)](https://www.di.uoa.gr/en/studies/undergraduate/263) course at DIT-NKUA.
+
+This project focuses on the implementation, optimization, and comparative evaluation
+of ANN searches using Vamana-based indexing strategies. Specifically, we explore different versions of Vamana, including stitched and filtered variants, trying to incorporate
+techniques such as thread parallelism and caching to reduce computation time.
+
+By examining the trade-offs between accuracy, computational complexity, and memory
+usage, our study provides practical observations on the performance of these indexing
+techniques in specific scenarios.
 
 Feel free to check out our [Experimental Report](https://github.com/DPorichis/vamana-indexing/blob/main/project_report.pdf).
 
+*This project was developed as part of the [Software Development for Information Systems (K23a)](https://www.di.uoa.gr/en/studies/undergraduate/263) course at DIT-NKUA.*
+
+
 ### Team members
-- Gerasimos Bekos (sdi2100113)
-- Dimitrios Stefanos Porichis (sdi2100159)
+- Gerasimos Bekos ([LinkedIn](https://linkedin.com/in/gerasimos-bekos))
+- Dimitrios Stefanos Porichis ([LinkedIn](https://www.linkedin.com/in/dimitrios-stefanos-porichis/))
 
 ## Quick start guide
 
